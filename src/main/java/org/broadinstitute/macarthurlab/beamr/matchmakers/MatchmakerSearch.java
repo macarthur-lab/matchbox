@@ -26,4 +26,22 @@ public class MatchmakerSearch {
 	public MatchmakerSearch(List<Node> matchmakers){
 		this.matchmakers=matchmakers;
 	}
+
+
+	/**
+	 * @return the matchmakers
+	 */
+	public List<Node> getMatchmakers() {
+		return matchmakers;
+	}
+
+
+	/**
+	 * @param matchmakers the matchmakers to set
+	 */
+	public void setMatchmakers(List<Node> matchmakers) {
+		this.matchmakers = matchmakers;
+	}
+	
+	
 }
