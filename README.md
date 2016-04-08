@@ -1,26 +1,33 @@
 # beamr
 Broad Exchange API for Matchmaker in RDAP
 
-Installation:
+## Installation:
 
-1. Clone the repository
+* Clone the repository
+
 git clone https://<username>@github.com/macarthur-lab/beamr.git
 
-2. Build source files (maven is required to be on your system)
+* Build source files (maven is required to be on your system)
+
 mvn package
 
-3. That should create a directory called "target" with an executable JAR file
+* That should create a directory called "target" with an executable JAR file
 
-4. Start server
+* Start server
+
 java -jar target/beam-0.1.0.jar
 
 
-Test run:
+## Test run
 
-1. The following path,
+* Use the the following path
+
 http://localhost:8080/match
 
-The following headers:
+with the following headers:
+
 X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d
+
 Accept: application/vnd.ga4gh.matchmaker.v0.1+json
+
 Content-Type: application/x-www-form-urlencoded
