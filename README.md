@@ -15,7 +15,7 @@ mvn package
 
 * Start server
 
-java -jar target/beam-0.1.0.jar
+java -jar target/beamr-0.1.0.jar
 
 
 ## Test run
