@@ -1,15 +1,15 @@
 # beamr
 **B**road **E**xchange **A**PI for **M**atchmaker in **R**DAP
 
-Beamr is the Matchmaker Exchange application for the joint Center for Mendelian Genomics. It has been developed at the MacArthur Lab and shared as open source software. The objective of this system is to allow the automated comparison at scale, of patients with rare diseases cared-for in other centers world wide. We hope to facilitate the identification of novel variants via finding common instance of such in these individuals.
+Beamr is the Matchmaker Exchange application for the joint Center for Mendelian Genomics. It has been developed at the MacArthur Lab and shared as open source software. The objective of this system is to allow the automated comparison at scale, of patients with rare diseases cared-for in other centers world wide. We hope to facilitate the identification of novel variants via finding common instances of such in these individuals.
 
 ## Installation:
 
-In the future, you can either,
+In the future, you would be able to either,
 
 * Download the JAR file and simply start the server via [distribution process for this method is not ready yet],
 
-java -jar target/beamr-0.1.0.jar
+java -jar beamr-0.1.0.jar
 
 * Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process is quite easy as well, and is described below and supported as of now.
 
@@ -18,7 +18,7 @@ java -jar target/beamr-0.1.0.jar
 
 * Clone the repository
 
-git clone https://<username>@github.com/macarthur-lab/beamr.git
+git clone https://username@github.com/macarthur-lab/beamr.git
 
 * Build source files (maven is required to be on your system)
 
@@ -47,7 +47,7 @@ Content-Type: application/x-www-form-urlencoded
 
 ## Exceution process map
 
-This following describes the typical sequence of events in execution. An addition
+The following describes the typical sequence of events in execution. An addition
 of a patient to the matchmaker system starts the following process.
 
 1. A new patient record get's inserted into beamr via seqr https://seqr.broadinstitute.org. This action implies "search in other matchmaker nodes for patients 'similar' to this patient".
@@ -60,6 +60,6 @@ of a patient to the matchmaker system starts the following process.
 
 ## Matching criteria
 
-1. Gene matching is considered the primary matching strategie.
+1. Gene matching is considered the primary matching strategy.
 
-2. Phenotype matching is done as a secondary step to help narrow down initial search via genetypes.
+2. Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.
