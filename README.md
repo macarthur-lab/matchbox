@@ -60,6 +60,6 @@ of a patient to the matchmaker system starts the following process.
 
 ## Matching criteria
 
-1. Gene matching is considered the primary matching strategy.
+1. Gene matching is the primary matching strategy.
 
 2. Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.
