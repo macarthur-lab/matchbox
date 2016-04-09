@@ -23,9 +23,7 @@ public class MatchmakerExchange
     public static void main( String[] args )
     {
         System.out.println( "Starting server.." );
-        ApplicationContext context =
-        	    new ClassPathXmlApplicationContext(new String[] {"services.xml", "spring.xml"});
-        
+        ApplicationContext context = new ClassPathXmlApplicationContext("file:/Users/harindra/Documents/dev/repos/eclipse/beamr/beamr/spring.xml");
         SpringApplication.run(MatchmakerExchange.class, args);
     }
 }

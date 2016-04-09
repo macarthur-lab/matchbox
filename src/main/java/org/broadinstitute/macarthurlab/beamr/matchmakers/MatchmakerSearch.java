@@ -68,5 +68,4 @@ public class MatchmakerSearch {
 		this.matchmakers = matchmakers;
 	}
 	
-	
 }
