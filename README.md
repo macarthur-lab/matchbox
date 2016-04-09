@@ -5,11 +5,11 @@ Broad Exchange API for Matchmaker in RDAP
 
 In the future, you can either,
 
-1. Download the JAR file and simply start the server via [distribution process for this method is not ready yet],
+* Download the JAR file and simply start the server via [distribution process for this method is not ready yet],
 
 java -jar target/beamr-0.1.0.jar
 
-2. Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process quite easy as well and is described below and supported as of now.
+* Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process quite easy as well and is described below and supported as of now.
 
 
 ## Install from source.
