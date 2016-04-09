@@ -1,5 +1,5 @@
 # beamr
-Broad Exchange API for Matchmaker in RDAP
+**B**road **E**xchange **A**PI for **M**atchmaker in **R**DAP
 
 ## Installation:
 
