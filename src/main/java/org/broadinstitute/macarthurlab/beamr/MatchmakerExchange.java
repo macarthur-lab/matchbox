@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * Hello world!
+ * Entry point to application
  *
  */
 
@@ -19,7 +19,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 @EnableAutoConfiguration
 public class MatchmakerExchange 
 {
-	
     public static void main( String[] args )
     {
         System.out.println( "Starting server.." );

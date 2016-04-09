@@ -40,6 +40,14 @@ of a parent to the matchmaker system starts the following process.
 1. A new patient record get's inserted into beamr through a PUT call. This implies "search
 in other matchmaker nodes for patients "similar" to this patient.
 
-2. A MatchmakerSearch object get's instantiated. 
+2. A search get's initiated (via MatchmakerSearch) in every match maker node that is on record 
 
-2. 
+3. All results are aggregated and sieved through beamr "similarity" tests as well. 
+
+4. Valid matches along with scores are communicated back to the patients submitter.
+
+## Matching criteria
+
+1. Gene matching is considered the primary matching strategie.
+
+2. Phenotype matching is done as a secondary step to help narrow down initial search via genetypes.
