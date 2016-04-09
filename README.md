@@ -1,6 +1,8 @@
 # beamr
 **B**road **E**xchange **A**PI for **M**atchmaker in **R**DAP
 
+Beamr is the Matchmaker Exchange application for the joint Center for Mendelian Genomics. It has been developed at the MacArthur Lab and shared as open source software. The objective of this system is to allow the automated comparison at scale, of patients with rare diseases cared-for in other centers world wide. We hope to facilitate the identification of novel variants via finding common instance of such in these individuals.
+
 ## Installation:
 
 In the future, you can either,
@@ -9,7 +11,7 @@ In the future, you can either,
 
 java -jar target/beamr-0.1.0.jar
 
-* Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process quite easy as well and is described below and supported as of now.
+* Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process is quite easy as well, and is described below and supported as of now.
 
 
 ## Install from source.
