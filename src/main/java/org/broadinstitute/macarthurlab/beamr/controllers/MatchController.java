@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -52,7 +54,7 @@ public class MatchController {
 		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-			System.out.println(decodedRequestString);
+			Patient patient = interpretRequestBody(decodedRequestString);
 			this.getSearcher().Search(new Patient());
 			results.put("results", new MatchmakerResult());
 		}
@@ -62,6 +64,22 @@ public class MatchController {
     	return results;
     }
 	
+	
+	
+	private Patient interpretRequestBody(String requestString){
+		JSONParser parser = new JSONParser();
+		try{
+			//#TODO figure out why there is a = at the end of JSON string
+			JSONObject jsonObject = (JSONObject) parser.parse(requestString.substring(0,requestString.length()-1));
+			JSONObject patient = (JSONObject)jsonObject.get("patient");
+			System.out.println(patient.get("disorders"));
+		}
+		catch(Exception e){
+			System.out.println(e);
+		}
+		
+		return new Patient();
+	}
 	
     /**
 	 * @return the searcher
