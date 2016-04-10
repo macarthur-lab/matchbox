@@ -9,8 +9,11 @@ import java.util.Map;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,14 +32,26 @@ public class MatchController {
 	 */
 	private MatchmakerSearch searcher;
 	
-
+	/**
+	 * Constructor
+	 */
+	public MatchController(){
+        String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
+        ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
+        this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
+	}
+	
 
 	@RequestMapping(method = RequestMethod.POST, value="/match")
-    public Map<String,MatchmakerResult> match(@RequestBody Patient patient) {
-		this.getSearcher().Search(new Patient());
-		
-    	Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
-    	results.put("results", new MatchmakerResult());
+    public Map<String,MatchmakerResult> match(@ModelAttribute Patient patient) {
+		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
+		try{
+			this.getSearcher().Search(new Patient());
+			results.put("results", new MatchmakerResult());
+		}
+		catch(Exception e){
+			throw e;
+		}
     	return results;
     }
 	

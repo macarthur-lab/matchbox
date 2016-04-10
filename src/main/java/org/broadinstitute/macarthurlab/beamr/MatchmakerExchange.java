@@ -22,8 +22,6 @@ public class MatchmakerExchange
     public static void main( String[] args )
     {
         System.out.println( "Starting server.." );
-        String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
-        ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
         SpringApplication.run(MatchmakerExchange.class, args);
     }
 }

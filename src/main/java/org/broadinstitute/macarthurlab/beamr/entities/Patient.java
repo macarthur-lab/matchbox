@@ -162,6 +162,19 @@ public class Patient {
 	public List<GenomicFeature> getGenomicFeatures() {
 		return genomicFeatures;
 	}
+
+
+
+	/* 
+	 * To string method
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Patient [id=" + id + ", label=" + label + ", contact=" + contact + ", species=" + species + ", sex="
+				+ sex + ", ageOfOnset=" + ageOfOnset + ", inheritanceMode=" + inheritanceMode + ", disorders="
+				+ disorders + ", features=" + features + ", genomicFeatures=" + genomicFeatures + "]";
+	}
 	
 	
 	

@@ -21,9 +21,5 @@
   </bean>
   
 
-  <bean id="matchController" class="org.broadinstitute.macarthurlab.beamr.controllers.MatchController">
-	  <property name="searcher" ref="matchmakerSearch" />
-  </bean>
-
 
 </beans>
