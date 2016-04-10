@@ -45,7 +45,7 @@ Accept: application/vnd.ga4gh.matchmaker.v0.1+json
 
 Content-Type: application/x-www-form-urlencoded
 
-## Exceution process map
+## Execution process map
 
 The following describes the typical sequence of events in execution. An addition
 of a patient to the matchmaker system starts the following process.
