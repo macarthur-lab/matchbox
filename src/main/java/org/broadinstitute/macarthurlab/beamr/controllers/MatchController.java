@@ -6,6 +6,9 @@ package org.broadinstitute.macarthurlab.beamr.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
@@ -14,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,14 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin(origins = "*")
 public class MatchController {
-	
-	/**
-	 * This gets injected via Spring XML using IoC
-	 */
 	private MatchmakerSearch searcher;
 	
 	/**
-	 * Constructor
+	 * Constructor populates search functionality
 	 */
 	public MatchController(){
         String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
@@ -42,15 +42,22 @@ public class MatchController {
 	}
 	
 
+	/**
+	 * Controller for /match POST end-point
+	 * @param patient	A patient structure sent as JSON through the API
+	 * @return	A list of result patients found in the network that match input patient
+	 */
 	@RequestMapping(method = RequestMethod.POST, value="/match")
-    public Map<String,MatchmakerResult> match(@ModelAttribute Patient patient) {
+    public Map<String,MatchmakerResult> match(@RequestBody String requestString) {
 		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
 		try{
+			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
+			System.out.println(decodedRequestString);
 			this.getSearcher().Search(new Patient());
 			results.put("results", new MatchmakerResult());
 		}
 		catch(Exception e){
-			throw e;
+			System.out.println("error occurred in match controller:"+e.toString());
 		}
     	return results;
     }
