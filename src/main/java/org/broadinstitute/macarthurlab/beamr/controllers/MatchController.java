@@ -65,6 +65,7 @@ public class MatchController {
 		}
 		catch(Exception e){
 			System.out.println("error occurred in match controller:"+e.toString());
+			e.printStackTrace();
 		}
     	return results;
     }

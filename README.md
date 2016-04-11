@@ -3,6 +3,12 @@
 
 Beamr is the Matchmaker Exchange application for the joint Center for Mendelian Genomics. It has been developed at the MacArthur Lab and shared as open source software. The objective of this system is to allow the automated comparison at scale, of patients with rare diseases cared-for in other centers world wide. We hope to facilitate the identification of novel variants via finding common instances of such in these individuals.
 
+## Requirements:
+
+* Java 1.8
+
+* A MongoDB instance (https://www.mongodb.org/)
+
 ## Installation:
 
 In the future, you would be able to either,
