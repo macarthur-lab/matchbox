@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
+import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin(origins = "*")
 public class MatchController {
-	private MatchmakerSearch searcher;
+	private final MatchmakerSearch searcher;
+	private final PatientRecordUtility patientUtility;
 	
 	/**
 	 * Constructor populates search functionality
@@ -41,6 +44,7 @@ public class MatchController {
         String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
         ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
         this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
+        this.patientUtility = new PatientRecordUtility();
 	}
 	
 
@@ -54,8 +58,9 @@ public class MatchController {
 		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-			Patient patient = interpretRequestBody(decodedRequestString);
-			this.getSearcher().Search(new Patient());
+			//TODO figure out why there is a = at the end of JSON string
+			Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+			this.getSearcher().Search(patient);
 			results.put("results", new MatchmakerResult());
 		}
 		catch(Exception e){
@@ -65,22 +70,6 @@ public class MatchController {
     }
 	
 	
-	
-	private Patient interpretRequestBody(String requestString){
-		JSONParser parser = new JSONParser();
-		try{
-			//#TODO figure out why there is a = at the end of JSON string
-			JSONObject jsonObject = (JSONObject) parser.parse(requestString.substring(0,requestString.length()-1));
-			JSONObject patient = (JSONObject)jsonObject.get("patient");
-			System.out.println(patient.get("disorders"));
-		}
-		catch(Exception e){
-			System.out.println(e);
-		}
-		
-		return new Patient();
-	}
-	
     /**
 	 * @return the searcher
 	 */
@@ -88,11 +77,15 @@ public class MatchController {
 		return searcher;
 	}
 
+
 	/**
-	 * @param searcher the searcher to set
+	 * @return the patientUtility
 	 */
-	public void setSearcher(MatchmakerSearch searcher) {
-		this.searcher = searcher;
+	public PatientRecordUtility getPatientUtility() {
+		return patientUtility;
 	}
+
+
+	
 
 }

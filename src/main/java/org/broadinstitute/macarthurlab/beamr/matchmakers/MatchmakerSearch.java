@@ -52,6 +52,7 @@ public class MatchmakerSearch {
 	 */
 	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient patient){
 		System.out.println(this.callUrl(""));
+		System.out.println(patient);
 		return new ArrayList<MatchmakerResult>();
 	}
 	

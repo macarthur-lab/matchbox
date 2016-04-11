@@ -26,8 +26,9 @@ public class GenomicFeature {
           "alternateBases" : "A"|"ACG"|…
         },
 	 */
-	private final Map<String,String> variant;
-	private final int zygosity;
+	private final Variant variant;
+	
+	private final Long zygosity;
 	/**
 	 * A type value that looks like,
 	 *  "type" : {
@@ -51,8 +52,8 @@ public class GenomicFeature {
 	 */
 	public GenomicFeature() {
 		this.gene = new HashMap<String,String>();
-		this.variant = new HashMap<String,String>();
-		this.zygosity = 0;
+		this.variant = new Variant();
+		this.zygosity = 1L;
 		this.type = new HashMap<String,String>();;
 	}
 	
@@ -63,7 +64,7 @@ public class GenomicFeature {
 	 * @param zygosity	zygosity
 	 * @param type	type
 	 */
-	public GenomicFeature(Map<String, String> gene, Map<String, String> variant, int zygosity,
+	public GenomicFeature(Map<String, String> gene, Variant variant, Long zygosity,
 			Map<String, String> type) {
 		this.gene = gene;
 		this.variant = variant;
@@ -75,13 +76,13 @@ public class GenomicFeature {
 	/**
 	 * @return the variant
 	 */
-	public Map<String, String> getVariant() {
-		return variant;
+	public Variant getVariant() {
+		return this.variant;
 	}
 	/**
 	 * @return the zygosity
 	 */
-	public int getZygosity() {
+	public Long getZygosity() {
 		return zygosity;
 	}
 	/**
@@ -90,6 +91,19 @@ public class GenomicFeature {
 	public Map<String, String> getType() {
 		return type;
 	}
+
+
+	/* 
+	 * To String method(non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "GenomicFeature [gene=" + gene + ", variant=" + variant + ", zygosity=" + zygosity + ", type=" + type
+				+ "]";
+	}
+	
+	
 	
 
 }

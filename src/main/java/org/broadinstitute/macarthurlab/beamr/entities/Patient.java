@@ -10,7 +10,7 @@ import org.springframework.data.annotation.Id;
 public class Patient {
 	
 	@Id
-	private String id;
+	private final String id;
 	private final String label;
 	/**
 	 * This contains details on who submitted the patient in,
@@ -100,12 +100,7 @@ public class Patient {
 	public String getId() {
 		return id;
 	}
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+
 
 	
 	/**
@@ -166,7 +161,8 @@ public class Patient {
 
 
 	/* 
-	 * To string method
+	 * To String method
+	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -175,7 +171,10 @@ public class Patient {
 				+ sex + ", ageOfOnset=" + ageOfOnset + ", inheritanceMode=" + inheritanceMode + ", disorders="
 				+ disorders + ", features=" + features + ", genomicFeatures=" + genomicFeatures + "]";
 	}
-	
+
+
+
+
 	
 	
 }

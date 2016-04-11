@@ -61,6 +61,18 @@ public class PhenotypeFeature {
 	public String getAgeOfOnset() {
 		return ageOfOnset;
 	}
+
+
+
+	/* 
+	 * To string method
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "PhenotypeFeature [id=" + id + ", observed=" + observed + ", ageOfOnset=" + ageOfOnset + "]";
+	}
 	
 	
 }
