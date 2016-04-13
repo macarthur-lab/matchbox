@@ -11,5 +11,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  *
  */
 public interface PatientMongoRepository extends MongoRepository<Patient, String> {
+	
 
 }

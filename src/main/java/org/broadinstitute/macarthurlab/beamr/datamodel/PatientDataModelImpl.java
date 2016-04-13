@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * A sieries of methods get implemented by Spring data here
  *
  */
-public class PatientDataModelImpl implements DataModelService{
-	@Autowired
+public class PatientDataModelImpl{
+	
 	private PatientMongoRepository patientMongoRepository;
 	
 	/**
@@ -28,6 +28,7 @@ public class PatientDataModelImpl implements DataModelService{
 	 * Return true if saved ok
 	 */
 	public Patient savePatient(Patient patient){
+		System.out.println(patient);
 		return this.getPatientMongoRepository().save(patient);
 	}
 
@@ -35,7 +36,7 @@ public class PatientDataModelImpl implements DataModelService{
 	 * @return the mongoRepository
 	 */
 	public PatientMongoRepository getPatientMongoRepository() {
-		return patientMongoRepository;
+		return this.patientMongoRepository;
 	}
 
 	

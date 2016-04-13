@@ -3,14 +3,13 @@
  */
 package org.broadinstitute.macarthurlab.beamr.controllers;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import org.broadinstitute.macarthurlab.beamr.datamodel.DataModelService;
 import org.broadinstitute.macarthurlab.beamr.datamodel.PatientDataModelImpl;
-import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,14 +23,17 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*")
 public class BeamrAddController {
 	private final PatientRecordUtility patientUtility;
-	private final DataModelService patientDataModel;
+	//private final PatientDataModelImpl patientDataModel;
+	
+	@Autowired
+	private PatientMongoRepository patientMongoRepository;
 	
 	/**
 	 * Constructor populates search functionality
 	 */
 	public BeamrAddController(){
         this.patientUtility = new PatientRecordUtility();
-        this.patientDataModel = new PatientDataModelImpl();
+        //this.patientDataModel = new PatientDataModelImpl();
 	}
 	
 	
@@ -45,7 +47,7 @@ public class BeamrAddController {
 		try{
 		String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
-		this.getPatientDataModel().savePatient(patient);
+		this.patientMongoRepository.save(patient);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -65,9 +67,9 @@ public class BeamrAddController {
 	/**
 	 * @return the patientDataModel
 	 */
-	public DataModelService getPatientDataModel() {
-		return patientDataModel;
-	}
+	//public PatientDataModelImpl getPatientDataModel() {
+	//	return this.patientDataModel;
+	//}
 	
 	
 	
