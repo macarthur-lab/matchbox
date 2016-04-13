@@ -4,8 +4,6 @@
 package org.broadinstitute.macarthurlab.beamr.controllers;
 
 
-import org.broadinstitute.macarthurlab.beamr.datamodel.DataModelService;
-import org.broadinstitute.macarthurlab.beamr.datamodel.PatientDataModelImpl;
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
@@ -23,8 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*")
 public class BeamrAddController {
 	private final PatientRecordUtility patientUtility;
-	//private final PatientDataModelImpl patientDataModel;
-	
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
 	
@@ -64,13 +60,6 @@ public class BeamrAddController {
 	}
 
 
-	/**
-	 * @return the patientDataModel
-	 */
-	//public PatientDataModelImpl getPatientDataModel() {
-	//	return this.patientDataModel;
-	//}
-	
 	
 	
 
