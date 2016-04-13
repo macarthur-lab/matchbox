@@ -6,15 +6,40 @@
 package org.broadinstitute.macarthurlab.beamr.datamodel;
 
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
+import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author harindra
+ * A sieries of methods get implemented by Spring data here
  *
  */
 public class PatientDataModelImpl implements DataModelService{
-
 	@Autowired
-	private PatientMongoRepository mongoRepository;
+	private PatientMongoRepository patientMongoRepository;
+	
+	/**
+	 * Deafault constructor
+	 */
+	public PatientDataModelImpl(){}
+
+	/**
+	 * Save a patient in model
+	 * @param patient
+	 * Return true if saved ok
+	 */
+	public Patient savePatient(Patient patient){
+		return this.getPatientMongoRepository().save(patient);
+	}
+
+	/**
+	 * @return the mongoRepository
+	 */
+	public PatientMongoRepository getPatientMongoRepository() {
+		return patientMongoRepository;
+	}
+
+	
+
+
 
 }
