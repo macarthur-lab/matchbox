@@ -15,6 +15,7 @@ import com.mongodb.MongoClient;
 @EnableMongoRepositories
 @Configuration
 public class MongoDBConfiguration extends AbstractMongoConfiguration {
+	
  
     @Override
     /**
@@ -26,6 +27,7 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration {
     }
  
     @Override
+	@Bean
     /**
      * Hostname of database is set here. Assumed to be localhost for now. Please update as needed.
      */
@@ -37,9 +39,5 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration {
     protected String getMappingBasePackage() {
       return "org.broadinstitute.macarthurlab.beamr";
     }
-    
-    @Bean
-    public MongoTemplate mongoTemplate() throws Exception {
-        return new MongoTemplate(mongoDbFactory());
-    }
+
 }

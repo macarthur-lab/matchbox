@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
+import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 
 
 /**
@@ -33,16 +36,17 @@ public class MatchmakerSearch implements Search{
 	 */
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
-
 	
-	@Autowired
-	private MongoTemplate mongoTemplate;
+	private MongoOperations operator;
+
 	
 	
 	/**
 	 * Default constructor
 	 */
 	public MatchmakerSearch(){
+		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
+		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 	}
 	
 	
@@ -81,10 +85,11 @@ public class MatchmakerSearch implements Search{
 	private List<Patient> searchByGenomicFeatures(Patient patient){
 		List<Patient> results = new ArrayList<Patient>();		
 		String query = "{'genomicFeatures.gene.id':{$in:['TTN','gene symbol']}})";
-		List<Patient> ps = this.getMongoTemplate().findAll(Patient.class,query);
+		BasicQuery q = new BasicQuery(query);
+		List<Patient> ps = this.getOperator().find(q,Patient.class);
 		for (Patient p:ps){
-			System.out.println("22222");
 			System.out.println(p);
+			results.add(p);
 		}
 		return results;
 	}
@@ -136,11 +141,21 @@ public class MatchmakerSearch implements Search{
 
 
 	/**
-	 * @return the mongoTemplate
+	 * @return the operator
 	 */
-	public MongoTemplate getMongoTemplate() {
-		return this.mongoTemplate;
+	public MongoOperations getOperator() {
+		return operator;
 	}
+
+
+	/**
+	 * @param operator the operator to set
+	 */
+	public void setOperator(MongoOperations operator) {
+		this.operator = operator;
+	}
+
+
 
 
 

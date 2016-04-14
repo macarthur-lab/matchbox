@@ -4,6 +4,8 @@
 package org.broadinstitute.macarthurlab.beamr.datamodel.mongodb;
 
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**
@@ -11,6 +13,4 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  *
  */
 public interface PatientMongoRepository extends MongoRepository<Patient, String> {
-	
-
 }
