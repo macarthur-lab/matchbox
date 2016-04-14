@@ -14,6 +14,7 @@ import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.beamr.matchmakers.Search;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -33,7 +34,7 @@ public class IndividualController {
 	private final PatientRecordUtility patientUtility;
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
-	private final MatchmakerSearch searcher;
+	private final Search searcher;
 	
 	/**
 	 * Constructor populates search functionality
@@ -117,8 +118,8 @@ public class IndividualController {
     /**
 	 * @return the searcher
 	 */
-	public MatchmakerSearch getSearcher() {
-		return searcher;
+	public Search getSearcher() {
+		return this.searcher;
 	}
 
 	

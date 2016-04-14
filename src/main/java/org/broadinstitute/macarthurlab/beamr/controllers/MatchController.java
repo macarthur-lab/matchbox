@@ -6,21 +6,15 @@ package org.broadinstitute.macarthurlab.beamr.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.broadinstitute.macarthurlab.beamr.matchmakers.Search;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin(origins = "*")
 public class MatchController {
-	private final MatchmakerSearch searcher;
+	private final Search searcher;
 	private final PatientRecordUtility patientUtility;
 	
 	/**
@@ -74,8 +68,8 @@ public class MatchController {
     /**
 	 * @return the searcher
 	 */
-	public MatchmakerSearch getSearcher() {
-		return searcher;
+	public Search getSearcher() {
+		return this.searcher;
 	}
 
 

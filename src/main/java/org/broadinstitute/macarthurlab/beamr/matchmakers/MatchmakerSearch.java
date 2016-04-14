@@ -13,7 +13,7 @@ import org.broadinstitute.macarthurlab.beamr.entities.Patient;
  * @author harindra
  *
  */
-public class MatchmakerSearch {
+public class MatchmakerSearch implements Search{
 	/**
 	 * A list of MatchmakeNode objs that would be all
 	 * available nodes in system to look for. 
