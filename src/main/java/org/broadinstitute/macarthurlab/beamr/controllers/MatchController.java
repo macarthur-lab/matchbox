@@ -60,7 +60,7 @@ public class MatchController {
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			//TODO figure out why there is a = at the end of JSON string
 			Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
-			this.getSearcher().Search(patient);
+			this.getSearcher().searchInLocalDatabaseOnly(patient);
 			results.put("results", new MatchmakerResult());
 		}
 		catch(Exception e){

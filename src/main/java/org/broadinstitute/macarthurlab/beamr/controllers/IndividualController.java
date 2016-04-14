@@ -5,12 +5,18 @@ package org.broadinstitute.macarthurlab.beamr.controllers;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
+import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
+import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,12 +33,16 @@ public class IndividualController {
 	private final PatientRecordUtility patientUtility;
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
+	private final MatchmakerSearch searcher;
 	
 	/**
 	 * Constructor populates search functionality
 	 */
 	public IndividualController(){
         this.patientUtility = new PatientRecordUtility();
+        String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
+        ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
+        this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
 	}
 	
 	
@@ -68,6 +78,31 @@ public class IndividualController {
 		}
         return patients;
     }
+	
+	
+	
+	/**
+	 * Controller for individual/match POST end-point (as per Matchmaker spec)
+	 * @param patient	A patient structure sent as JSON through the API
+	 * @return	A list of result patients found in the network that match input patient
+	 */
+	@RequestMapping(method = RequestMethod.POST, value="/individual/match")
+    public Map<String,MatchmakerResult> match(@RequestBody String requestString) {
+		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
+		try{
+			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
+			//TODO figure out why there is a = at the end of JSON string
+			Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+			this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
+			results.put("results", new MatchmakerResult());
+		}
+		catch(Exception e){
+			System.out.println("error occurred in match controller:"+e.toString());
+			e.printStackTrace();
+		}
+    	return results;
+    }
+	
 
 	
 	
@@ -78,6 +113,13 @@ public class IndividualController {
 		return patientUtility;
 	}
 
+
+    /**
+	 * @return the searcher
+	 */
+	public MatchmakerSearch getSearcher() {
+		return searcher;
+	}
 
 	
 	

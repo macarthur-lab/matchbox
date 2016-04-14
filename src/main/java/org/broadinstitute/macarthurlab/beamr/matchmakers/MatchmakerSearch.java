@@ -32,14 +32,23 @@ public class MatchmakerSearch {
 	
 	
 	/**
-	 * Search in this matchmaker node
-	 * @param	A matchmaker node
+	 * Search in matchmaker node network only (not in Beamr data model)
+	 * @param	A Patient object
 	 */
-	public List<MatchmakerResult> Search(Patient patient){
+	public List<MatchmakerResult> searchInExternalMatchmakerNodesOnly(Patient patient){
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		for (Node n:this.getMatchmakers()){
 			allResults.addAll(this.searchNode(n, patient));
 		}
+		return allResults;
+	}
+	
+	/**
+	 * Search in local matchmaker node ONLY, not in the network
+	 * @param	A patient
+	 */
+	public List<MatchmakerResult> searchInLocalDatabaseOnly(Patient patient){
+		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		return allResults;
 	}
 	
