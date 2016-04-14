@@ -3,7 +3,9 @@
  */
 package org.broadinstitute.macarthurlab.beamr.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -48,14 +50,14 @@ public class MatchController {
 	 * @return	A list of result patients found in the network that match input patient
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/match")
-    public Map<String,MatchmakerResult> match(@RequestBody String requestString) {
-		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
+    public Map<String,List<MatchmakerResult>> match(@RequestBody String requestString) {
+		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			//TODO figure out why there is a = at the end of JSON string
 			Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
-			this.getSearcher().searchInLocalDatabaseOnly(patient);
-			results.put("results", new MatchmakerResult());
+			List<MatchmakerResult> matches=new ArrayList<MatchmakerResult>();
+			results.put("results",this.getSearcher().searchInLocalDatabaseOnly(patient));
 		}
 		catch(Exception e){
 			System.out.println("error occurred in match controller:"+e.toString());

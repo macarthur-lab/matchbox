@@ -69,3 +69,10 @@ of a patient to the matchmaker system starts the following process.
 1. Gene matching is the primary matching strategy.
 
 2. Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.
+
+## Data model notes
+* A database named "beamr" will be created in your localhost MongoDB isntance. If you wish to use a different host name or different database name please update class as needed,
+
+org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration
+
+

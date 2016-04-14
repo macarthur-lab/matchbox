@@ -53,7 +53,7 @@ public class IndividualController {
 	 * @return	a success message
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/individual/add")
-    public ResponseEntity<String>  individualMatch(@RequestBody String requestString) {
+    public ResponseEntity<String>  individualAdd(@RequestBody String requestString) {
 		try{
 		String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
@@ -88,7 +88,7 @@ public class IndividualController {
 	 * @return	A list of result patients found in the network that match input patient
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/individual/match")
-    public Map<String,MatchmakerResult> match(@RequestBody String requestString) {
+    public Map<String,MatchmakerResult> individualMatch(@RequestBody String requestString) {
 		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
