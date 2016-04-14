@@ -1,5 +1,5 @@
 /**
- * To configur interaction with MongoDB
+ * To configure interaction with MongoDB
  */
 package org.broadinstitute.macarthurlab.beamr.datamodel.mongodb;
 
@@ -13,11 +13,18 @@ import com.mongodb.MongoClient;
 public class MongoDBConfiguration extends AbstractMongoConfiguration {
  
     @Override
+    /**
+     * This get's set as the database. Collection name is set in 
+     * entity itself
+     */
     protected String getDatabaseName() {
         return "beamr";
     }
  
     @Override
+    /**
+     * Hostname of database is set here. Assumed to be localhost for now
+     */
     public Mongo mongo() throws Exception {
         return new MongoClient("127.0.0.1", 27017);
     }
