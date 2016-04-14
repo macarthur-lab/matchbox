@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin(origins = "*")
 public class BeamrAddController {
+	
 	private final PatientRecordUtility patientUtility;
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
@@ -29,7 +30,6 @@ public class BeamrAddController {
 	 */
 	public BeamrAddController(){
         this.patientUtility = new PatientRecordUtility();
-        //this.patientDataModel = new PatientDataModelImpl();
 	}
 	
 	

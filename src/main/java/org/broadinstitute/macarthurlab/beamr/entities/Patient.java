@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection="patient")
 public class Patient {
 	
-	@Id
+	@Id	
 	private final String id;
 	private final String label;
 	/**
