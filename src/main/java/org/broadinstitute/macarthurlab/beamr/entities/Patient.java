@@ -11,8 +11,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection="patient")
 public class Patient {
 	
+	/**
+	 * Should this ID be the ID of the patient (which enforces uniqueness)
+	 * of allow mongo to generate a object ID (side effect: can insert same patient
+	 * many times)
+	 */
 	@Id	
 	private final String id;
+	
+	
 	private final String label;
 	/**
 	 * This contains details on who submitted the patient in,

@@ -4,6 +4,9 @@
 package org.broadinstitute.macarthurlab.beamr.controllers;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
@@ -19,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = "*")
-public class BeamrAddController {
+public class IndividualController {
 	
 	private final PatientRecordUtility patientUtility;
 	@Autowired
@@ -28,18 +31,18 @@ public class BeamrAddController {
 	/**
 	 * Constructor populates search functionality
 	 */
-	public BeamrAddController(){
+	public IndividualController(){
         this.patientUtility = new PatientRecordUtility();
 	}
 	
 	
 	/**
-	 * Controller for /beamr_add PUT end-point
+	 * Controller for /individual/add end-point
 	 * @param patient	A patient structure sent as JSON through the API
-	 * @return	A list of result patients found in the network that match input patient
+	 * @return	a success message
 	 */
-	@RequestMapping(method = RequestMethod.POST, value="/add")
-    public ResponseEntity<String>  match(@RequestBody String requestString) {
+	@RequestMapping(method = RequestMethod.POST, value="/individual/add")
+    public ResponseEntity<String>  individualMatch(@RequestBody String requestString) {
 		try{
 		String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
@@ -48,6 +51,22 @@ public class BeamrAddController {
 			e.printStackTrace();
 		}
         return new ResponseEntity<String>("{\"message\":\"insertion OK\"}",HttpStatus.OK);
+    }
+	
+	
+	/**
+	 * Controller for /individual/view end-point
+	 * @return	a list of patients found in Beamr data model
+	 */
+	@RequestMapping(method = RequestMethod.GET, value="/individual/view")
+    public List<Patient>  IndividualView() {
+		List<Patient> patients = new ArrayList<Patient>();
+		try{
+			patients = this.patientMongoRepository.findAll();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+        return patients;
     }
 
 	
