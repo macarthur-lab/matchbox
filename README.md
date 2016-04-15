@@ -68,9 +68,9 @@ of a patient to the matchmaker system starts the following process.
 
 ## Matching criteria
 
-1. Gene matching is the primary matching strategy.
+1. Gene matching is the primary matching strategy. (if 2 individuals have at least 1 gene in common, it is considered a match)
 
-2. Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.
+2. Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.(not implemented yet)
 
 ## Data model notes
 * A database named "beamr" will be created in your localhost MongoDB isntance. If you wish to use a different host name or different database name please update class as needed,
