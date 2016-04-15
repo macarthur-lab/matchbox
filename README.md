@@ -89,7 +89,7 @@ org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration
 
 ## Examples
 
-*  View all inviduals in beamr (eventually this will be a privileged branch with limited access)
+*  **View all inviduals in beamr**(eventually this will be a privileged branch with limited access)
 
 API endpoint (GET):  individual/view
 
@@ -102,7 +102,7 @@ Result would look something like:
 
 
 
-*  Add a patient to beamr (eventually this will be a privileged branch with limited access)
+*  **Add a patient to beamr** (eventually this will be a privileged branch with limited access)
 
 
 API endpoint (POST):  individual/add
@@ -114,14 +114,14 @@ Result would look something like:
 {"message":"insertion OK"}
 
 
-*  Find a match for a patient in other Matchmaker nodes
+*  **Find a match for a patient in other Matchmaker nodes**  (not privileged, accessible to everybody with a token)
 
 API endpoint (POST):  individual/match
 
 --NOT IMPLEMENTED YET: AWAITAING AUTH TOKEN GENERATION WITH OTHER CENTERS
 
 
-*  Find a match in local beamr data model (look for matches ONLY in local beamer database of patients)  (eventually this will be a privileged branch with limited access)
+*  **Find a match in local beamr data model** (look for matches ONLY in local beamer database of patients)  (eventually this will be a privileged branch with limited access)
 
 API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at Broad (POST):  /match
 
