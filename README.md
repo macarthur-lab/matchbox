@@ -9,6 +9,8 @@ Beamr is the Matchmaker Exchange application for the joint Center for Mendelian 
 
 * A MongoDB instance (https://www.mongodb.org/)
 
+* Maven (https://maven.apache.org/) if you wish to build from source (only option supported as of now)  
+
 ## Installation:
 
 In the future, you would be able to either,
@@ -82,3 +84,51 @@ org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration
 *  Add in filter to allow only privileged users access to /individual/* branch
 
 *  Complete the /match branch implementation to make calls to other MME nodes
+
+
+
+## Examples
+
+*  View all inviduals in beamr (eventually this will be a privileged branch with limited access)
+
+API endpoint (GET):  individual/view
+
+curl -X GET -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/individual/view
+
+Result would look something like:
+
+
+[{"id":"id_ttn-2","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}]
+
+
+
+*  Add a patient to beamr (eventually this will be a privileged branch with limited access)
+
+
+API endpoint (POST):  individual/add
+
+curl -X POST -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/individual/add -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
+
+Result would look something like:
+
+{"message":"insertion OK"}
+
+
+*  Find a match for a patient in other Matchmaker nodes
+
+API endpoint (POST):  individual/match
+
+--NOT IMPLEMENTED YET: AWAITAING AUTH TOKEN GENERATION WITH OTHER CENTERS
+
+
+*  Find a match in local beamr data model (look for matches ONLY in local beamer database of patients)  (eventually this will be a privileged branch with limited access)
+
+API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at Broad (POST):  /match
+
+
+curl -X POST -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/match -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
+
+
+Result would look something like:
+
+{"results":[{"score":{},"patient":{"id":"id_ttn-2","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}},{"score":{},"patient":{"id":"id_ttn-4","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}},{"score":{},"patient":{"id":"id_ttn-8","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}}]}
