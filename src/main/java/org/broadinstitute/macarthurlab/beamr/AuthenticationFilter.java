@@ -1,5 +1,9 @@
 /**
+ * 	Authentication module
  * 
+ * #TODO
+ * 1. Add filter to allow ONLY privileged users access to /individual/*
+ * branches
  */
 package org.broadinstitute.macarthurlab.beamr;
 
