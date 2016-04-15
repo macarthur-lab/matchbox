@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
+import org.broadinstitute.macarthurlab.beamr.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,11 +82,22 @@ public class MatchmakerSearch implements Search{
 	
 	/**
 	 * Search for matching patients using GenomicFeatures
+	 * 1. Considers it a match if they have AT LEAST 1 gene in common
 	 */
 	private List<Patient> searchByGenomicFeatures(Patient patient){
 		List<Patient> results = new ArrayList<Patient>();		
-		String query = "{'genomicFeatures.gene.id':{$in:['TTN','gene symbol']}})";
-		BasicQuery q = new BasicQuery(query);
+		StringBuilder query = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
+		int i=0;
+		for (GenomicFeature genomicFeature : patient.getGenomicFeatures()){
+			String geneId = genomicFeature.getGene().get("id");
+			query.append("'"+geneId+"'"); 
+			if (i<patient.getGenomicFeatures().size()-1){
+				query.append(",");
+			}
+			i++;
+		}
+		query.append("]}})");
+		BasicQuery q = new BasicQuery(query.toString());
 		List<Patient> ps = this.getOperator().find(q,Patient.class);
 		for (Patient p:ps){
 			System.out.println(p);
