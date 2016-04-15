@@ -76,3 +76,9 @@ of a patient to the matchmaker system starts the following process.
 org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration
 
 
+
+## To do
+
+*  Add in filter to allow only privileged users access to /individual/* branch
+
+*  Complete the /match branch implementation to make calls to other MME nodes
