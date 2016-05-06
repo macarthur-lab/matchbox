@@ -105,6 +105,23 @@ public class IndividualController {
     }
 	
 
+	/**
+	 * Controller for individual/delete POST end-point 
+	 * @param patientId	A patient ID to delete
+	 * @return	True/False on success
+	 */
+	@RequestMapping(method = RequestMethod.POST, value="/individual/match")
+    public Map<String,String> individualDelete(@RequestBody String requestString) {
+		Map<String,String> results = new HashMap<String,String>();
+		try{
+			throw new Exception("not implemented yet");
+		}
+		catch(Exception e){
+			System.out.println("error occurred in match controller:"+e.toString());
+			e.printStackTrace();
+		}
+    	return results;
+    }
 	
 	
 	/**

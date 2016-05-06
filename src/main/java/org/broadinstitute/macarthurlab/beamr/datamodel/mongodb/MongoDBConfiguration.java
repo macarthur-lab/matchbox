@@ -23,7 +23,7 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration {
      * entity itself
      */
     protected String getDatabaseName() {
-        return "beamr";
+        return "mme_primary";
     }
  
     @Override
