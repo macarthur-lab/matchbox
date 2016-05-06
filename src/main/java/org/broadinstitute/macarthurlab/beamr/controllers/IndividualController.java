@@ -110,7 +110,7 @@ public class IndividualController {
 	 * @param patientId	A patient ID to delete
 	 * @return	True/False on success
 	 */
-	@RequestMapping(method = RequestMethod.POST, value="/individual/match")
+	@RequestMapping(method = RequestMethod.POST, value="/individual/delete")
     public Map<String,String> individualDelete(@RequestBody String requestString) {
 		Map<String,String> results = new HashMap<String,String>();
 		try{
