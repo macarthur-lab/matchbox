@@ -90,18 +90,18 @@ public class IndividualController {
 	 * @return	A list of result patients found in the network that match input patient
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/individual/match")
-    public Map<String,MatchmakerResult> individualMatch(@RequestBody String requestString,final HttpServletResponse res) {
+    public ResponseEntity<?> individualMatch(@RequestBody String requestString) {
 		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
-		HttpServletResponse response = (HttpServletResponse)res;
 		Patient patient=null;
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-			//TODO figure out why there is a = at the end of JSON string
-			try{
+			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+			if (inputDataValid) {
+				//TODO figure out why there is a = at the end of JSON string
 				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
 			}
-			catch (Exception e){
-				response.sendError(401);
+			else{
+				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
 			this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
 			results.put("results", new MatchmakerResult());
@@ -110,7 +110,7 @@ public class IndividualController {
 			System.out.println("error occurred in match controller:"+e.toString());
 			e.printStackTrace();
 		}
-    	return results;
+    	return new ResponseEntity<>(results, HttpStatus.OK);
     }
 	
 

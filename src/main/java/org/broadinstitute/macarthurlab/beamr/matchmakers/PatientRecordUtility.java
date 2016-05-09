@@ -28,6 +28,27 @@ public class PatientRecordUtility {
 	 */
 	public PatientRecordUtility(){}
 	
+	
+	public boolean areAllRequiredFieldsPresent(String patientJsonString){
+		boolean verdict=true;
+		JSONParser parser = new JSONParser();
+		try{
+			JSONObject jsonObject = (JSONObject) parser.parse(patientJsonString);
+			JSONObject patient = (JSONObject)jsonObject.get("patient");
+		 
+		String id = (String)patient.get("id");
+		if (id == null){
+			verdict=false;
+		}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		
+		return verdict;
+	}
+	
 	/**
 	 * Parses a patient information set encoded in a JSON string and returns a Patient
 	 * object that encloses that information

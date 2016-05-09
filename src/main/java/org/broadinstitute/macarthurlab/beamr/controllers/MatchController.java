@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
@@ -50,28 +51,33 @@ public class MatchController {
 
 	/**
 	 * Controller for /match POST end-point
-	 * @param patient	A patient structure sent as JSON through the API
-	 * @return	A list of result patients found in the network that match input patient
-	 * @throws IOException 
+	 * 
+	 * @param patient
+	 *            A patient structure sent as JSON through the API
+	 * @return A list of result patients found in the network that match input
+	 *         patient
+	 * @throws IOException
 	 */
-	@RequestMapping(method = RequestMethod.POST, value="/match")
-    public Map<String,List<MatchmakerResult>> match(@RequestBody String requestString){
-		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
-		Patient patient=null;
-			try{
-				String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-				//TODO figure out why there is a = at the end of JSON string
-				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
-			}catch(IOException e2){
-				System.out.println("sssssss");
-				return (Map<String, List<MatchmakerResult>>) new ResponseEntity<Patient>(new Patient(),HttpStatus.BAD_REQUEST);
+	@RequestMapping(method = RequestMethod.POST, value = "/match")
+	public ResponseEntity<?> match(@RequestBody String requestString) {
+		Map<String, List<MatchmakerResult>> results = new HashMap<String, List<MatchmakerResult>>();
+		Patient patient = null;
+		try {
+			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
+			// TODO figure out why there is a = at the end of JSON string
+			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+			if (inputDataValid) {
+				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+			} else {
+				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
-			List<MatchmakerResult> matches=new ArrayList<MatchmakerResult>();
-			results.put("results",this.getSearcher().searchInLocalDatabaseOnly(patient));
-		
-
-    	return results;
-    }
+		} catch (Exception e) {
+			System.out.println("error parsing patient in /match :" + e.toString());
+		}
+		// return results if no error
+		results.put("results", this.getSearcher().searchInLocalDatabaseOnly(patient));
+		return new ResponseEntity<>(results, HttpStatus.OK);
+	}
 	
 	
     /**
