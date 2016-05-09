@@ -15,46 +15,75 @@ public class Patient {
 	 * Should this ID be the ID of the patient (which enforces uniqueness)
 	 * of allow mongo to generate a object ID (side effect: can insert same patient
 	 * many times)
+	 * REQUIRED
 	 */
 	@Id	
 	private final String id;
 	
-	
+	/**
+	 * OPTIONAL
+	 */
 	private final String label;
+	
 	/**
 	 * This contains details on who submitted the patient in,
 	 * "name", "institution", "href"
+	 * REQUIRED
 	 */
 	private final Map<String,String> contact;
+	
 	/**
 	 * This contains a NCBI taxon identifier
+	 * OPTIONAL
 	 */
 	private final String species;
+	
 	/**
 	 * Allowed values:
 	 * "FEMALE"|"MALE"|"OTHER"|"MIXED_SAMPLE"|"NOT_APPLICABLE"
+	 * OPTIONAL
 	 */
 	private final String sex;
+	
 	/**
 	 * This should contain HPO code
+	 * OPTIONAL
 	 */
 	private final String ageOfOnset;
+	
 	/**
 	 * This should contain HPO code
+	 * OPTIONAL
 	 */
 	private final String inheritanceMode;
+	
 	/**
 	 * This contains a list of Maps. each Map is a disorder 
 	 * Map looks like,
 	 *  "id" : "MIM:######"|"Orphanet:#####"|…
+	 *  OPTIONAL
 	 */
 	private final List<Map<String,String>> disorders;
+	
 	/**
 	 * Features is a list of Feature objects,
+	 * *******************************
+	 * IF genomicFeatures NOT give:  *
+	 * 	REQUIRED  					 *
+	 * ELSE:	 					 *
+	 *  OPTIONAL  					 *
+	 * *******************************
 	 */
 	private final List<PhenotypeFeature> features;
+	
 	/**
 	 * Represents genomic features and are a list of GenomicFeature objects
+	 * *******************************
+	 * IF features NOT give:		 *
+	 * 	REQUIRED  --------			 *
+	 * ELSE:      --------			 *
+	 *  OPTIONAL  --------			 *
+	 * *******************************
 	 */
 	private final List<GenomicFeature> genomicFeatures;
 	

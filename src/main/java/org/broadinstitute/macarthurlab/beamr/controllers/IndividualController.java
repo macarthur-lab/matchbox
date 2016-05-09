@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
@@ -88,12 +90,19 @@ public class IndividualController {
 	 * @return	A list of result patients found in the network that match input patient
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/individual/match")
-    public Map<String,MatchmakerResult> individualMatch(@RequestBody String requestString) {
+    public Map<String,MatchmakerResult> individualMatch(@RequestBody String requestString,final HttpServletResponse res) {
 		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
+		HttpServletResponse response = (HttpServletResponse)res;
+		Patient patient=null;
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			//TODO figure out why there is a = at the end of JSON string
-			Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+			try{
+				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+			}
+			catch (Exception e){
+				response.sendError(401);
+			}
 			this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
 			results.put("results", new MatchmakerResult());
 		}

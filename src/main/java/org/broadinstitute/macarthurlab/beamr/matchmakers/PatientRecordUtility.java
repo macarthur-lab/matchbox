@@ -3,6 +3,7 @@
  */
 package org.broadinstitute.macarthurlab.beamr.matchmakers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,19 +40,36 @@ public class PatientRecordUtility {
 			JSONObject jsonObject = (JSONObject) parser.parse(patientJsonString);
 			JSONObject patient = (JSONObject)jsonObject.get("patient");
 			
-			String id = (String)patient.get("id"); 
+			//REQUIRED
+			String id = (String)patient.get("id");
+			if (id == null){
+				throw new IOException("id is a REQUIRED value");
+			}
+			
+			
+			//OPTIONAL
 			String label = (String)patient.get("label"); 
+			
+			//OPTIONAL
 			String species = (String)patient.get("species");
+			
+			//OPTIONAL
 			String sex = (String)patient.get("sex");
+			
+			//OPTIONAL
 			String ageOfOnset = (String)patient.get("ageOfOnset");
+			
+			//OPTIONAL
 			String inheritanceMode = (String)patient.get("inheritanceMode");
 			
+			//REQUIRED
 			Map<String,String> contactDets = new HashMap<String,String>();
 			JSONObject  contact = (JSONObject)patient.get("contact");
 			contactDets.put("name", (String)contact.get("name"));
 			contactDets.put("institution", (String)contact.get("institution"));
 			contactDets.put("href", (String)contact.get("href"));
 			
+			//OPTIONAL
 			List<Map<String,String>> disorderDets = new ArrayList<Map<String,String>>();
 			JSONArray  disorders = (JSONArray)patient.get("disorders");
 			for (int i=0; i<disorders.size(); i++){
@@ -61,6 +79,7 @@ public class PatientRecordUtility {
 				disorderDets.add(disorderDet);
 			}
 			
+			//if genomicFeatures is not supplied, this is REQUIRED
 			List<PhenotypeFeature> featuresDets = new ArrayList<PhenotypeFeature>();
 			JSONArray  features = (JSONArray)patient.get("features");
 			for (int i=0; i<features.size(); i++){
@@ -73,6 +92,8 @@ public class PatientRecordUtility {
 								));
 			}
 			
+			
+			//if features is not supplied, this is REQUIRED
 			List<GenomicFeature> genomicFeaturesDets = new ArrayList<GenomicFeature>();
 			JSONArray  genomicFeatures = (JSONArray)patient.get("genomicFeatures");
 			for (int i=0; i<genomicFeatures.size(); i++){
@@ -94,7 +115,6 @@ public class PatientRecordUtility {
 						);
 
 				Long zygosity = (Long)genomicFeature.get("zygosity");
-				
 				
 				Map<String,String> typeDets = new HashMap<String,String>();
 				JSONObject typeGenomicFeature  = (JSONObject)genomicFeature.get("type");

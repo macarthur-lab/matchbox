@@ -3,11 +3,13 @@
  */
 package org.broadinstitute.macarthurlab.beamr.controllers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
@@ -16,6 +18,8 @@ import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.Search;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,21 +52,24 @@ public class MatchController {
 	 * Controller for /match POST end-point
 	 * @param patient	A patient structure sent as JSON through the API
 	 * @return	A list of result patients found in the network that match input patient
+	 * @throws IOException 
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/match")
-    public Map<String,List<MatchmakerResult>> match(@RequestBody String requestString) {
+    public Map<String,List<MatchmakerResult>> match(@RequestBody String requestString){
 		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
-		try{
-			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-			//TODO figure out why there is a = at the end of JSON string
-			Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+		Patient patient=null;
+			try{
+				String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
+				//TODO figure out why there is a = at the end of JSON string
+				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+			}catch(IOException e2){
+				System.out.println("sssssss");
+				return (Map<String, List<MatchmakerResult>>) new ResponseEntity<Patient>(new Patient(),HttpStatus.BAD_REQUEST);
+			}
 			List<MatchmakerResult> matches=new ArrayList<MatchmakerResult>();
 			results.put("results",this.getSearcher().searchInLocalDatabaseOnly(patient));
-		}
-		catch(Exception e){
-			System.out.println("error occurred in match controller:"+e.toString());
-			e.printStackTrace();
-		}
+		
+
     	return results;
     }
 	
