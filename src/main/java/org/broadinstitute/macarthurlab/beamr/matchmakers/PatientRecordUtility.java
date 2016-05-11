@@ -36,16 +36,33 @@ public class PatientRecordUtility {
 			JSONObject jsonObject = (JSONObject) parser.parse(patientJsonString);
 			JSONObject patient = (JSONObject)jsonObject.get("patient");
 		 
-		String id = (String)patient.get("id");
-		if (id == null){
+			
+		//Id
+		if (patient.containsKey("id")){
+			String id = (String)patient.get("id");
+		}
+		else{
 			verdict=false;
 		}
+		
+		//Contact
+		if (patient.containsKey("contact")){
+			Map<String,String> contactDets = new HashMap<String,String>();
+			JSONObject  contact = (JSONObject)patient.get("contact");
+			contactDets.put("name", (String)contact.get("name"));
+			contactDets.put("institution", (String)contact.get("institution"));
+			contactDets.put("href", (String)contact.get("href"));
+			}
+		else{
+			verdict=false;
+		}
+		
 		}
 		catch(Exception e){
-			e.printStackTrace();
+			System.out.println("ERROR:parsing input query patient data: " + e.toString());
+			verdict=false;
 		}
-		
-		
+
 		return verdict;
 	}
 	
