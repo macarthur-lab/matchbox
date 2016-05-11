@@ -57,6 +57,13 @@ public class PatientRecordUtility {
 			verdict=false;
 		}
 		
+		
+		//Either features or genomicFeature HAVE TO BE PRESENT
+		if (!patient.containsKey("features")  && !patient.containsKey("genomicFeatures") ){
+			verdict=false;
+		}
+
+		
 		}
 		catch(Exception e){
 			System.out.println("ERROR:parsing input query patient data: " + e.toString());
@@ -80,25 +87,6 @@ public class PatientRecordUtility {
 			
 			//REQUIRED
 			String id = (String)patient.get("id");
-			if (id == null){
-				throw new IOException("id is a REQUIRED value");
-			}
-			
-			
-			//OPTIONAL
-			String label = (String)patient.get("label"); 
-			
-			//OPTIONAL
-			String species = (String)patient.get("species");
-			
-			//OPTIONAL
-			String sex = (String)patient.get("sex");
-			
-			//OPTIONAL
-			String ageOfOnset = (String)patient.get("ageOfOnset");
-			
-			//OPTIONAL
-			String inheritanceMode = (String)patient.get("inheritanceMode");
 			
 			//REQUIRED
 			Map<String,String> contactDets = new HashMap<String,String>();
@@ -107,18 +95,9 @@ public class PatientRecordUtility {
 			contactDets.put("institution", (String)contact.get("institution"));
 			contactDets.put("href", (String)contact.get("href"));
 			
-			//OPTIONAL
-			List<Map<String,String>> disorderDets = new ArrayList<Map<String,String>>();
-			JSONArray  disorders = (JSONArray)patient.get("disorders");
-			for (int i=0; i<disorders.size(); i++){
-				Map <String,String> disorderDet = new HashMap<String,String>();
-				JSONObject disorder = (JSONObject)disorders.get(i);
-				disorderDet.put("id", (String)disorder.get("id"));
-				disorderDets.add(disorderDet);
-			}
-			
 			//if genomicFeatures is not supplied, this is REQUIRED
 			List<PhenotypeFeature> featuresDets = new ArrayList<PhenotypeFeature>();
+			if (patient.containsKey("features")){
 			JSONArray  features = (JSONArray)patient.get("features");
 			for (int i=0; i<features.size(); i++){
 				JSONObject feature = (JSONObject)features.get(i);
@@ -129,10 +108,11 @@ public class PatientRecordUtility {
 								(String)feature.get("ageOfOnset")
 								));
 			}
-			
+			}
 			
 			//if features is not supplied, this is REQUIRED
 			List<GenomicFeature> genomicFeaturesDets = new ArrayList<GenomicFeature>();
+			if (patient.containsKey("genomicFeatures")){
 			JSONArray  genomicFeatures = (JSONArray)patient.get("genomicFeatures");
 			for (int i=0; i<genomicFeatures.size(); i++){
 				JSONObject genomicFeature = (JSONObject)genomicFeatures.get(i);
@@ -167,6 +147,50 @@ public class PatientRecordUtility {
 								typeDets
 								));
 			}
+			}
+			
+			//OPTIONAL
+			String label="";
+			if (patient.containsKey("label")){
+				label = (String)patient.get("label"); 
+			}
+			
+			//OPTIONAL
+			String species="";
+			if (patient.containsKey("species")){
+				species = (String)patient.get("species");
+			}
+			
+			//OPTIONAL
+			String sex="";
+			if (patient.containsKey("sex")){
+				sex = (String)patient.get("sex");
+			}
+			//OPTIONAL
+			String ageOfOnset="";
+			if (patient.containsKey("ageOfOnset")){
+				ageOfOnset = (String)patient.get("ageOfOnset");
+			}
+			
+			//OPTIONAL
+			String inheritanceMode="";
+			if (patient.containsKey("ageOfOnset")){
+				inheritanceMode = (String)patient.get("inheritanceMode");
+			}
+			
+			//OPTIONAL
+			List<Map<String,String>> disorderDets = new ArrayList<Map<String,String>>();
+			if (patient.containsKey("disorders")){
+			JSONArray  disorders = (JSONArray)patient.get("disorders");
+			for (int i=0; i<disorders.size(); i++){
+				Map <String,String> disorderDet = new HashMap<String,String>();
+				JSONObject disorder = (JSONObject)disorders.get(i);
+				disorderDet.put("id", (String)disorder.get("id"));
+				disorderDets.add(disorderDet);
+			}
+			}
+			
+
 			
 			return new Patient(
 					id, 
