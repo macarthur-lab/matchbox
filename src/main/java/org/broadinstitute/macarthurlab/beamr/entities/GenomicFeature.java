@@ -14,7 +14,7 @@ public class GenomicFeature {
           "id" : <gene symbol>|<ensembl gene ID>|<entrez gene ID>
         }
 	 */
-	private final Map<String,String> gene;
+	private Map<String,String> gene;
 	/**
 	 * A description of a variant that looks like,
 	 * "variant" : {
@@ -26,9 +26,9 @@ public class GenomicFeature {
           "alternateBases" : "A"|"ACG"|…
         },
 	 */
-	private final Variant variant;
+	private Variant variant;
 	
-	private final Long zygosity;
+	private Long zygosity;
 	/**
 	 * A type value that looks like,
 	 *  "type" : {
@@ -36,7 +36,7 @@ public class GenomicFeature {
           "label" : "STOPGAIN"
         }
 	 */
-	private final Map<String,String> type;
+	private Map<String,String> type;
 	/**
 	 * @return the gene
 	 */
@@ -53,8 +53,8 @@ public class GenomicFeature {
 	public GenomicFeature() {
 		this.gene = new HashMap<String,String>();
 		this.variant = new Variant();
-		this.zygosity = 1L;
-		this.type = new HashMap<String,String>();;
+		this.zygosity = new Long(0);
+		this.type = new HashMap<String, String>();
 	}
 	
 	
@@ -102,6 +102,39 @@ public class GenomicFeature {
 		return "GenomicFeature [gene=" + gene + ", variant=" + variant + ", zygosity=" + zygosity + ", type=" + type
 				+ "]";
 	}
+
+
+	/**
+	 * @param gene the gene to set
+	 */
+	public void setGene(Map<String, String> gene) {
+		this.gene = gene;
+	}
+
+
+	/**
+	 * @param variant the variant to set
+	 */
+	public void setVariant(Variant variant) {
+		this.variant = variant;
+	}
+
+
+	/**
+	 * @param zygosity the zygosity to set
+	 */
+	public void setZygosity(Long zygosity) {
+		this.zygosity = zygosity;
+	}
+
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(Map<String, String> type) {
+		this.type = type;
+	}
+	
 	
 	
 	
