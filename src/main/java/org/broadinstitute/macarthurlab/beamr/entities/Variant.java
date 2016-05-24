@@ -8,26 +8,14 @@ package org.broadinstitute.macarthurlab.beamr.entities;
  *
  */
 public class Variant {
-	private String assembly;
-	private String referenceName;
-	private Long start;
-	private Long end;
-	private String referenceBases;
-	private String alternateBases;
+	private final String assembly;
+	private final String referenceName;
+	private final Long start;
+	private final Long end;
+	private final String referenceBases;
+	private final String alternateBases;
 	
-	
-	/**
-	 * Default constructor creates empty object
-	 */
-	public Variant(){
-		this.assembly=null;
-		this.referenceName=null;
-		this.start=null;
-		this.end=null;
-		this.referenceBases=null;
-		this.alternateBases=null;
-	}
-	
+
 	
 	/**
 	 * @param assembly	assembly record
@@ -98,55 +86,5 @@ public class Variant {
 		return "Variant [assembly=" + assembly + ", referenceName=" + referenceName + ", start=" + start + ", end="
 				+ end + ", referenceBases=" + referenceBases + ", alternateBases=" + alternateBases + "]";
 	}
-
-
-	/**
-	 * @param assembly the assembly to set
-	 */
-	public void setAssembly(String assembly) {
-		this.assembly = assembly;
-	}
-
-
-	/**
-	 * @param referenceName the referenceName to set
-	 */
-	public void setReferenceName(String referenceName) {
-		this.referenceName = referenceName;
-	}
-
-
-	/**
-	 * @param start the start to set
-	 */
-	public void setStart(Long start) {
-		this.start = start;
-	}
-
-
-	/**
-	 * @param end the end to set
-	 */
-	public void setEnd(Long end) {
-		this.end = end;
-	}
-
-
-	/**
-	 * @param referenceBases the referenceBases to set
-	 */
-	public void setReferenceBases(String referenceBases) {
-		this.referenceBases = referenceBases;
-	}
-
-
-	/**
-	 * @param alternateBases the alternateBases to set
-	 */
-	public void setAlternateBases(String alternateBases) {
-		this.alternateBases = alternateBases;
-	}
-	
-	
 
 }

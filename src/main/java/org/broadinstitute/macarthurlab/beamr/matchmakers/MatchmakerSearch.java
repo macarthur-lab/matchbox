@@ -97,12 +97,12 @@ public class MatchmakerSearch implements Search{
 			i++;
 		}
 		query.append("]}})");
+		System.out.println(query);
 		BasicQuery q = new BasicQuery(query.toString());
 		List<Patient> ps = this.getOperator().find(q,Patient.class);
 		for (Patient p:ps){
-			System.out.println(p);
-			results.add(p);
 		}
+		System.out.println(results);
 		return results;
 	}
 	

@@ -59,6 +59,8 @@ public class IndividualController {
 		try{
 		String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+		System.out.println(patient);
+		System.out.println("--");
 		this.patientMongoRepository.save(patient);
 		}catch(Exception e){
 			e.printStackTrace();

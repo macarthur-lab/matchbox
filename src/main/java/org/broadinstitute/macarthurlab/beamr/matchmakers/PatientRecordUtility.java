@@ -80,7 +80,6 @@ public class PatientRecordUtility {
 	 * @return	A Patient obect that encloses the JSON data
 	 */
 	public Patient parsePatientInformation(String patientJsonString){
-		System.out.println(patientJsonString);
 		JSONParser parser = new JSONParser();
 		try{
 			JSONObject jsonObject = (JSONObject) parser.parse(patientJsonString);
@@ -117,51 +116,50 @@ public class PatientRecordUtility {
 				JSONArray  genomicFeatures = (JSONArray)patient.get("genomicFeatures");
 				
 				for (int i=0; i<genomicFeatures.size(); i++){
-					GenomicFeature parsedGenomicFeature= new GenomicFeature();
 					JSONObject genomicFeature = (JSONObject)genomicFeatures.get(i);
-					Map<String,String> geneDets = new HashMap<String,String>();
 					
 					//REQUIRED (a map with a single key "id")
 					JSONObject geneGenomicFeature  = (JSONObject)genomicFeature.get("gene");
+					Map<String,String> geneDets = new HashMap<String,String>();
 					geneDets.put("id",(String)geneGenomicFeature.get("id"));
-					parsedGenomicFeature.setGene(geneDets);
 				
 					//OPTIONAL
 					if (patient.containsKey("variant")){
-						JSONObject variantGenomicFeature  = (JSONObject)genomicFeature.get("variant");
-						Variant variantDets = new Variant();
-					
+						JSONObject variantGenomicFeature  = (JSONObject)genomicFeature.get("variant"); 
 						//REQUIRED
 						String assembly=(String)variantGenomicFeature.get("assembly");
-						variantDets.setAssembly(assembly);
 						//REQUIRED
 						String referenceName=(String)variantGenomicFeature.get("referenceName");
-						variantDets.setReferenceName(referenceName);
 						//REQUIRED
 						Long start = (Long)variantGenomicFeature.get("start");
-						variantDets.setStart(start);
 						//OPTIONAL
+						Long end=-1L;
 						if (variantGenomicFeature.containsKey("end")){
-							Long end = (Long)variantGenomicFeature.get("end");
-							variantDets.setEnd(end);
+							end = (Long)variantGenomicFeature.get("end");
 						}
 						//OPTIONAL
+						String referenceBases="";
 						if(variantGenomicFeature.containsKey("referenceBases")){
-							String referenceBases = (String)variantGenomicFeature.get("referenceBases");
-							variantDets.setReferenceBases(referenceBases);
+							referenceBases = (String)variantGenomicFeature.get("referenceBases");
 						}
 						//OPTIONAL
+						String alternateBases ="";
 						if (variantGenomicFeature.containsKey("alternateBases")){
-							String alternateBases = (String)variantGenomicFeature.get("alternateBases");
-							variantDets.setAlternateBases(alternateBases);
+							alternateBases = (String)variantGenomicFeature.get("alternateBases");
 						}
-						parsedGenomicFeature.setVariant(variantDets);
+						
+						Variant variant = new Variant(assembly, 
+													  referenceName, 
+													  start, 
+													  end, 
+													  referenceBases,
+													  alternateBases);
 					}
 					
 					//OPTIONAL
+					Long zygosity = -1L;
 					if (genomicFeature.containsKey("zygosity")){
-						Long zygosity = (Long)genomicFeature.get("zygosity");
-						parsedGenomicFeature.setZygosity(zygosity);
+						zygosity = (Long)genomicFeature.get("zygosity");
 					}
 				
 					//OPTIONAL
@@ -171,13 +169,15 @@ public class PatientRecordUtility {
 						//REQUIRED
 						typeDets.put("id", (String)typeGenomicFeature.get("id"));
 						//OPTIONAL
+						String label="";
 						if (typeGenomicFeature.containsKey("label")){
-							typeDets.put("label", (String)typeGenomicFeature.get("label"));
+							label=(String)typeGenomicFeature.get("label");
+							//typeDets.put("label", (String)typeGenomicFeature.get("label"));
 						}
-						parsedGenomicFeature.setType(typeGenomicFeature);
+						//parsedGenomicFeature.setType(typeGenomicFeature);
 					}
 					
-					genomicFeaturesDets.add(parsedGenomicFeature);
+					//genomicFeaturesDets.add(parsedGenomicFeature);
 				}
 			}
 			
