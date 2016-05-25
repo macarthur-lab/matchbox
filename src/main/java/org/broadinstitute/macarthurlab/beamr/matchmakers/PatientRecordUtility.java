@@ -124,6 +124,12 @@ public class PatientRecordUtility {
 					geneDets.put("id",(String)geneGenomicFeature.get("id"));
 				
 					//OPTIONAL
+					Variant variant = new Variant("", 
+							  "", 
+							  -1L, 
+							  -1L, 
+							  "",
+							  "");
 					if (patient.containsKey("variant")){
 						JSONObject variantGenomicFeature  = (JSONObject)genomicFeature.get("variant"); 
 						//REQUIRED
@@ -148,7 +154,7 @@ public class PatientRecordUtility {
 							alternateBases = (String)variantGenomicFeature.get("alternateBases");
 						}
 						
-						Variant variant = new Variant(assembly, 
+						variant = new Variant(assembly, 
 													  referenceName, 
 													  start, 
 													  end, 
@@ -163,8 +169,10 @@ public class PatientRecordUtility {
 					}
 				
 					//OPTIONAL
+					Map<String,String> typeDets = new HashMap<String,String>();
+					typeDets.put("id", "");
+					typeDets.put("label", "");
 					if (genomicFeature.containsKey("type")){
-						Map<String,String> typeDets = new HashMap<String,String>();
 						JSONObject typeGenomicFeature  = (JSONObject)genomicFeature.get("type");
 						//REQUIRED
 						typeDets.put("id", (String)typeGenomicFeature.get("id"));
@@ -172,12 +180,15 @@ public class PatientRecordUtility {
 						String label="";
 						if (typeGenomicFeature.containsKey("label")){
 							label=(String)typeGenomicFeature.get("label");
-							//typeDets.put("label", (String)typeGenomicFeature.get("label"));
+							typeDets.put("label", (String)typeGenomicFeature.get("label"));
 						}
-						//parsedGenomicFeature.setType(typeGenomicFeature);
 					}
 					
-					//genomicFeaturesDets.add(parsedGenomicFeature);
+					genomicFeaturesDets.add(new GenomicFeature(geneDets, 
+															   variant, 
+															   zygosity,
+															   typeDets)
+												);
 				}
 			}
 			
