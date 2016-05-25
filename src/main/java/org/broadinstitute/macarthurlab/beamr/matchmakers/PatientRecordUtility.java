@@ -69,7 +69,6 @@ public class PatientRecordUtility {
 			System.out.println("ERROR:parsing input query patient data: " + e.toString());
 			verdict=false;
 		}
-
 		return verdict;
 	}
 	
@@ -130,7 +129,7 @@ public class PatientRecordUtility {
 							  -1L, 
 							  "",
 							  "");
-					if (patient.containsKey("variant")){
+					if (genomicFeature.containsKey("variant")){
 						JSONObject variantGenomicFeature  = (JSONObject)genomicFeature.get("variant"); 
 						//REQUIRED
 						String assembly=(String)variantGenomicFeature.get("assembly");

@@ -68,6 +68,8 @@ public class MatchController {
 			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(decodedRequestString.substring(0, decodedRequestString.length() - 1));
 			if (inputDataValid) {
 				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+				System.out.println(patient);
+				System.out.println("----");
 			} else {
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
