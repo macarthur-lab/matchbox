@@ -17,6 +17,8 @@ import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.Search;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -56,14 +58,21 @@ public class IndividualController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/individual/add")
     public ResponseEntity<String>  individualAdd(@RequestBody String requestString) {
+		String jsonMessage="{\"message\":\"insertion OK\"}";
 		try{
 		String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
-		this.patientMongoRepository.save(patient);
+		System.out.println(this.patientMongoRepository.insert(patient));
 		}catch(Exception e){
 			e.printStackTrace();
+			if (e.getMessage().contains("duplicate key error")){
+				jsonMessage="{\"message\":\"unable to insert, that patient record (specifically that ID) already exists in Broad system\"}";	
+			}
+			else{
+				jsonMessage="{\"message\":\"unable to insert, an unknown error occurred.\"}";	
+			}
 		}
-        return new ResponseEntity<String>("{\"message\":\"insertion OK\"}",HttpStatus.OK);
+        return new ResponseEntity<String>(jsonMessage,HttpStatus.OK);
     }
 	
 	

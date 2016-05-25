@@ -17,7 +17,6 @@ public class Patient {
 	 * many times)
 	 * REQUIRED
 	 */
-	@Id	
 	private final String id;
 	
 	/**
