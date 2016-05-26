@@ -64,6 +64,7 @@ public class IndividualController {
 		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
 		System.out.println(this.patientMongoRepository.insert(patient));
 		}catch(Exception e){
+			System.out.println(e.getMessage());
 			e.printStackTrace();
 			if (e.getMessage().contains("duplicate key error")){
 				jsonMessage="{\"message\":\"unable to insert, that patient record (specifically that ID) already exists in Broad system\"}";	
