@@ -50,7 +50,7 @@ public class MatchController {
 	
 
 	/**
-	 * Controller for /match POST end-point
+	 * Controller for /match POST end-point.ONLY SEARCHES INSIDE LOCAL DATABASE
 	 * 
 	 * @param patient
 	 *            A patient structure sent as JSON through the API
@@ -75,6 +75,8 @@ public class MatchController {
 			System.out.println("error parsing patient in /match :" + e.toString());
 		}
 		// return results if no error
+		System.out.println(patient);
+		System.out.println(this.getSearcher().searchInLocalDatabaseOnly(patient).size());
 		results.put("results", this.getSearcher().searchInLocalDatabaseOnly(patient));
 		return new ResponseEntity<>(results, HttpStatus.OK);
 	}
