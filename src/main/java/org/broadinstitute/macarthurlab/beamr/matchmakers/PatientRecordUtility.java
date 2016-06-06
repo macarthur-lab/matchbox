@@ -34,9 +34,7 @@ public class PatientRecordUtility {
 		JSONParser parser = new JSONParser();
 		try{
 			JSONObject jsonObject = (JSONObject) parser.parse(patientJsonString);
-			JSONObject patient = (JSONObject)jsonObject.get("patient");
-		 
-			
+			JSONObject patient = (JSONObject)jsonObject.get("patient");	
 		//Id
 		if (patient.containsKey("id")){
 			String id = (String)patient.get("id");
@@ -66,7 +64,9 @@ public class PatientRecordUtility {
 		
 		}
 		catch(Exception e){
-			System.out.println("ERROR:parsing input query patient data: " + e.toString());
+			System.out.println("ERROR:parsing and absorbing patient data: " + e.toString());
+			e.printStackTrace();
+			System.exit(0);
 			verdict=false;
 		}
 		return verdict;

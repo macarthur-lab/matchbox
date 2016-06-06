@@ -26,12 +26,17 @@ import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepos
 import org.broadinstitute.macarthurlab.beamr.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.omg.CORBA.portable.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 
 /**
@@ -54,6 +59,11 @@ public class MatchmakerSearch implements Search{
 	private PatientMongoRepository patientMongoRepository;
 	
 	private MongoOperations operator;
+	
+	/**
+	 * A set of tools to parse and store patient information
+	 */
+	private final PatientRecordUtility patientUtility;
 
 	
 	
@@ -63,6 +73,7 @@ public class MatchmakerSearch implements Search{
 	public MatchmakerSearch(){
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
+		this.patientUtility = new PatientRecordUtility();
 	}
 	
 	
@@ -128,11 +139,11 @@ public class MatchmakerSearch implements Search{
 	 * @return	The results found for this patient
 	 * @throws MalformedURLException 
 	 */
-	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient patient) {
+	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient queryPatient) {
 		System.out.println(matchmakerNode.getName());
 		System.out.println(matchmakerNode.getToken());
 		System.out.println(matchmakerNode.getUrl());
-		
+		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		  HttpURLConnection connection = null;  
 		  try {
 		    //Create connection
@@ -161,7 +172,24 @@ public class MatchmakerSearch implements Search{
 		      response.append('\r');
 		    }
 		    rd.close();
-		    System.out.println("--"+response.toString()+"<<<<");
+		    JSONParser parser = new JSONParser();
+		    JSONObject resultJsonObject = (JSONObject) parser.parse(response.toString());
+		    JSONArray  results = (JSONArray)resultJsonObject.get("results");
+		    
+		    for (int i=0; i<results.size(); i++){
+				JSONObject result = (JSONObject)results.get(i);
+				boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(result.toString());
+				if (inputDataValid) {
+					Patient parsedPatient = this.getPatientUtility().parsePatientInformation(result.toString());
+					allResults.add(new MatchmakerResult(
+							new HashMap<String, Double>(),
+							parsedPatient
+							));
+				} else {
+					//TODO what to do here?
+				}
+				
+		    }		    
 		  } catch (Exception e) {
 		    e.printStackTrace();
 		    return null;
@@ -170,16 +198,7 @@ public class MatchmakerSearch implements Search{
 		      connection.disconnect(); 
 		    }
 		  }
-		
-		return new ArrayList<MatchmakerResult>();
-	}
-	
-	/**
-	 * Call this URL and fetch result
-	 * @param url	A URL to call
-	 */
-	private String callUrl(String url){
-		return "";
+		return allResults;
 	}
 
 
@@ -224,7 +243,12 @@ public class MatchmakerSearch implements Search{
 
 
 
-
+	/**
+	 * @return the patientUtility
+	 */
+	public PatientRecordUtility getPatientUtility() {
+		return patientUtility;
+	}
 
 	
 	

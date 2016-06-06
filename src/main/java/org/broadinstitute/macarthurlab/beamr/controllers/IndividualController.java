@@ -101,7 +101,7 @@ public class IndividualController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/individual/match")
     public ResponseEntity<?> individualMatch(@RequestBody String requestString) {
-		Map<String,MatchmakerResult> results = new HashMap<String,MatchmakerResult>();
+		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
 		Patient patient=null;
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
@@ -113,8 +113,8 @@ public class IndividualController {
 			else{
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
-			this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
-			results.put("results", new MatchmakerResult());
+			List<MatchmakerResult> matchmakerResults = this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
+			results.put("results", matchmakerResults);
 		}
 		catch(Exception e){
 			System.out.println("error occurred in match controller:"+e.toString());
