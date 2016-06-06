@@ -16,14 +16,14 @@
       class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
       <constructor-arg type="java.lang.String" value="Test Reference Server" />
       <constructor-arg type="java.lang.String" value="none" />
-      <constructor-arg type="java.lang.String" value="http://localhost:8090" />
+      <constructor-arg type="java.lang.String" value="http://localhost:8090/match" />
   </bean>
 
   <bean id="matchmakerSearch"
       class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch">
       <property name="matchmakers">
          <list>
-            <ref bean="phenomeCentralMatchmakerNode"/>
+            <!--  <ref bean="phenomeCentralMatchmakerNode"/> -->
             <ref bean="testRefSvrNode"/>
          </list>
       </property>
