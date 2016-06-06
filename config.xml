@@ -11,11 +11,20 @@
       <constructor-arg type="java.lang.String" value="http://localhost:8080" />
   </bean>
 
+
+  <bean id="testRefSvrNode"
+      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
+      <constructor-arg type="java.lang.String" value="Test Reference Server" />
+      <constructor-arg type="java.lang.String" value="none" />
+      <constructor-arg type="java.lang.String" value="http://localhost:8090" />
+  </bean>
+
   <bean id="matchmakerSearch"
       class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch">
       <property name="matchmakers">
          <list>
             <ref bean="phenomeCentralMatchmakerNode"/>
+            <ref bean="testRefSvrNode"/>
          </list>
       </property>
   </bean>

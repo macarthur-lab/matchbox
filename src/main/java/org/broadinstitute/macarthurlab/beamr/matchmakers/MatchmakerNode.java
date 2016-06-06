@@ -38,4 +38,14 @@ public class MatchmakerNode implements Node{
 		return this.url;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "MatchmakerNode [name=" + name + ", token=" + token + ", url=" + url + "]";
+	}
+	
+
 }

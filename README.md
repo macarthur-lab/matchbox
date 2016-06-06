@@ -78,6 +78,48 @@ of a patient to the matchmaker system starts the following process.
 org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration
 
 
+## Adding a new matchmaker node
+
+1. To the config.xml file found at the top level of the application directory, add the following lines,
+
+```
+
+  <bean id="ANameToGiveThisNodeRepresentationInCode"
+      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
+      <constructor-arg type="java.lang.String" value="Some name" />
+      <constructor-arg type="java.lang.String" value="The authentication token" />
+      <constructor-arg type="java.lang.String" value="The URI" />
+  </bean>
+  
+```
+
+  
+  For example:
+```  
+
+  <bean id="ANameToGiveThisNode"
+      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
+      <constructor-arg type="java.lang.String" value="Test Reference Server" />
+      <constructor-arg type="java.lang.String" value="854a439d278df4283bf5498ab020336cdc416a7d" />
+      <constructor-arg type="java.lang.String" value="http://localhost:8090" />
+  </bean>
+  
+```
+
+then add it to this list,
+```
+
+  <bean id="matchmakerSearch"
+      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch">
+      <property name="matchmakers">
+         <list>
+            <ref bean="phenomeCentralMatchmakerNode"/>
+            <ref bean="testRefSvrNode"/>
+         </list>
+      </property>
+  </bean>
+
+```
 
 ## To do
 

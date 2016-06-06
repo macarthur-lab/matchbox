@@ -3,15 +3,28 @@
  */
 package org.broadinstitute.macarthurlab.beamr.matchmakers;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.beamr.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
+import org.omg.CORBA.portable.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -111,10 +124,16 @@ public class MatchmakerSearch implements Search{
 	 * @param matchmakerNode	A matchmaker node/center
 	 * @param patient	A patient
 	 * @return	The results found for this patient
+	 * @throws MalformedURLException 
 	 */
-	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient patient){
+	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient patient) {
 		System.out.println(this.callUrl(""));
-		System.out.println("--");
+		System.out.println(matchmakerNode.getName());
+		System.out.println(matchmakerNode.getToken());
+		System.out.println(matchmakerNode.getUrl());
+		
+		
+		
 		return new ArrayList<MatchmakerResult>();
 	}
 	
