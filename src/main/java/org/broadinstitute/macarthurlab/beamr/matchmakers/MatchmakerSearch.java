@@ -26,6 +26,7 @@ import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepos
 import org.broadinstitute.macarthurlab.beamr.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
+import org.broadinstitute.macarthurlab.beamr.network.HttpCommunication;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -65,6 +66,10 @@ public class MatchmakerSearch implements Search{
 	 */
 	private final PatientRecordUtility patientUtility;
 
+	/**
+	 * A set of tools to help with make a Http call to an external node
+	 */
+	private final HttpCommunication httpCommunication;
 	
 	
 	/**
@@ -74,6 +79,7 @@ public class MatchmakerSearch implements Search{
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 		this.patientUtility = new PatientRecordUtility();
+		this.httpCommunication = new HttpCommunication();
 	}
 	
 	
@@ -143,9 +149,12 @@ public class MatchmakerSearch implements Search{
 		System.out.println(matchmakerNode.getName());
 		System.out.println(matchmakerNode.getToken());
 		System.out.println(matchmakerNode.getUrl());
-		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		  HttpURLConnection connection = null;  
-		  try {
+		return this.getHttpCommunication().callNodeWithHttp(matchmakerNode, queryPatient);
+		
+		/*
+		HttpCertificate.install();
+		HttpURLConnection connection = null;  
+		try {
 		    //Create connection
 		    URL url = new URL(matchmakerNode.getUrl());
 		    connection = (HttpURLConnection)url.openConnection();
@@ -153,8 +162,7 @@ public class MatchmakerSearch implements Search{
 		    connection.setRequestProperty("Content-Type","application/vnd.ga4gh.matchmaker.v1.0+json");
 		    connection.setRequestProperty("Content-Language", "en-US");  
 		    connection.setUseCaches(false);
-		    connection.setDoOutput(true);
-		    
+		    connection.setDoOutput(true);	    
 
 		    //Send request
 		    String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
@@ -199,6 +207,10 @@ public class MatchmakerSearch implements Search{
 		    }
 		  }
 		return allResults;
+		*/
+		
+		
+		
 	}
 
 
@@ -250,6 +262,14 @@ public class MatchmakerSearch implements Search{
 		return patientUtility;
 	}
 
+
+	/**
+	 * @return the httpCommunication
+	 */
+	public HttpCommunication getHttpCommunication() {
+		return httpCommunication;
+	}
+	
 	
 	
 	
