@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration;
+import javax.net.ssl.HttpsURLConnection;
+
 import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.matchmakers.Node;
@@ -20,8 +21,7 @@ import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 
 /**
  * @author harindra
@@ -45,15 +45,21 @@ public class HttpCommunication {
 	
 	public List<MatchmakerResult> callNodeWithHttp(Node matchmakerNode, Patient queryPatient) {
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		HttpCertificate.install();
-		HttpURLConnection connection = null;  
+		//HttpCertificate.install();
+		HttpsURLConnection connection = null;  
 		try {
 		    //Create connection
 		    URL url = new URL(matchmakerNode.getUrl());
-		    connection = (HttpURLConnection)url.openConnection();
+		    connection = (HttpsURLConnection)url.openConnection();
+		    HttpCertificate.relaxHostChecking(connection);
 		    connection.setRequestMethod("POST");
-		    connection.setRequestProperty("Content-Type","application/vnd.ga4gh.matchmaker.v1.0+json");
-		    connection.setRequestProperty("Content-Language", "en-US");  
+		    
+		    //node specific attributes
+		    connection.setRequestProperty("X-Auth-Token",matchmakerNode.getToken());
+		    connection.setRequestProperty("Content-Type",matchmakerNode.getContentTypeHeader());
+		    connection.setRequestProperty("Accept",matchmakerNode.getAcceptHeader());
+		    connection.setRequestProperty("Content-Language",matchmakerNode.getContentLanguage());  	    
+		    
 		    connection.setUseCaches(false);
 		    connection.setDoOutput(true);	    
 
