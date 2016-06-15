@@ -45,13 +45,17 @@ public class HttpCommunication {
 	
 	public List<MatchmakerResult> callNodeWithHttp(Node matchmakerNode, Patient queryPatient) {
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		HttpCertificate.install();
 		HttpsURLConnection connection = null;  
 		try {
 		    //Create connection
 		    URL url = new URL(matchmakerNode.getUrl());
 		    connection = (HttpsURLConnection)url.openConnection();
-		    HttpCertificate.relaxHostChecking(connection);
+		    
+		    if (matchmakerNode.isSelfSignedCertificate()){
+		    	HttpCertificate.install();
+		    	HttpCertificate.relaxHostChecking(connection);
+		    }
+		    
 		    connection.setRequestMethod("POST");
 		    
 		    //node specific attributes

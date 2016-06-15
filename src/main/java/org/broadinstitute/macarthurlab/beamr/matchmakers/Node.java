@@ -14,4 +14,5 @@ public interface Node {
 	public String getContentTypeHeader();
 	public String getContentLanguage();
 	public String getAcceptHeader();
+	public boolean isSelfSignedCertificate();
 }
