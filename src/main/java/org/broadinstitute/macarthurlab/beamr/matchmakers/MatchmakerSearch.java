@@ -146,9 +146,7 @@ public class MatchmakerSearch implements Search{
 	 * @throws MalformedURLException 
 	 */
 	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient queryPatient) {
-		System.out.println(matchmakerNode.getName());
-		System.out.println(matchmakerNode.getToken());
-		System.out.println(matchmakerNode.getUrl());
+		System.out.println("searching in external node: "+matchmakerNode.getName());
 		return this.getHttpCommunication().callNodeWithHttp(matchmakerNode, queryPatient);		
 	}
 

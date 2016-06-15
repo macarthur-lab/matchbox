@@ -15,7 +15,7 @@ public class MatchmakerNode implements Node{
 	private final String acceptHeader;
 	private final String contentTypeHeader;
 	private final String contentLanguage;
-	
+	private final boolean selfSignedCertificate;
 
 	/**
 	 * Constructor
@@ -25,13 +25,15 @@ public class MatchmakerNode implements Node{
 						  String url,
 						  String acceptHeader,
 						  String contentTypeHeader, 
-						  String contentLanguage){
+						  String contentLanguage,
+						  boolean selfSignedCertificate){
 		this.name=name;
 		this.token=token;
 		this.url=url;
 		this.acceptHeader = acceptHeader;
 		this.contentTypeHeader = contentTypeHeader;
 		this.contentLanguage = contentLanguage;
+		this.selfSignedCertificate = selfSignedCertificate;
 	}
 	
 
@@ -83,6 +85,16 @@ public class MatchmakerNode implements Node{
 	public String getContentLanguage() {
 		return contentLanguage;
 	}
+
+
+	/**
+	 * @return the selfSignedCertificate
+	 */
+	public boolean isSelfSignedCertificate() {
+		return selfSignedCertificate;
+	}
+	
+	
 
 
 

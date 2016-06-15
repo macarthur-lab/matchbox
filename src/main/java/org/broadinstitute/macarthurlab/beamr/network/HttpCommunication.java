@@ -45,7 +45,7 @@ public class HttpCommunication {
 	
 	public List<MatchmakerResult> callNodeWithHttp(Node matchmakerNode, Patient queryPatient) {
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		//HttpCertificate.install();
+		HttpCertificate.install();
 		HttpsURLConnection connection = null;  
 		try {
 		    //Create connection
