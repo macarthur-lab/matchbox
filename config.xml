@@ -4,36 +4,22 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-  <bean id="phenomeCentralMatchmakerNode"
-      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
-      <constructor-arg type="java.lang.String" value="Phenome Central" />
-      <constructor-arg type="java.lang.String" value="854a439d278df4283bf5498ab020336cdc416a7d" />
-      <constructor-arg type="java.lang.String" value="http://localhost:8080" />
-  </bean>
-
-
   <bean id="testRefSvrNode"
       class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
       <constructor-arg type="java.lang.String" value="Test Reference Server" />
       <constructor-arg type="java.lang.String" value="none" />
       <constructor-arg type="java.lang.String" value="http://localhost:8090/match" />
-  </bean>
-  
-  
-  <bean id="testGeneMatcherNode"
-      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
-      <constructor-arg type="java.lang.String" value="Gene Matcher External Test Server" />
-      <constructor-arg type="java.lang.String" value="4116C10DF1D3FFC7E5BE25A078509636" />
-      <constructor-arg type="java.lang.String" value=" https://staging.phenodbmatcher.net/mmapi/match" />
+      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
+      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
+      <constructor-arg type="java.lang.String" value="en-US"/>
+      <constructor-arg type="boolean" value="false"/>
   </bean>
 
   <bean id="matchmakerSearch"
       class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch">
       <property name="matchmakers">
          <list>
-            <!--  <ref bean="phenomeCentralMatchmakerNode"/> -->
-             <ref bean="testRefSvrNode"/>  
-            <!--  <ref bean="testGeneMatcherNode"/>-->
+            <ref bean="testRefSvrNode"/>
          </list>
       </property>
   </bean>
