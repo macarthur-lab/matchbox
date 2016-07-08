@@ -231,9 +231,7 @@ public class PatientRecordUtility {
 				disorderDets.add(disorderDet);
 			}
 			}
-			
 
-			
 			return new Patient(
 					id, 
 					label, 

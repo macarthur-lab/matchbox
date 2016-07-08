@@ -58,7 +58,7 @@ public class IndividualController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/individual/add")
     public ResponseEntity<String>  individualAdd(@RequestBody String requestString) {
-		String jsonMessage="{\"message\":\"insertion OK\"}";
+		String jsonMessage="{\"message\":\"insertion OK\",\"status_code\":200}";
 		try{
 		String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
@@ -67,10 +67,10 @@ public class IndividualController {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 			if (e.getMessage().contains("duplicate key error")){
-				jsonMessage="{\"message\":\"unable to insert, that patient record (specifically that ID) already exists in Broad system\"}";	
+				jsonMessage="{\"message\":\"unable to insert, that patient record (specifically that ID) already exists in Broad system\",\"status_code\":440}";	
 			}
 			else{
-				jsonMessage="{\"message\":\"unable to insert, an unknown error occurred.\"}";	
+				jsonMessage="{\"message\":\"unable to insert, an unknown error occurred.\",\"status_code\":442}";	
 			}
 		}
         return new ResponseEntity<String>(jsonMessage,HttpStatus.OK);
