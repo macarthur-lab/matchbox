@@ -96,6 +96,7 @@ public class IndividualController {
 	
 	/**
 	 * Controller for individual/match POST end-point (as per Matchmaker spec)
+	 * ONLY SEARCHES IN EXTERNAL NODES and NOT in local node
 	 * @param patient	A patient structure sent as JSON through the API
 	 * @return	A list of result patients found in the network that match input patient
 	 */

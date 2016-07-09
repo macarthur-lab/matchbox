@@ -19,6 +19,7 @@ import org.json.simple.parser.JSONParser;
 
 /**
  * @author harindra
+ * Does a high level check if the basic requirements are satisfied
  *
  */
 public class PatientRecordUtility {
@@ -35,14 +36,15 @@ public class PatientRecordUtility {
 		try{
 			JSONObject jsonObject = (JSONObject) parser.parse(patientJsonString);
 			JSONObject patient = (JSONObject)jsonObject.get("patient");	
+
 		//Id
 		if (patient.containsKey("id")){
 			String id = (String)patient.get("id");
 		}
 		else{
+			System.out.println("Error-areAllRequiredFieldsPresent: id missing, failing requirements!");
 			verdict=false;
 		}
-		
 		//Contact
 		if (patient.containsKey("contact")){
 			Map<String,String> contactDets = new HashMap<String,String>();
@@ -52,31 +54,31 @@ public class PatientRecordUtility {
 			contactDets.put("href", (String)contact.get("href"));
 			}
 		else{
+			System.out.println("Error-areAllRequiredFieldsPresent: Some or all contact information missing, failing requirements!");
 			verdict=false;
 		}
-		
 		
 		//Either features or genomicFeature HAVE TO BE PRESENT
 		if (!patient.containsKey("features")  && !patient.containsKey("genomicFeatures") ){
+			System.out.println("Error-areAllRequiredFieldsPresent: features and genomicFeature both missing, failing requirements!");
 			verdict=false;
 		}
-
-		
 		}
 		catch(Exception e){
-			System.out.println("ERROR:parsing and absorbing patient data: " + e.toString());
-			e.printStackTrace();
-			System.exit(0);
+			System.out.println("ERROR: a required value is missing or wrong value in place, error parsing and absorbing patient data (areAllRequiredFieldsPresent): " + e.toString());
+			System.out.println("Entered patient: "+ patientJsonString);
 			verdict=false;
 		}
 		return verdict;
 	}
 	
+	
+	
 	/**
 	 * Parses a patient information set encoded in a JSON string and returns a Patient
 	 * object that encloses that information
 	 * @param patientString	A JSON string of data about the patient (structure expected)
-	 * @return	A Patient obect that encloses the JSON data
+	 * @return	A Patient object that encloses the JSON data
 	 */
 	public Patient parsePatientInformation(String patientJsonString){
 		JSONParser parser = new JSONParser();
