@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.beamr.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.beamr.entities.Patient;
 import org.broadinstitute.macarthurlab.beamr.entities.PhenotypeFeature;
@@ -16,6 +17,7 @@ import org.broadinstitute.macarthurlab.beamr.entities.Variant;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author harindra
@@ -23,6 +25,8 @@ import org.json.simple.parser.JSONParser;
  *
  */
 public class PatientRecordUtility {
+	@Autowired
+	private PatientMongoRepository patientMongoRepository;
 	
 	/**
 	 * Default constructor does nothing
@@ -251,4 +255,26 @@ public class PatientRecordUtility {
 		}
 		return new Patient();
 	}
+	
+	
+	/**
+	 * Checks if this patient is already in the MME system locally (no way to check in other nodes
+	 * as of July 2016)
+	 * @param patient	A Patient structure
+	 * @return	True if exists
+	 */
+	public boolean isPatientInMme(Patient patient){
+		
+		return true;
+	}
+
+
+	/**
+	 * @return the patientMongoRepository
+	 */
+	public PatientMongoRepository getPatientMongoRepository() {
+		return patientMongoRepository;
+	}
+
+	
 }

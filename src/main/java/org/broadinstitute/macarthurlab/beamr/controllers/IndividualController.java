@@ -62,16 +62,17 @@ public class IndividualController {
 		try{
 		String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
-		System.out.println(this.patientMongoRepository.insert(patient));
+		if (null == this.patientMongoRepository.findOne(patient.getId()))
+		{
+			System.out.println(this.patientMongoRepository.insert(patient));
+		}
+		else{
+			jsonMessage="{\"message\":\"That patient record was not inserted, it (specifically that ID) already exists in Broad system\",\"status_code\":440}";	
+		}
+		
 		}catch(Exception e){
-			System.out.println(e.getMessage());
 			e.printStackTrace();
-			if (e.getMessage().contains("duplicate key error")){
-				jsonMessage="{\"message\":\"unable to insert, that patient record (specifically that ID) already exists in Broad system\",\"status_code\":440}";	
-			}
-			else{
-				jsonMessage="{\"message\":\"unable to insert, an unknown error occurred.\",\"status_code\":442}";	
-			}
+			jsonMessage="{\"message\":\"unable to insert, an unknown error occurred.\",\"status_code\":442, \"error_message\":\"" + e.getMessage() +  "\"}";	
 		}
         return new ResponseEntity<String>(jsonMessage,HttpStatus.OK);
     }
