@@ -52,30 +52,34 @@ public class IndividualController {
 	
 	
 	/**
-	 * Controller for /individual/add end-point
-	 * @param patient	A patient structure sent as JSON through the API
-	 * @return	a success message
+	 * Controller for /individual/add end-point. This adds a patient to the local MME database
+	 * 
+	 * @param patient
+	 *            A patient structure sent as JSON through the API
+	 * @return a success message or error message
 	 */
-	@RequestMapping(method = RequestMethod.POST, value="/individual/add")
-    public ResponseEntity<String>  individualAdd(@RequestBody String requestString) {
-		String jsonMessage="{\"message\":\"insertion OK\",\"status_code\":200}";
-		try{
-		String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-		Patient patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
-		if (null == this.patientMongoRepository.findOne(patient.getId()))
-		{
-			System.out.println(this.patientMongoRepository.insert(patient));
-		}
-		else{
-			jsonMessage="{\"message\":\"That patient record was not inserted, it (specifically that ID) already exists in Broad system\",\"status_code\":440}";	
-		}
-		
-		}catch(Exception e){
+	@RequestMapping(method = RequestMethod.POST, value = "/individual/add")
+	public ResponseEntity<String> individualAdd(@RequestBody String requestString) {
+		String jsonMessage = "{\"message\":\"insertion OK\",\"status_code\":200}";
+		try {
+			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
+			Patient patient = this.getPatientUtility()
+					.parsePatientInformation(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+			if (null == this.patientMongoRepository.findOne(patient.getId())) {
+				System.out.println(this.patientMongoRepository.insert(patient));
+			} else {
+				jsonMessage = "{\"message\":\"That patient record was not inserted, it (specifically that ID) already exists in Broad system\",\"status_code\":440}";
+				return new ResponseEntity<String>(jsonMessage, HttpStatus.CONFLICT);
+			}
+
+		} catch (Exception e) {
 			e.printStackTrace();
-			jsonMessage="{\"message\":\"unable to insert, an unknown error occurred.\",\"status_code\":442, \"error_message\":\"" + e.getMessage() +  "\"}";	
+			jsonMessage = "{\"message\":\"unable to insert, an unknown error occurred.\",\"status_code\":442, \"error_message\":\""
+					+ e.getMessage() + "\"}";
+			return new ResponseEntity<String>(jsonMessage, HttpStatus.SERVICE_UNAVAILABLE);
 		}
-        return new ResponseEntity<String>(jsonMessage,HttpStatus.OK);
-    }
+		return new ResponseEntity<String>(jsonMessage, HttpStatus.OK);
+	}
 	
 	
 	/**

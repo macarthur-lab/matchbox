@@ -3,6 +3,8 @@ package org.broadinstitute.macarthurlab.beamr.entities;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.data.mongodb.core.index.Indexed;
+
 /**
  * @author harindra
  *
@@ -14,7 +16,9 @@ public class GenomicFeature {
           "id" : <gene symbol>|<ensembl gene ID>|<entrez gene ID>
         }
 	 */
+	@Indexed
 	private final Map<String,String> gene;
+	
 	/**
 	 * A description of a variant that looks like,
 	 * "variant" : {
@@ -29,6 +33,7 @@ public class GenomicFeature {
 	private final Variant variant;
 	
 	private final Long zygosity;
+	
 	/**
 	 * A type value that looks like,
 	 *  "type" : {

@@ -35,7 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.Index.Duplicates;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
