@@ -1,7 +1,7 @@
-# beamr
-**B**road **E**xchange **A**PI for **M**atchmaker in **R**DAP
+# <i>matchbox</i>
+**Broad Institute Matchmaker Exchange** 
 
-Beamr is the Matchmaker Exchange application for the joint Center for Mendelian Genomics. It has been developed at the MacArthur Lab and shared as open source software. The objective of this system is to allow the automated comparison at scale, of patients with rare diseases cared-for in other centers world wide. We hope to facilitate the identification of novel variants via finding common instances of such in these individuals.
+<i>matchbox</i> is the Matchmaker Exchange application for the joint Center for Mendelian Genomics. It has been developed at the MacArthur Lab and shared as open source software under the AGPL License. The objective of this system is to allow the automated comparison at scale, of patients with rare diseases cared-for in other centers world wide. We hope to facilitate the identification of novel variants via finding common instances of such in these individuals.
 
 ## Requirements:
 
@@ -17,7 +17,7 @@ In the future, you would be able to either,
 
 * Download the JAR file and simply start the server via [distribution process for this method is not ready yet],
 
-java -jar beamr-0.1.0.jar
+java -jar matchbox-0.1.0.jar
 
 * Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process is quite easy as well, and is described below and supported as of now.
 
@@ -30,13 +30,13 @@ git clone https://username@github.com/macarthur-lab/beamr.git
 
 * Build source files (maven is required to be on your system)
 
-mvn package
+mvn clean package
 
 * That should create a directory called "target" with an executable JAR file
 
 * Start server
 
-java -jar target/beamr-0.1.0.jar
+java -jar target/matchbox-0.1.0.jar
 
 
 ## Test run
@@ -58,11 +58,11 @@ Content-Type: application/x-www-form-urlencoded
 The following describes the typical sequence of events in execution. An addition
 of a patient to the matchmaker system starts the following process.
 
-1. A new patient record get's inserted into beamr via seqr https://seqr.broadinstitute.org. This action implies "search in other matchmaker nodes for patients 'similar' to this patient".
+1. A new patient record get's inserted into matchbox via seqr https://seqr.broadinstitute.org. This action implies "search in other matchmaker nodes for patients 'similar' to this patient".
 
 2. A search get's initiated in every match maker node that is on record 
 
-3. All results are aggregated and sieved through beamr "similarity" tests. 
+3. All results are aggregated and sieved through matchbox "similarity" tests. 
 
 4. Valid matches along with scores are communicated back to the patients primary contact.
 
@@ -73,9 +73,9 @@ of a patient to the matchmaker system starts the following process.
 2. Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.(not implemented yet)
 
 ## Data model notes
-* A database named "beamr" will be created in your localhost MongoDB isntance. If you wish to use a different host name or different database name please update class as needed,
+* A database named "mme_primary" will be created in your localhost MongoDB instance. If you wish to use a different host name or different database name please update class as needed,
 
-org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration
+org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration
 
 
 ## Adding a new matchmaker node
@@ -85,7 +85,7 @@ org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration
 ```
 
   <bean id="ANameToGiveThisNodeRepresentationInCode"
-      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
+      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerNode">
       <constructor-arg type="java.lang.String" value="Some name" />
       <constructor-arg type="java.lang.String" value="The authentication token" />
       <constructor-arg type="java.lang.String" value="The URI" />
@@ -98,7 +98,7 @@ org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration
 ```  
 
   <bean id="ANameToGiveThisNode"
-      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerNode">
+      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerNode">
       <constructor-arg type="java.lang.String" value="Test Reference Server" />
       <constructor-arg type="java.lang.String" value="854a439d278df4283bf5498ab020336cdc416a7d" />
       <constructor-arg type="java.lang.String" value="http://localhost:8090" />
@@ -110,7 +110,7 @@ then add it to this list,
 ```
 
   <bean id="matchmakerSearch"
-      class="org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch">
+      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch">
       <property name="matchmakers">
          <list>
             <ref bean="phenomeCentralMatchmakerNode"/>
@@ -122,8 +122,7 @@ then add it to this list,
 ```
 
 ## To do
-
-*  Add in filter to allow only privileged users access to /individual/* branch
+*  Tests!
 
 *  Complete the /match branch implementation to make calls to other MME nodes
 
@@ -131,7 +130,7 @@ then add it to this list,
 
 ## Examples
 
-*  **View all inviduals in beamr**(eventually this will be a privileged branch with limited access)
+*  **View all individuals in matchbox**(eventually this will be a privileged branch with limited access)
 
 API endpoint (GET):  individual/view
 
@@ -144,7 +143,7 @@ Result would look something like:
 
 
 
-*  **Add a patient to beamr** (eventually this will be a privileged branch with limited access)
+*  **Add a patient to matchbox** (eventually this will be a privileged branch with limited access)
 
 
 API endpoint (POST):  individual/add
@@ -163,7 +162,7 @@ API endpoint (POST):  individual/match
 --NOT IMPLEMENTED YET: AWAITAING AUTH TOKEN GENERATION WITH OTHER CENTERS
 
 
-*  **Find a match in local beamr data model** (look for matches ONLY in local beamer database of patients)  (eventually this will be a privileged branch with limited access)
+*  **Find a match in local matchbox data model** (look for matches ONLY in local beamer database of patients)  (eventually this will be a privileged branch with limited access)
 
 API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at Broad (POST):  /match
 
