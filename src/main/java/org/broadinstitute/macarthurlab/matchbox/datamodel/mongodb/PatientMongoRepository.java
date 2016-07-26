@@ -1,9 +1,9 @@
 /**
  * An interface to MongoDb datamodel
  */
-package org.broadinstitute.macarthurlab.beamr.datamodel.mongodb;
+package org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb;
 
-import org.broadinstitute.macarthurlab.beamr.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.MongoRepository;

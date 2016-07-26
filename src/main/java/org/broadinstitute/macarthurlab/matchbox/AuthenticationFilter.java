@@ -5,7 +5,7 @@
  * 1. Add filter to allow ONLY privileged users access to /individual/*
  * branches
  */
-package org.broadinstitute.macarthurlab.beamr;
+package org.broadinstitute.macarthurlab.matchbox;
 
 import java.io.IOException;
 

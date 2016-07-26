@@ -1,7 +1,7 @@
 /**
  * Represents a phenotype feature
  */
-package org.broadinstitute.macarthurlab.beamr.entities;
+package org.broadinstitute.macarthurlab.matchbox.entities;
 
 /**
  * @author harindra

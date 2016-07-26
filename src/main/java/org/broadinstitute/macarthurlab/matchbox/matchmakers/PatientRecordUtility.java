@@ -1,7 +1,7 @@
 /**
  * A suite of methods to help process patient records from other matchmakers
  */
-package org.broadinstitute.macarthurlab.beamr.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.matchmakers;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
-import org.broadinstitute.macarthurlab.beamr.entities.GenomicFeature;
-import org.broadinstitute.macarthurlab.beamr.entities.Patient;
-import org.broadinstitute.macarthurlab.beamr.entities.PhenotypeFeature;
-import org.broadinstitute.macarthurlab.beamr.entities.Variant;
+import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

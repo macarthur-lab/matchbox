@@ -1,7 +1,7 @@
 /**
  * Handles the insertion of a patient in Beamr data model
  */
-package org.broadinstitute.macarthurlab.beamr.controllers;
+package org.broadinstitute.macarthurlab.matchbox.controllers;
 
 
 import java.util.ArrayList;
@@ -11,12 +11,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
-import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.beamr.entities.Patient;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.Search;
+import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

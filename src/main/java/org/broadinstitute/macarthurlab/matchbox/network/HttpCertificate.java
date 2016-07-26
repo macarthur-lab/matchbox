@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.broadinstitute.macarthurlab.beamr.network;
+package org.broadinstitute.macarthurlab.matchbox.network;
 
 
 import java.security.KeyManagementException;

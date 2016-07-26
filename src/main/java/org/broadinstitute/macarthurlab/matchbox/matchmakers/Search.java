@@ -1,12 +1,12 @@
 /**
  * To represent a search in a matchmaker node
  */
-package org.broadinstitute.macarthurlab.beamr.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.matchmakers;
 
 import java.util.List;
 
-import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.beamr.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 
 /**
  * @author harindra

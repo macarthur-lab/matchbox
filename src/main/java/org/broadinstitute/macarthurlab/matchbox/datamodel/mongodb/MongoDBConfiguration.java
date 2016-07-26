@@ -1,7 +1,7 @@
 /**
  * To configure interaction with MongoDB
  */
-package org.broadinstitute.macarthurlab.beamr.datamodel.mongodb;
+package org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

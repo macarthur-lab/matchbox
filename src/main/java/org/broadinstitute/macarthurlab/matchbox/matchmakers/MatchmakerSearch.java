@@ -1,7 +1,7 @@
 /**
  * Intiates a call to all match maker nodes recorded
  */
-package org.broadinstitute.macarthurlab.beamr.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.matchmakers;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -21,12 +21,12 @@ import javax.net.ssl.SSLSession;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.MongoDBConfiguration;
-import org.broadinstitute.macarthurlab.beamr.datamodel.mongodb.PatientMongoRepository;
-import org.broadinstitute.macarthurlab.beamr.entities.GenomicFeature;
-import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.beamr.entities.Patient;
-import org.broadinstitute.macarthurlab.beamr.network.HttpCommunication;
+import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
+import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.network.HttpCommunication;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

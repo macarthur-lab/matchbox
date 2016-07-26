@@ -1,4 +1,4 @@
-package org.broadinstitute.macarthurlab.beamr;
+package org.broadinstitute.macarthurlab.matchbox;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

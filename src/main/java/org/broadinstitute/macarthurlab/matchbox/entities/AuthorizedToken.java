@@ -1,7 +1,7 @@
 /**
  * Represents an authorized token and persisted in database
  */
-package org.broadinstitute.macarthurlab.beamr.entities;
+package org.broadinstitute.macarthurlab.matchbox.entities;
 
 import org.springframework.data.annotation.Id;
 

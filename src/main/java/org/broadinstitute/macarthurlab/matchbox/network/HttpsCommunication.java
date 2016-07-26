@@ -1,15 +1,15 @@
 /**
  * To handle Https communication
  */
-package org.broadinstitute.macarthurlab.beamr.network;
+package org.broadinstitute.macarthurlab.matchbox.network;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.beamr.entities.Patient;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.Node;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.Node;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 
 /**
  * @author harindra

@@ -1,4 +1,4 @@
-package org.broadinstitute.macarthurlab.beamr.entities;
+package org.broadinstitute.macarthurlab.matchbox.entities;
 
 import java.util.ArrayList;
 import java.util.HashMap;

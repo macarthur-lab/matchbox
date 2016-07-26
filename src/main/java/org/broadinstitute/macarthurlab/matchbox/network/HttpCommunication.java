@@ -1,7 +1,7 @@
 /**
  * Simple class to handle Http communicstions
  */
-package org.broadinstitute.macarthurlab.beamr.network;
+package org.broadinstitute.macarthurlab.matchbox.network;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -14,10 +14,10 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.beamr.entities.Patient;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.Node;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.Node;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

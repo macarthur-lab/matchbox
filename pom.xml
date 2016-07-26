@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.broadinstitute.macarthurlab</groupId>
-    <artifactId>beamr</artifactId>
+    <artifactId>matchbox</artifactId>
     <version>0.1.0</version>
     <packaging>jar</packaging>
-    <name>beamr</name>
+    <name>matchbox</name>
 	
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -54,7 +54,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <mainClass>org.broadinstitute.macarthurlab.beamr.MatchMakerExchange</mainClass>
+        <mainClass>org.broadinstitute.macarthurlab.matchbox.MatchMakerExchange</mainClass>
     </properties>
 
 
@@ -71,7 +71,7 @@
                 <archive>
                     <manifest>
                         <mainClass>
-                            org.broadinstitute.macarthurlab.beamr.MatchmakeExchange
+                            org.broadinstitute.macarthurlab.matchbox.MatchmakeExchange
                         </mainClass>
                     </manifest>
                  </archive>

@@ -1,7 +1,7 @@
 /**
  * Represents a matchmaker node
  */
-package org.broadinstitute.macarthurlab.beamr.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.matchmakers;
 
 /**
  * @author harindra

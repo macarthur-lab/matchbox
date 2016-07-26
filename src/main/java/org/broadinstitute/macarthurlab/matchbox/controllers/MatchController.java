@@ -1,7 +1,7 @@
 /**
  * Controller for main match route
  */
-package org.broadinstitute.macarthurlab.beamr.controllers;
+package org.broadinstitute.macarthurlab.matchbox.controllers;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,11 +12,11 @@ import java.util.Map;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.broadinstitute.macarthurlab.beamr.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.beamr.entities.Patient;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.MatchmakerSearch;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.PatientRecordUtility;
-import org.broadinstitute.macarthurlab.beamr.matchmakers.Search;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
