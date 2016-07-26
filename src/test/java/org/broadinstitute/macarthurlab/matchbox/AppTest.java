@@ -1,4 +1,4 @@
-package org.broadinstitute.macarthurlab.beam;
+package org.broadinstitute.macarthurlab.matchbox;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
