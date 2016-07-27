@@ -3,44 +3,25 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.matchmakers;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+
+
 import java.net.MalformedURLException;
-import java.net.URL;
+
+
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
-
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
-import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.match.Match;
+import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.network.HttpCommunication;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.omg.CORBA.portable.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.Index.Duplicates;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Order;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 
 /**
@@ -55,6 +36,11 @@ public class MatchmakerSearch implements Search{
 	 * This is populated via config.xml file via Spring IoC
 	 */
 	private List<Node> matchmakers;
+	
+	/**
+	 * Genotype matching tools
+	 */
+	private final MatchService match;
 	
 	/**
 	 * A connection to MongoDB for queries
@@ -83,6 +69,7 @@ public class MatchmakerSearch implements Search{
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 		this.patientUtility = new PatientRecordUtility();
 		this.httpCommunication = new HttpCommunication();
+		this.match = new Match();
 	}
 	
 	
@@ -103,43 +90,9 @@ public class MatchmakerSearch implements Search{
 	 * @param	A patient
 	 */
 	public List<MatchmakerResult> searchInLocalDatabaseOnly(Patient patient){
-		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		List<Patient> genomicFeatMatches = searchByGenomicFeatures(patient);
-		for (Patient p: genomicFeatMatches){
-			allResults.add(new MatchmakerResult(
-												new HashMap<String, Double>(),
-												p
-												));
-		}
-		return allResults;
+		return this.getMatch().match(patient);
 	}
-	
-	
-	/**
-	 * Search for matching patients using GenomicFeatures
-	 * 1. Considers it a match if they have AT LEAST 1 gene in common
-	 */
-	private List<Patient> searchByGenomicFeatures(Patient patient){
-		List<Patient> results = new ArrayList<Patient>();		
-		StringBuilder query = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
-		int i=0;
-		for (GenomicFeature genomicFeature : patient.getGenomicFeatures()){
-			String geneId = genomicFeature.getGene().get("id");
-			query.append("'"+geneId+"'"); 
-			if (i<patient.getGenomicFeatures().size()-1){
-				query.append(",");
-			}
-			i++;
-		}
-		query.append("]}}");
-		BasicQuery q = new BasicQuery(query.toString());
-		List<Patient> ps = this.getOperator().find(q,Patient.class);
-		for (Patient p:ps){
-			results.add(p);
-		}
-		return results;
-	}
-	
+		
 
 	/**
 	 * Searches in this external matchmaker node for this patient
@@ -209,6 +162,17 @@ public class MatchmakerSearch implements Search{
 	public HttpCommunication getHttpCommunication() {
 		return httpCommunication;
 	}
+
+
+	/**
+	 * @return the genotypeMatch
+	 */
+	public MatchService getMatch() {
+		return this.match;
+	}
+
+
+
 	
 	
 	
