@@ -9,7 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="patient")
-public class Patient {
+public class Patient{
 	
 	/**
 	 * Should this ID be the ID of the patient (which enforces uniqueness)
@@ -209,8 +209,6 @@ public class Patient {
 				+ sex + ", ageOfOnset=" + ageOfOnset + ", inheritanceMode=" + inheritanceMode + ", disorders="
 				+ disorders + ", features=" + features + ", genomicFeatures=" + genomicFeatures + "]";
 	}
-
-
 
 
 	

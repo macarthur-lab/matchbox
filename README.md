@@ -124,6 +124,8 @@ then add it to this list,
 ## To do
 *  Tests!
 
+*  Better exception handling
+
 *  Complete the /match branch implementation to make calls to other MME nodes
 
 

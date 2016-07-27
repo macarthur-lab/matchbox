@@ -6,6 +6,7 @@ package org.broadinstitute.macarthurlab.matchbox.match;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
@@ -35,23 +36,63 @@ public class Match implements MatchService{
 	
 	
 	/**
-	 * Do a match in the local database based of this patient
+	 * Do a match in the local database based of this patient.
+	 * 
+	 * Once matches are found via genotypes, it is then ranked by genotype similarity and
+	 * then ranked by phenotype similarity and following that a score is assigned based on
+	 * those two metrics.
+	 * 
 	 * @param patient a patient to match on
 	 */
 	public List<MatchmakerResult> match(Patient patient){
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		List<Patient> genomicFeatMatches = this.getGenotypeMatch().searchByGenomicFeatures(patient);
+		
+		List<Double> patientGenotypeRankingScores = this.getGenotypeMatch().rankByGenotypes(genomicFeatMatches, patient);
 		List<Double> patientPhenotypeRankingScores = this.getPhenotypeMatch().rankByPhenotypes(genomicFeatMatches, patient);
+		List<Double> scores = generateMergedScore(patientGenotypeRankingScores,patientPhenotypeRankingScores);
+		
+		int i=0;
 		for (Patient p: genomicFeatMatches){
+			Map<String, Double> score = new HashMap<String, Double>();
+			score.put("patient", scores.get(i));
 			allResults.add(new MatchmakerResult(
-												new HashMap<String, Double>(),
+												score,
 												p
 												));
+			i++;
 		}
 		return allResults;
 	}
 
 
+	/**
+	 * Merge phenotype and genotype scores into a single score,
+	 * 
+	 * Algorithm: the absolute value of the log of the weighted average of 
+	 * genotype (wieght:0.8) and phenotype(weight:0.2)
+	 * @param patientGenotypeRankingScores	scores based on genotypes
+	 * @param patientPhenotypeRankingScores scores based on phenotypes
+	 * @return	A merged score
+	 */
+	private List<Double> generateMergedScore(List<Double> patientGenotypeRankingScores,List<Double> patientPhenotypeRankingScores){
+		List<Double> merged = new ArrayList<Double>();
+		double genotypeWeight=0.8;
+		double phenotypeWeight=0.2;
+		for (int i=0;i<patientGenotypeRankingScores.size();i++){
+			merged.add(
+					1- Math.exp(-1*(
+							(patientGenotypeRankingScores.get(i)*genotypeWeight) + 
+							 (patientPhenotypeRankingScores.get(i)*phenotypeWeight)
+							)/2
+							)
+					);
+		}
+		return merged;
+	}
+	
+	
+	
 	/**
 	 * @return the genotypeMatch
 	 */
