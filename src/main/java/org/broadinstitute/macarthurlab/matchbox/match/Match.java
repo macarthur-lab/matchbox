@@ -41,6 +41,7 @@ public class Match implements MatchService{
 	public List<MatchmakerResult> match(Patient patient){
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		List<Patient> genomicFeatMatches = this.getGenotypeMatch().searchByGenomicFeatures(patient);
+		List<Double> patientPhenotypeRankingScores = this.getPhenotypeMatch().rankByPhenotypes(genomicFeatMatches, patient);
 		for (Patient p: genomicFeatMatches){
 			allResults.add(new MatchmakerResult(
 												new HashMap<String, Double>(),
