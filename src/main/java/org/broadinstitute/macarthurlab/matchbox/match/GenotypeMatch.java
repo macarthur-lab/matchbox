@@ -4,7 +4,9 @@
 package org.broadinstitute.macarthurlab.matchbox.match;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
@@ -73,13 +75,97 @@ public class GenotypeMatch {
 
 	
 	/**
-	 * As a first naive step, we will simply get the number of 
-	 * genes they have in common against the total number of genes
+	 * Calculates a metric on similarity
 	 * @param p1	patient 1
-	 * @param p2	patient 2
+	 * @param queryP	patient 2
 	 * @return	a representative number (described above)
 	 */
-	private double getGenotypeSimilarity(Patient p1, Patient p2){
+	private double getGenotypeSimilarity(Patient p1, Patient queryP){
+		double simScore=0.0;
+		List<String> commonGenes = findCommonGenes(p1, queryP);
+		simScore += getCommonGenesScore(p1, queryP,commonGenes);
+		simScore += getVariantPositionScore(p1, queryP,commonGenes);
+		return simScore;
+	}
+	
+	
+	/**
+	 * As a first naive step, we will simply get the number of 
+	 * genes they have in common against the total number of genes
+	 * @param p1 patient
+	 * @param queryP another patient
+	 * @param p1p2Intersect genes both patients have in common
+	 * @return	A genes in common metric
+	 */
+	private double getCommonGenesScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
+		return (double)p1p2Intersect.size() / 
+				((double)p1.getGenomicFeatures().size() +(double)queryP.getGenomicFeatures().size());
+	}
+	
+	
+	/**
+	 * Generates a score based on variant positions inside a common gene
+	 * @param p1 patient
+	 * @param queryP another patient
+	 * @return	Returns a representative metric
+	 */
+	private double getVariantPositionScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
+		double score=0.0;
+		//make map of relevant genes/gene-info
+		Map<String,GenomicFeature> commonQueryGenes = new HashMap<String,GenomicFeature>();
+		queryP.getGenomicFeatures().forEach((k)->{
+			if (p1p2Intersect.contains(k.getGene().get("id"))){
+				commonQueryGenes.put(k.getGene().get("id"), k);
+			}
+		});
+		for(GenomicFeature genomicFeature: p1.getGenomicFeatures()){
+			if (p1p2Intersect.contains(genomicFeature.getGene().get("id"))){
+				//if it is a HIGH danger variant type
+				if (this.getSOCodes().contains(genomicFeature.getType().get("id"))){
+					score += 0.1;
+				}
+			}
+		}
+		return score;
+	}
+	
+	
+	
+	/**
+	 * TODO: abstract this to config file
+	 * Get a list of SO codes of mutations. gotten from
+	 * //http://doc-openbio.readthedocs.io/projects/jannovar/en/master/var_effects.html
+	 * @return a list of SO codes
+	 */
+	private List<String> getSOCodes(){
+		List<String> codes= new ArrayList<String>();
+		codes.add("SO:1000182");
+		codes.add("SO:0001624");
+		codes.add("SO:0001572");
+		codes.add("SO:0001909");
+		codes.add("SO:0001910");
+		codes.add("SO:0001589");
+		codes.add("SO:0001908");
+		codes.add("SO:0001906");
+		codes.add("SO:0001583");
+		codes.add("SO:1000005");
+		codes.add("SO:0002012");
+		codes.add("SO:0002012");
+		codes.add("SO:0002012");
+		codes.add("SO:0001619");
+		codes.add("SO:0001575");
+		codes.add("SO:0001619");	
+		return codes;
+	}
+	
+	
+	
+	/**
+	 * Returns a list of common genes
+	 * @param p1 patient
+	 * @param p2 patient
+	 */
+	private List<String> findCommonGenes(Patient p1, Patient p2){
 		List<String> p1Genes = new ArrayList<String>();
 		p1.getGenomicFeatures().forEach((k)->{
 							p1Genes.add(k.getGene().get("id"));
@@ -91,8 +177,7 @@ public class GenotypeMatch {
 		List<String> p1p2Intersect = p1Genes.stream()
                 .filter(p2Genes::contains)
                 .collect(Collectors.toList());
-		return (double)p1p2Intersect.size() / ((double)p1.getGenomicFeatures().size() +(double)p2.getGenomicFeatures().size());
-
+		return p1p2Intersect;
 	}
 	
 	
