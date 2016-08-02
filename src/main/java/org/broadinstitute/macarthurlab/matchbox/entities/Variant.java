@@ -39,6 +39,19 @@ public class Variant {
 		this.referenceBases = referenceBases;
 		this.alternateBases = alternateBases;
 	}
+	
+	/**
+	 * Deafult constructor for mostly testing
+	 */
+	public Variant(){
+		this.assembly="";
+		this.referenceName="";
+		this.start=0L;
+		this.end=0L;
+		this.referenceBases="";
+		this.alternateBases="";
+	}
+	
 	/**
 	 * @return the assembly
 	 */

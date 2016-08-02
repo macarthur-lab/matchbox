@@ -80,7 +80,7 @@ public class GenotypeMatch {
 	 * @param queryP	patient 2
 	 * @return	a representative number (described above)
 	 */
-	private double getGenotypeSimilarity(Patient p1, Patient queryP){
+	public double getGenotypeSimilarity(Patient p1, Patient queryP){
 		double simScore=0.0;
 		List<String> commonGenes = findCommonGenes(p1, queryP);
 		simScore += getCommonGenesScore(p1, queryP,commonGenes);
@@ -97,7 +97,7 @@ public class GenotypeMatch {
 	 * @param p1p2Intersect genes both patients have in common
 	 * @return	A genes in common metric
 	 */
-	private double getCommonGenesScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
+	public double getCommonGenesScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
 		return (double)p1p2Intersect.size() / 
 				((double)p1.getGenomicFeatures().size() +(double)queryP.getGenomicFeatures().size());
 	}
@@ -109,7 +109,7 @@ public class GenotypeMatch {
 	 * @param queryP another patient
 	 * @return	Returns a representative metric
 	 */
-	private double getVariantPositionScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
+	public double getVariantPositionScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
 		double score=0.0;
 		//make map of relevant genes/gene-info
 		Map<String,GenomicFeature> commonQueryGenes = new HashMap<String,GenomicFeature>();
@@ -165,7 +165,7 @@ public class GenotypeMatch {
 	 * @param p1 patient
 	 * @param p2 patient
 	 */
-	private List<String> findCommonGenes(Patient p1, Patient p2){
+	public List<String> findCommonGenes(Patient p1, Patient p2){
 		List<String> p1Genes = new ArrayList<String>();
 		p1.getGenomicFeatures().forEach((k)->{
 							p1Genes.add(k.getGene().get("id"));
@@ -173,10 +173,11 @@ public class GenotypeMatch {
 		List<String> p2Genes = new ArrayList<String>();
 		p2.getGenomicFeatures().forEach((k)->{
 							p2Genes.add(k.getGene().get("id"));
-						});
+						});		
 		List<String> p1p2Intersect = p1Genes.stream()
                 .filter(p2Genes::contains)
                 .collect(Collectors.toList());
+		
 		return p1p2Intersect;
 	}
 	
