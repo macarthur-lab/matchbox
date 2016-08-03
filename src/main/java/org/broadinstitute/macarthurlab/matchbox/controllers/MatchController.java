@@ -1,5 +1,6 @@
 /**
- * Controller for main match route
+ * Controller for main match route.
+ * This is defined via the MME specification
  */
 package org.broadinstitute.macarthurlab.matchbox.controllers;
 
