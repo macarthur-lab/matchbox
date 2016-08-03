@@ -3,7 +3,7 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.matchmakers;
 
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

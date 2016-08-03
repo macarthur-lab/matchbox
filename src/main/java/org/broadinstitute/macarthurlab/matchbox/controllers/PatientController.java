@@ -5,13 +5,11 @@ package org.broadinstitute.macarthurlab.matchbox.controllers;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
-import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
