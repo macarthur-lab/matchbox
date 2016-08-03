@@ -26,15 +26,21 @@
   
   
   
-  <bean id="seqr"
-      class="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
+  <bean id="accessTokenForseqr"
+      class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
       <constructor-arg type="java.lang.String" value="seqr" />
       <constructor-arg type="java.lang.String" value="854a439d278df4283bf5498ab020336cdc416a7d" />
-      <constructor-arg type="java.lang.String" value="http://localhost:8090/match" />
-      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
-      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
-      <constructor-arg type="java.lang.String" value="en-US"/>
-      <constructor-arg type="boolean" value="false"/>
+      <constructor-arg type="java.lang.String" value="Broad Institute JCMG seqr" />
+      <constructor-arg type="java.lang.String" value="harindra@broadinstitute.org" />
+  </bean>
+  
+  <bean id="accessAuthorizedNode"
+      class="org.broadinstitute.macarthurlab.matchbox.authentication.AccessAuthorizedNode">
+      <property name="accessAuthorizedNodes">
+         <list>
+            <ref bean="accessTokenForseqr"/>
+         </list>
+      </property>
   </bean>
   
 

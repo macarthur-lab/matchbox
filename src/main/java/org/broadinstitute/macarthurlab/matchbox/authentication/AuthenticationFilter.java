@@ -8,6 +8,8 @@
 package org.broadinstitute.macarthurlab.matchbox.authentication;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -18,14 +20,39 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
+import org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AuthenticationFilter implements Filter{
 	private static final String X_AUTH_TOKEN_HEADER="X-Auth-Token";
 	private static final String ACCEPT_HEADER="Accept";
+	private final AccessAuthorizedNode accessAuthorizedNode;
+	private final List<String> authorizedTokens;
 
 
+		
+	/**
+	 * Initializes class
+	 */
+	public AuthenticationFilter(){
+    	String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
+    	ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
+    	this.accessAuthorizedNode = context.getBean("accessAuthorizedNode", AccessAuthorizedNode.class);
+	
+    	List<String> authorizedTokes=new ArrayList<String>();
+    	for(AuthorizedToken authorizeNode  : this.getAccessAuthorizedNode().getAccessAuthorizedNodes()){
+    		authorizedTokes.add(authorizeNode.getToken());
+    	}
+    	this.authorizedTokens = authorizedTokes;
+	}
+	
 
 	@Override
     public void destroy() {
@@ -35,7 +62,7 @@ public class AuthenticationFilter implements Filter{
     @Override
     public void doFilter(ServletRequest req, ServletResponse res,
             FilterChain chain) throws IOException, ServletException {
-
+    	
             HttpServletRequest request = (HttpServletRequest) req;
             HttpServletResponse response = (HttpServletResponse) res;
             
@@ -73,8 +100,10 @@ public class AuthenticationFilter implements Filter{
      * @return	true if validated, false otherwise
      */
     private boolean validateXAuthToken(String xAuthToken){
-    	//TODO past testing, swap this with a Mongo entity (AuthorizedToken.find({}))Call to see if in system
-    	if (xAuthToken.equals("854a439d278df4283bf5498ab020336cdc416a7d")){
+    	//if (xAuthToken.equals("854a439d278df4283bf5498ab020336cdc416a7d")){
+    	//	return true;
+    	//}
+    	if (this.getAuthorizedTokens().contains(xAuthToken)){
     		return true;
     	}
     	return false;
@@ -101,5 +130,25 @@ public class AuthenticationFilter implements Filter{
 	 */
     public void init(FilterConfig arg0) throws ServletException {
     }
+
+
+	/**
+	 * @return the accessAuthorizedNode
+	 */
+	public AccessAuthorizedNode getAccessAuthorizedNode() {
+		return accessAuthorizedNode;
+	}
+
+
+	/**
+	 * @return the authorizedTokens
+	 */
+	public List<String> getAuthorizedTokens() {
+		return authorizedTokens;
+	}
+	
+	
+	
+	
 
 }

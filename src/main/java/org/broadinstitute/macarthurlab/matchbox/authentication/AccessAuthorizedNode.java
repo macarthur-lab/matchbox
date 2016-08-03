@@ -11,21 +11,35 @@ import org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken;
  * @author harindra
  *
  */
-public class AccessAuthorisedNode {
-	private final List<AuthorizedToken> accessAuthorizedNodes;
+public class AccessAuthorizedNode {
+	private List<AuthorizedToken> accessAuthorizedNodes;
 
 	/**
 	 * Sets up tokens
 	 */
-	public AccessAuthorisedNode(List<AuthorizedToken> authorisedNodes) {
+	public AccessAuthorizedNode(List<AuthorizedToken> authorisedNodes) {
 		this.accessAuthorizedNodes = authorisedNodes;
 	}
+	
+	/**
+	 * Default constructor for spring
+	 */
+	public AccessAuthorizedNode() {}
 
 	/**
 	 * @return the accessAuthorizedNodes
 	 */
 	public List<AuthorizedToken> getAccessAuthorizedNodes() {
 		return accessAuthorizedNodes;
+	}
+
+	/**
+	 * @param accessAuthorizedNodes the accessAuthorizedNodes to set
+	 */
+	public void setAccessAuthorizedNodes(List<AuthorizedToken> accessAuthorizedNodes) {
+		this.accessAuthorizedNodes = accessAuthorizedNodes;
 	}	
+	
+	
 
 }
