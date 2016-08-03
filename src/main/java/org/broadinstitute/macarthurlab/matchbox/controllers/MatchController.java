@@ -81,6 +81,40 @@ public class MatchController {
 	}
 	
 	
+	
+	
+	/**
+	 * Controller for individual/match POST end-point (as per Matchmaker spec)
+	 * ONLY SEARCHES IN EXTERNAL NODES and NOT in local node
+	 * @param patient	A patient structure sent as JSON through the API
+	 * @return	A list of result patients found in the network that match input patient
+	 */
+	@RequestMapping(method = RequestMethod.POST, value="/match/external")
+    public ResponseEntity<?> individualMatch(@RequestBody String requestString) {
+		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
+		Patient patient=null;
+		try{
+			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
+			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+			if (inputDataValid) {
+				//TODO figure out why there is a = at the end of JSON string
+				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+			}
+			else{
+				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+			}
+			List<MatchmakerResult> matchmakerResults = this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
+			results.put("results", matchmakerResults);
+		}
+		catch(Exception e){
+			System.out.println("error occurred in match controller:"+e.toString());
+			e.printStackTrace();
+		}
+    	return new ResponseEntity<>(results, HttpStatus.OK);
+    }
+	
+	
+	
     /**
 	 * @return the searcher
 	 */

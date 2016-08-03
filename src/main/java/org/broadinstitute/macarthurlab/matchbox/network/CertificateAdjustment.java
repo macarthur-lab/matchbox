@@ -1,5 +1,5 @@
 /**
- * 
+ * Adjusting for certificate issues
  */
 package org.broadinstitute.macarthurlab.matchbox.network;
 
@@ -19,7 +19,7 @@ import javax.net.ssl.*;
  * @license   http://creativecommons.org/licenses/by/3.0/
  * @see       http://www.geekality.net/?p=2408
  */
-public final class HttpCertificate implements X509TrustManager, HostnameVerifier
+public final class CertificateAdjustment implements X509TrustManager, HostnameVerifier
 {
     public X509Certificate[] getAcceptedIssuers() {return null;}
     public void checkClientTrusted(X509Certificate[] certs, String authType) {}
@@ -33,7 +33,7 @@ public final class HttpCertificate implements X509TrustManager, HostnameVerifier
     {
         try
         {
-        	HttpCertificate trustAll = new HttpCertificate();
+        	CertificateAdjustment trustAll = new CertificateAdjustment();
             
             // Install the all-trusting trust manager
             SSLContext sc = SSLContext.getInstance("SSL");

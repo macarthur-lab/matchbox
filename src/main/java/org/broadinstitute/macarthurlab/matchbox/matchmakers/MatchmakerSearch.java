@@ -18,7 +18,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.match.Match;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
-import org.broadinstitute.macarthurlab.matchbox.network.HttpCommunication;
+import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -59,7 +59,7 @@ public class MatchmakerSearch implements Search{
 	/**
 	 * A set of tools to help with make a Http call to an external node
 	 */
-	private final HttpCommunication httpCommunication;
+	private final Communication httpCommunication;
 	
 	
 	/**
@@ -69,7 +69,7 @@ public class MatchmakerSearch implements Search{
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 		this.patientUtility = new PatientRecordUtility();
-		this.httpCommunication = new HttpCommunication();
+		this.httpCommunication = new Communication();
 		this.match = new Match();
 	}
 	
@@ -104,9 +104,11 @@ public class MatchmakerSearch implements Search{
 	 */
 	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient queryPatient) {
 		System.out.println("searching in external node: "+matchmakerNode.getName());
-		return this.getHttpCommunication().callNodeWithHttp(matchmakerNode, queryPatient);		
+			return this.getHttpCommunication().callNode(matchmakerNode, queryPatient);	
 	}
 
+	
+	
 
 	/**
 	 * @return the matchmakers
@@ -160,7 +162,7 @@ public class MatchmakerSearch implements Search{
 	/**
 	 * @return the httpCommunication
 	 */
-	public HttpCommunication getHttpCommunication() {
+	public Communication getHttpCommunication() {
 		return httpCommunication;
 	}
 

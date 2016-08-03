@@ -5,7 +5,10 @@ package org.broadinstitute.macarthurlab.matchbox.network;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +29,7 @@ import org.json.simple.parser.JSONParser;
  * @author harindra
  *
  */
-public class HttpCommunication {
+public class Communication {
 	
 	/**
 	 * A set of tools to parse and store patient information
@@ -36,23 +39,29 @@ public class HttpCommunication {
 	/**
 	 * Default constructor
 	 */
-	public HttpCommunication(){
+	public Communication(){
 		this.patientUtility = new PatientRecordUtility();
 	}
 	
 	
 	
-	public List<MatchmakerResult> callNodeWithHttp(Node matchmakerNode, Patient queryPatient) {
+	public List<MatchmakerResult> callNode(Node matchmakerNode, Patient queryPatient) {
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
+		
+		if (!this.isHostLive(matchmakerNode.getUrl(), 80)){
+			System.out.println("WARNING: the node "+ matchmakerNode.getName() + " doesn not seem to be live, moving on..");
+			return allResults;	
+		}
+			
 		HttpsURLConnection connection = null;  
 		try {
 		    //Create connection
 		    URL url = new URL(matchmakerNode.getUrl());
 		    connection = (HttpsURLConnection)url.openConnection();
-		    
+
 		    if (matchmakerNode.isSelfSignedCertificate()){
-		    	HttpCertificate.install();
-		    	HttpCertificate.relaxHostChecking(connection);
+		    	CertificateAdjustment.install();
+		    	CertificateAdjustment.relaxHostChecking(connection);
 		    }
 		    
 		    connection.setRequestMethod("POST");
@@ -99,16 +108,31 @@ public class HttpCommunication {
 					//TODO what to do here?
 				}
 				
-		    }		    
+		    }		 
 		  } catch (Exception e) {
-		    e.printStackTrace();
-		    return null;
+			  System.out.println("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e);    
 		  } finally {
 		    if(connection != null) {
 		      connection.disconnect(); 
 		    }
 		  }
 		return allResults;
+	}
+	
+	
+	/**
+	 * Check if this host is live
+	 * @param hostName name of host
+	 * @param portNum port number
+	 * @return	true if live
+	 */
+	public boolean isHostLive(String hostName, int portNum) {
+	    try (Socket socket = new Socket()) {
+	        socket.connect(new InetSocketAddress(hostName, portNum));
+	        return true;
+	    } catch (IOException e) {
+	        return false; 
+	    }
 	}
 
 

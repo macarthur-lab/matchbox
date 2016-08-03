@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = "*")
-public class IndividualController {
+public class PatientController {
 	
 	private final PatientRecordUtility patientUtility;
 	@Autowired
@@ -41,7 +41,7 @@ public class IndividualController {
 	/**
 	 * Constructor populates search functionality
 	 */
-	public IndividualController(){
+	public PatientController(){
         this.patientUtility = new PatientRecordUtility();
         String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
         ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
@@ -56,7 +56,7 @@ public class IndividualController {
 	 *            A patient structure sent as JSON through the API
 	 * @return a success message or error message
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = "/individual/add")
+	@RequestMapping(method = RequestMethod.POST, value = "/patient/add")
 	public ResponseEntity<String> individualAdd(@RequestBody String requestString) {
 		String jsonMessage = "{\"message\":\"insertion OK\",\"status_code\":200}";
 		try {
@@ -84,7 +84,7 @@ public class IndividualController {
 	 * Controller for /individual/view end-point
 	 * @return	a list of patients found in Beamr data model
 	 */
-	@RequestMapping(method = RequestMethod.GET, value="/individual/view")
+	@RequestMapping(method = RequestMethod.GET, value="/patient/view")
     public List<Patient>  IndividualView() {
 		List<Patient> patients = new ArrayList<Patient>();
 		try{
@@ -95,45 +95,13 @@ public class IndividualController {
         return patients;
     }
 	
-	
-	
-	/**
-	 * Controller for individual/match POST end-point (as per Matchmaker spec)
-	 * ONLY SEARCHES IN EXTERNAL NODES and NOT in local node
-	 * @param patient	A patient structure sent as JSON through the API
-	 * @return	A list of result patients found in the network that match input patient
-	 */
-	@RequestMapping(method = RequestMethod.POST, value="/individual/match")
-    public ResponseEntity<?> individualMatch(@RequestBody String requestString) {
-		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
-		Patient patient=null;
-		try{
-			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(decodedRequestString.substring(0, decodedRequestString.length() - 1));
-			if (inputDataValid) {
-				//TODO figure out why there is a = at the end of JSON string
-				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
-			}
-			else{
-				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-			}
-			List<MatchmakerResult> matchmakerResults = this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
-			results.put("results", matchmakerResults);
-		}
-		catch(Exception e){
-			System.out.println("error occurred in match controller:"+e.toString());
-			e.printStackTrace();
-		}
-    	return new ResponseEntity<>(results, HttpStatus.OK);
-    }
-	
 
 	/**
 	 * Controller for individual/delete POST end-point 
 	 * @param patientId	A patient ID to delete
 	 * @return	True/False on success
 	 */
-	@RequestMapping(method = RequestMethod.POST, value="/individual/delete")
+	@RequestMapping(method = RequestMethod.POST, value="/patient/delete")
     public Map<String,String> individualDelete(@RequestBody String requestString) {
 		Map<String,String> results = new HashMap<String,String>();
 		try{
