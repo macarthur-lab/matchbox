@@ -1,5 +1,6 @@
 /**
  * Adjusting for certificate issues
+ * - This was needed for GeneMatcher node certificate issues
  */
 package org.broadinstitute.macarthurlab.matchbox.network;
 
