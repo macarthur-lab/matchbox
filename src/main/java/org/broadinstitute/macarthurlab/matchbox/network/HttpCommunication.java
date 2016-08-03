@@ -15,7 +15,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.Node;
+import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

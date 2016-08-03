@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.Node;
+import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 
 /**

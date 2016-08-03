@@ -14,6 +14,7 @@ import java.util.List;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.match.Match;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;

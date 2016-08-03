@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
 
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
@@ -17,8 +16,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

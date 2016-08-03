@@ -2,7 +2,7 @@
  * Represents a single matchmaker node. Nodes are setup through spring.xml file
  * via dependency injection
  */
-package org.broadinstitute.macarthurlab.matchbox.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.entities;
 
 /**
  * @author harindra
