@@ -258,6 +258,26 @@ public class PatientRecordUtility {
 	
 	
 	/**
+	 * Parsed json payload from a delete call
+	 * @param jsonString	json string
+	 * @return parsed values as a map
+	 */
+	public Map<String,String> parsePatientIdFromDeleteCall(String jsonString){
+		JSONParser parser = new JSONParser();
+		Map<String,String> parsed = new HashMap<String,String> ();
+		try{
+			JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
+			String id = (String)jsonObject.get("id");
+			parsed.put("id", id);
+		}
+		catch(Exception e){
+				System.out.println("ERROR: parsing id from JSON DELETE call :"+e);
+			}
+		return parsed;
+	}
+	
+	
+	/**
 	 * Checks if this patient is already in the MME system locally (no way to check in other nodes
 	 * as of July 2016)
 	 * @param patient	A Patient structure
