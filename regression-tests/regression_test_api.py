@@ -9,6 +9,7 @@ import sys
 import os
 from argparse import ArgumentParser
 import json
+import requests
 
 __all__ = []
 __version__ = 0.1
@@ -21,7 +22,7 @@ ACCESS_TOKEN="854a439d278df4283bf5498ab020336cdc416a7d"
 MME_NODE_ACCEPT_HEADER='application/vnd.ga4gh.matchmaker.v0.1+json'
 MME_CONTENT_TYPE_HEADER='application/x-www-form-urlencoded'
 MME_SERVER_HOST='http://localhost:8080'
-MME_ADD_INDIVIDUAL_URL = MME_SERVER_HOST + '/individual/add'
+MME_ADD_INDIVIDUAL_URL = MME_SERVER_HOST + '/patient/add'
 '''
     matches in local MME database ONLY, won't search in other MME nodes
 '''
@@ -54,9 +55,33 @@ def start():
     """
     Start processing
     """
-    test_data=get_test_data()
-    print test_data
-    
+    test_patients=get_test_data()
+    if insert_test_data_into_db(test_patients):
+        print "insertion passed."
+        print "next match"
+
+
+def insert_test_data_into_db(patients):
+    """
+    Inserts a series of test patients into DB
+    """
+    try:
+        headers={
+                 "X-Auth-Token":ACCESS_TOKEN,
+                 "Accept":MME_NODE_ACCEPT_HEADER,
+                 "Content-Type":MME_CONTENT_TYPE_HEADER
+                 }
+        for patient in patients:
+            payload = patient
+            req = requests.post(MME_ADD_INDIVIDUAL_URL, 
+                              data=payload,
+                              headers=headers)
+            print "\t\t----inserting",patient,"...."
+        return True
+    except Exception as e:
+        print 'error inserting test patients',e
+        sys.exit()
+        
   
   
 def get_test_data():
