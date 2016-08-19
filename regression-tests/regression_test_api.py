@@ -23,6 +23,7 @@ MME_NODE_ACCEPT_HEADER='application/vnd.ga4gh.matchmaker.v0.1+json'
 MME_CONTENT_TYPE_HEADER='application/x-www-form-urlencoded'
 MME_SERVER_HOST='http://localhost:8080'
 MME_ADD_INDIVIDUAL_URL = MME_SERVER_HOST + '/patient/add'
+MME_DELETE_INDIVIDUAL_URL = MME_SERVER_HOST + '/patient/delete'
 '''
     matches in local MME database ONLY, won't search in other MME nodes
 '''
@@ -30,7 +31,7 @@ MME_LOCAL_MATCH_URL = MME_SERVER_HOST + '/match'
 '''
     matches in EXTERNAL MME nodes ONLY, won't search in LOCAL MME database/node
 '''
-MME_EXTERNAL_MATCH_URL = MME_SERVER_HOST + '/individual/match'
+MME_EXTERNAL_MATCH_URL = MME_SERVER_HOST + '/patient/match'
 DATA_FILE='data/test.json'
 
 
@@ -56,15 +57,19 @@ def start():
     Start processing
     """
     test_patients=get_test_data()
-    if insert_test_data_into_db(test_patients):
-        print "insertion passed."
-        print "next match"
-
+    inserted_ids=insert_test_data_into_db(test_patients)
+    if len(inserted_ids)==50:
+        print "\n\ninsertion passed."
+    else:
+        print "\n\ninserting wasn't complete, inserted number:",len(inserted_ids)
+    #deleted_ids=delete_test_data_in_db(inserted_ids)
+    print "\n\n"
 
 def insert_test_data_into_db(patients):
     """
-    Inserts a series of test patients into DB
+    Inserts a series of test patients into DB and returns a list of inserted IDs
     """
+    inserted_ids=[]
     try:
         headers={
                  "X-Auth-Token":ACCESS_TOKEN,
@@ -72,16 +77,42 @@ def insert_test_data_into_db(patients):
                  "Content-Type":MME_CONTENT_TYPE_HEADER
                  }
         for patient in patients:
-            payload = patient
+            payload = {"patient":patient}
             req = requests.post(MME_ADD_INDIVIDUAL_URL, 
-                              data=payload,
+                              data=json.dumps(payload),
                               headers=headers)
-            print "\t\t----inserting",patient,"...."
-        return True
+            print "\t\t----inserting",patient['id'],req.text
+            if json.loads(req.text)["status_code"]==200:
+                inserted_ids.append(patient['id'])
+        return inserted_ids
     except Exception as e:
         print 'error inserting test patients',e
         sys.exit()
         
+        
+def delete_test_data_in_db(ids_to_delete):
+    """
+    Deletes a series of test patients from DB and returns a list of deleted IDs
+    """
+    deleted_ids=[]
+    try:
+        headers={
+                 "X-Auth-Token":ACCESS_TOKEN,
+                 "Accept":MME_NODE_ACCEPT_HEADER,
+                 "Content-Type":MME_CONTENT_TYPE_HEADER
+                 }
+        for id in ids_to_delete:
+            payload = {"id":id}
+            req = requests.post(MME_DELETE_INDIVIDUAL_URL, 
+                              data=json.dumps(payload),
+                              headers=headers)
+            print "\t\t----deleting",patient['id'],req.text
+            if json.loads(req.text)["status_code"]==200:
+                deleted_ids.append(patient['id'])
+        return deleted_ids
+    except Exception as e:
+        print 'error deleting test patients',e
+        sys.exit()
   
   
 def get_test_data():
@@ -95,6 +126,9 @@ def get_test_data():
     except Exception as e:
         print "error loading test JSON",e
         sys.exit()
+
+
+
 
 
 def get_usage_msgs():

@@ -258,7 +258,7 @@ public class PatientRecordUtility {
 	
 	
 	/**
-	 * Parsed json payload from a delete call
+	 * Parsed json payload from a delete call. The payload looks like {"id":"idToDelete"}
 	 * @param jsonString	json string
 	 * @return parsed values as a map
 	 */
