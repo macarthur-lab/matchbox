@@ -70,11 +70,11 @@ public class AuthenticationFilter implements Filter{
             
             //Unauthorized
             if (!validateXAuthToken(request.getHeader(AuthenticationFilter.getxAuthTokenHeader()))){
-            	response.sendError(401);
+            	response.sendError(401,"authentication failed");
             }
             //unsupported API version
             if (!validateAcceptHeader(request.getHeader(AuthenticationFilter.getAcceptHeader()))){
-            	response.sendError(406);
+            	response.sendError(406,"unsupported API version, supported versions=[0.1]");
             }
             chain.doFilter(request, response);
     }
@@ -100,9 +100,6 @@ public class AuthenticationFilter implements Filter{
      * @return	true if validated, false otherwise
      */
     private boolean validateXAuthToken(String xAuthToken){
-    	//if (xAuthToken.equals("854a439d278df4283bf5498ab020336cdc416a7d")){
-    	//	return true;
-    	//}
     	if (this.getAuthorizedTokens().contains(xAuthToken)){
     		return true;
     	}
