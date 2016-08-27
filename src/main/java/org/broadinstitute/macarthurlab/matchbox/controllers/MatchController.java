@@ -66,9 +66,14 @@ public class MatchController {
 		try {
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			// TODO figure out why there is a = at the end of JSON string
-			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+			String inputData=decodedRequestString;
+			System.out.println(inputData);
+			if ('=' == inputData.charAt(decodedRequestString.length() - 1)){
+				inputData=decodedRequestString.substring(0, decodedRequestString.length() - 1);
+			}
+			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(inputData);
 			if (inputDataValid) {
-				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+				patient = this.getPatientUtility().parsePatientInformation(inputData);
 			} else {
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
@@ -95,10 +100,15 @@ public class MatchController {
 		Patient patient=null;
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+			String inputData=decodedRequestString;
+			System.out.println(inputData);
+			//TODO figure out why there is a = at the end of JSON string when non-curled
+			if ('=' == inputData.charAt(decodedRequestString.length() - 1)){
+				inputData=decodedRequestString.substring(0, decodedRequestString.length() - 1);
+			}
+			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(inputData);
 			if (inputDataValid) {
-				//TODO figure out why there is a = at the end of JSON string
-				patient = this.getPatientUtility().parsePatientInformation(decodedRequestString.substring(0,decodedRequestString.length()-1));
+				patient = this.getPatientUtility().parsePatientInformation(inputData);
 			}
 			else{
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);

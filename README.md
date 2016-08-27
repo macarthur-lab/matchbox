@@ -22,7 +22,7 @@ java -jar matchbox-0.1.0.jar
 NOTE: if you would like to change the default port the server listens on (8080), please set/use the environment variable SERVER_PORT
 
 for example,
-export SERVERPORT=9020
+export SERVER_PORT=9020
 
 * Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process is quite easy as well, and is described below and supported as of now.
 
