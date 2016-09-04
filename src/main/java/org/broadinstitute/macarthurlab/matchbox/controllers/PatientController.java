@@ -41,7 +41,7 @@ public class PatientController {
 	 */
 	public PatientController(){
         this.patientUtility = new PatientRecordUtility();
-        String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
+        String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
         ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
         this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
 	}

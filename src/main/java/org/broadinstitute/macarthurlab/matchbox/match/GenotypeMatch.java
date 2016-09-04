@@ -3,10 +3,14 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
@@ -21,41 +25,112 @@ import org.springframework.data.mongodb.core.query.BasicQuery;
  * @author harindra
  *
  */
+
+
+
 public class GenotypeMatch {
 	private MongoOperations operator;
-
+	private final Map<String,String> geneSymbolToEnsemblId;
+	private final Map<String,String> ensemblIdToGeneSymbol;
+	
 	/**
-	 * 
+	 * Constructor
 	 */
 	public GenotypeMatch() {
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
+		
+		this.geneSymbolToEnsemblId = new HashMap<String,String>();	
+		this.ensemblIdToGeneSymbol = new HashMap<String,String>();	
+		try{
+			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/resources/gene_symbol_to_ensembl_id_map.txt";
+			
+			File geneSymbolToEnsemnlIdFile = new File(geneSymbolToEnsemnlId);
+			BufferedReader reader = new BufferedReader(new FileReader(geneSymbolToEnsemnlIdFile));
+			while (true) {
+				String line = reader.readLine();
+				if (line == null)
+					break;
+				/**
+				 * Each row is expected to look like,
+				 * HGNC:5  A1BG    ENSG00000121410
+				 */
+				StringTokenizer st=new StringTokenizer(line);
+				if (st.countTokens()==3){
+					st.nextToken(); 
+					String geneSymbol=st.nextToken(); 
+					String ensemblId=st.nextToken();
+					this.geneSymbolToEnsemblId.put(geneSymbol, ensemblId);
+					this.ensemblIdToGeneSymbol.put(ensemblId,geneSymbol);
+				}
+        }
+        reader.close();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+			System.out.println("Error in reading in gene symbol to emsembl id map:"+e.toString());
+		}	
 	}
 
 	/**
 	 * Search for matching patients using GenomicFeatures
 	 * 1. Considers it a match if they have AT LEAST 1 gene in common
+	 * 2. So far only supports gene symbol and ensembl ID for gene ID field
 	 */
 	public List<Patient> searchByGenomicFeatures(Patient patient){
 		List<Patient> results = new ArrayList<Patient>();		
-		StringBuilder query = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
+		
+		StringBuilder geneSymbolQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
+		StringBuilder ensemblIdQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
+		
 		int i=0;
 		for (GenomicFeature genomicFeature : patient.getGenomicFeatures()){
-			String geneId = genomicFeature.getGene().get("id");
-			query.append("'"+geneId+"'"); 
-			if (i<patient.getGenomicFeatures().size()-1){
-				query.append(",");
+			String id = genomicFeature.getGene().get("id");
+			String ensemblId="";
+			String geneId="";
+			if (this.getGeneSymbolToEnsemblId().containsKey(id)){
+				geneId=id;
+				ensemblId=this.geneSymbolToEnsemblId.get(id);
 			}
+			if (this.getEnsemblIdToGeneSymbol().containsKey(id)){
+				ensemblId=id;
+				geneId=this.getEnsemblIdToGeneSymbol().get(id);
+			}
+			
+
+			geneSymbolQuery.append("'"+geneId+"'"); 
+			if (i<patient.getGenomicFeatures().size()-1){
+				geneSymbolQuery.append(",");
+			}
+			
+
+			ensemblIdQuery.append("'"+ensemblId+"'"); 
+			if (i<patient.getGenomicFeatures().size()-1){
+				ensemblIdQuery.append(",");
+			}
+								
 			i++;
 		}
-		query.append("]}}");
-		BasicQuery q = new BasicQuery(query.toString());
-		List<Patient> ps = this.getOperator().find(q,Patient.class);
-		for (Patient p:ps){
+		geneSymbolQuery.append("]}}");
+		ensemblIdQuery.append("]}}");
+		
+		BasicQuery qGeneId = new BasicQuery(geneSymbolQuery.toString());
+		List<Patient> psGeneId = this.getOperator().find(qGeneId,Patient.class);
+		for (Patient p:psGeneId){
 			results.add(p);
 		}
+		
+		BasicQuery qEnsemblId = new BasicQuery(ensemblIdQuery.toString());
+		List<Patient> psEnsembl = this.getOperator().find(qEnsemblId,Patient.class);
+		for (Patient p:psEnsembl){
+			results.add(p);
+		}	
+		
+		
 		return results;
 	}
+	
+
 	
 	
 	
@@ -196,6 +271,25 @@ public class GenotypeMatch {
 	public void setOperator(MongoOperations operator) {
 		this.operator = operator;
 	}
+
+	/**
+	 * @return the geneSymbolToEnsemblId
+	 */
+	public Map<String, String> getGeneSymbolToEnsemblId() {
+		return geneSymbolToEnsemblId;
+	}
+
+	/**
+	 * @return the ensemblIdToGeneSymbol
+	 */
+	public Map<String, String> getEnsemblIdToGeneSymbol() {
+		return ensemblIdToGeneSymbol;
+	}
+	
+	
+	
+	
+	
 
 	
 }

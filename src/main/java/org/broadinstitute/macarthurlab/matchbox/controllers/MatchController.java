@@ -46,7 +46,7 @@ public class MatchController {
 	 * Constructor populates search functionality
 	 */
 	public MatchController(){
-        String configFile = "file:" + System.getProperty("user.dir") + "/config.xml";
+        String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
         ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
         this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
         this.patientUtility = new PatientRecordUtility();
@@ -78,7 +78,7 @@ public class MatchController {
 				patient = this.getPatientUtility().parsePatientInformation(inputData);
 				StringBuilder msg = new StringBuilder();
 				msg.append("matchmaker request from:");
-				msg.append(patient.getContact().get("").toString());
+				msg.append(patient.getContact().toString());
 				System.out.println(msg.toString());
 			} else {
 				System.out.println("input data invalid:");
@@ -86,6 +86,7 @@ public class MatchController {
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("error parsing patient in /match :" + e.toString());
 		}
 		// return results if no error
