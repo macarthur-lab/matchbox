@@ -74,7 +74,7 @@ public class AuthenticationFilter implements Filter{
             }
             //unsupported API version
             if (!validateAcceptHeader(request.getHeader(AuthenticationFilter.getAcceptHeader()))){
-            	response.sendError(406,"unsupported API version, supported versions=[0.1]");
+            	response.sendError(406,"unsupported API version, supported versions=[1.0]");
             }
             chain.doFilter(request, response);
     }
@@ -86,7 +86,7 @@ public class AuthenticationFilter implements Filter{
      * @return	true if validated, false otherwise
      */
     private boolean validateAcceptHeader(String acceptHeader){
-    	if (acceptHeader.equals("application/vnd.ga4gh.matchmaker.v0.1+json")){
+    	if (acceptHeader.equals("application/vnd.ga4gh.matchmaker.v1.0+json")){
     		return true;
     	}
     	return false;

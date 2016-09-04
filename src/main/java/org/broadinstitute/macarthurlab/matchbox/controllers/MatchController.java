@@ -20,7 +20,9 @@ import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MatchController {
 	private final Search searcher;
 	private final PatientRecordUtility patientUtility;
+	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
 	
 	/**
 	 * Constructor populates search functionality
@@ -82,7 +85,9 @@ public class MatchController {
 		}
 		// return results if no error
 		results.put("results", this.getSearcher().searchInLocalDatabaseOnly(patient));
-		return new ResponseEntity<>(results, HttpStatus.OK);
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
+		return new ResponseEntity<>(results, httpHeaders,HttpStatus.OK);
 	}
 	
 	
@@ -120,7 +125,10 @@ public class MatchController {
 			System.out.println("error occurred in match controller:"+e.toString());
 			e.printStackTrace();
 		}
-    	return new ResponseEntity<>(results, HttpStatus.OK);
+		
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
+    	return new ResponseEntity<>(results, httpHeaders, HttpStatus.OK);
     }
 	
 	
