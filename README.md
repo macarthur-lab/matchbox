@@ -127,11 +127,11 @@ then add it to this list,
 ```
 
 ## To do
-*  Tests!
+*  More tests!
 
-*  Better exception handling
+*  Even better exception handling
 
-*  Complete the /match branch implementation to make calls to other MME nodes
+*  Metrics gathering for quality control
 
 
 
