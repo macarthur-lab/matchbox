@@ -38,7 +38,7 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration {
 
     @Override
     protected String getMappingBasePackage() {
-      return "org.broadinstitute.macarthurlab.beamr";
+      return "org.broadinstitute.macarthurlab.matchbox";
     }
 
 }
