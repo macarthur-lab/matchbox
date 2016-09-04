@@ -70,14 +70,19 @@ public class MatchController {
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			// TODO figure out why there is a = at the end of JSON string
 			String inputData=decodedRequestString;
-			System.out.println(inputData);
 			if ('=' == inputData.charAt(decodedRequestString.length() - 1)){
 				inputData=decodedRequestString.substring(0, decodedRequestString.length() - 1);
 			}
 			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(inputData);
 			if (inputDataValid) {
 				patient = this.getPatientUtility().parsePatientInformation(inputData);
+				StringBuilder msg = new StringBuilder();
+				msg.append("matchmaker request from:");
+				msg.append(patient.getContact().get("").toString());
+				System.out.println(msg.toString());
 			} else {
+				System.out.println("input data invalid:");
+				System.out.println(inputData);
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
 		} catch (Exception e) {
