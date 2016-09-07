@@ -33,8 +33,8 @@ public class PhenotypeMatch {
 	public List<Double> rankByPhenotypes(List<Patient> patients, Patient queryPatient){
 		List<Double> patientPhenotypeRankingScores = new ArrayList<Double>();
 		for (Patient patient :patients){
-			double similarityScore=this.getPhenotypeSimilarity(patient, queryPatient);
-			patientPhenotypeRankingScores.add(similarityScore);
+			double phenotypeSimilarityScore=this.getPhenotypeSimilarity(patient, queryPatient);
+			patientPhenotypeRankingScores.add(phenotypeSimilarityScore);
 		}
 		return patientPhenotypeRankingScores;
 	}
@@ -42,24 +42,42 @@ public class PhenotypeMatch {
 	
 	/**
 	 * As a first VERY naive step, we will simply get the number of 
-	 * HPO terms they have in common against the total number of HPO terms
+	 * HPO terms they have in common against the total number of HPO terms.
+	 * NOTE: in a perfect match, returns 0.5 as per weight allowed to phenotypes
 	 * @param p1	patient 1
 	 * @param p2	patient 2
 	 * @return	a representative number (described above)
 	 */
-	private double getPhenotypeSimilarity(Patient p1, Patient p2){
+	private double getPhenotypeSimilarity(Patient p1, Patient queryPatient){
 		List<String> p1Features = new ArrayList<String>();
 		p1.getFeatures().forEach((k)->{
 							p1Features.add(k.getId());
 						});
-		List<String> p2Features = new ArrayList<String>();
-		p2.getFeatures().forEach((k)->{
-							p2Features.add(k.getId());
+		List<String> queryFeatures = new ArrayList<String>();
+		queryPatient.getFeatures().forEach((k)->{
+							queryFeatures.add(k.getId());
 						});
 		List<String> p1p2Intersect = p1Features.stream()
-                .filter(p2Features::contains)
-                .collect(Collectors.toList());
-		return (double)p1p2Intersect.size() / ((double)p1.getFeatures().size() + (double)p2.getFeatures().size());
+                .filter(queryFeatures::contains)
+                .collect(Collectors.toList());		
+		/**
+		 * If ALL of the query is a subset of the match, still return
+		 * a high score of 0.4. Then it is assumed that the query just
+		 * didn't have/send all the information, but a good match anyway.
+		 */
+		if (p1p2Intersect.size() == queryFeatures.size() && p1p2Intersect.size() < p1Features.size()){
+			return 0.4d;
+		}
+		/**
+		 * If a PERFECT match return 0.5
+		 */
+		if (p1p2Intersect.size() == p1Features.size()){
+			return 0.5d;
+		}
+		/**
+		 * Otherwise return a metric of inclusion
+		 */
+		return (double)p1p2Intersect.size() / ((double)p1.getFeatures().size() + (double)queryPatient.getFeatures().size());
 	}
 	
 }

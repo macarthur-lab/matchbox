@@ -135,7 +135,8 @@ public class GenotypeMatch {
 	
 	
 	/**
-	 * Ranks a patient list by their genotype similarity to a query patient
+	 * Ranks a patient list by their genotype similarity to a query patient. Since Genotype
+	 * is half the score (other half is phenotype rank), this section can given a 0.5 as a perfect hit.
 	 * @param patients a list of patients to rank
 	 * @param queryPatient a target patient to rank against
 	 * @return Sends back a list of scores for each patient based on genotype. Order matches input list
@@ -150,7 +151,7 @@ public class GenotypeMatch {
 
 	
 	/**
-	 * Calculates a metric on similarity
+	 * Calculates a metric on similarity. Returns 0.5 for a perfect match.
 	 * @param p1	patient 1
 	 * @param queryP	patient 2
 	 * @return	a representative number (described above)
@@ -158,8 +159,10 @@ public class GenotypeMatch {
 	public double getGenotypeSimilarity(Patient p1, Patient queryP){
 		double simScore=0.0;
 		List<String> commonGenes = findCommonGenes(p1, queryP);
+		//total possible addition of 0.25 (if perfect match)
 		simScore += getCommonGenesScore(p1, queryP,commonGenes);
-		simScore += getVariantPositionScore(p1, queryP,commonGenes);
+		//total possible addition of 0.25 (if perfect match)
+		simScore += getTypeScore(p1, queryP,commonGenes);
 		return simScore;
 	}
 	
@@ -173,33 +176,58 @@ public class GenotypeMatch {
 	 * @return	A genes in common metric
 	 */
 	public double getCommonGenesScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
+		List<String> p1Genes = new ArrayList<String>();
+		p1.getGenomicFeatures().forEach((k)->{
+			p1Genes.add(k.getGene().get("id"));
+		});
+		/**
+		 * this implies a perfect match of genes (at least that the match has all
+		 * the genes listed in the query, so will return a perfect score (TODO: validate with team)
+		 */
+		if (p1Genes.size() == p1p2Intersect.size() ){
+			return 0.25d;
+		}
 		return (double)p1p2Intersect.size() / 
 				((double)p1.getGenomicFeatures().size() +(double)queryP.getGenomicFeatures().size());
 	}
 	
 	
 	/**
-	 * Generates a score based on variant positions inside a common gene
+	 * Generates a score based on variant positions inside a common gene. Returns a 
+	 * 0.25 if a perfect match
 	 * @param p1 patient
 	 * @param queryP another patient
 	 * @return	Returns a representative metric
 	 */
-	public double getVariantPositionScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
+	public double getTypeScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
 		double score=0.0;
-		//make map of relevant genes/gene-info
-		Map<String,GenomicFeature> commonQueryGenes = new HashMap<String,GenomicFeature>();
+		/**
+		 * make map of query relevant gene-name/symbol:variant-type (SO code) 
+		 * TODO:translate all to ensembl before comparison
+		 */
+		Map<String,String> queryGenomicFeatures = new HashMap<String,String>();
 		queryP.getGenomicFeatures().forEach((k)->{
 			if (p1p2Intersect.contains(k.getGene().get("id"))){
-				commonQueryGenes.put(k.getGene().get("id"), k);
+				queryGenomicFeatures.put(k.getGene().get("id"), 
+										 k.getType().get("id"));
 			}
 		});
-		for(GenomicFeature genomicFeature: p1.getGenomicFeatures()){
-			if (p1p2Intersect.contains(genomicFeature.getGene().get("id"))){
-				//if it is a HIGH danger variant type
-				if (this.getSOCodes().contains(genomicFeature.getType().get("id"))){
+		//now see if the match has these SO codes in common
+		int similarCount=0;
+		for(GenomicFeature p1GenomicFeature: p1.getGenomicFeatures()){
+			if (queryGenomicFeatures.containsKey(p1GenomicFeature.getGene().get("id"))){
+				if ( queryGenomicFeatures.get(p1GenomicFeature.getGene().get("id")).equals(p1GenomicFeature.getType().get("id")) )
+				{
+					similarCount+=1;
+				}
+				//UP the score IF it is a HIGH danger variant type?
+				if (this.getSOCodes().contains(p1GenomicFeature.getType().get("id"))){
 					score += 0.1;
 				}
 			}
+		}
+		if (similarCount == queryGenomicFeatures.size()){
+			score += 0.25;
 		}
 		return score;
 	}

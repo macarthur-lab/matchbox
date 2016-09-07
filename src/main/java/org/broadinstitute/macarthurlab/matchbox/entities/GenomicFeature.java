@@ -47,11 +47,6 @@ public class GenomicFeature {
 	 */
 	
 	
-	public final Map<String, String> getGene() {
-		return gene;
-	}
-	
-
 	
 	/**
 	 * @param gene	gene name
@@ -100,7 +95,12 @@ public class GenomicFeature {
 
 
 
-	
-	
+	/**
+	 * Get's gene
+	 * @return A gene
+	 */
+	public final Map<String, String> getGene() {
+		return gene;
+	}
 
 }

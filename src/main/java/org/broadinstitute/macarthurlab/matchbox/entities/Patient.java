@@ -118,9 +118,16 @@ public class Patient{
 	 * @param features	features
 	 * @param genomicFeatures	genomic features
 	 */
-	public Patient(String id, String label, Map<String, String> contact, String species, String sex,
-			String ageOfOnset, String inheritanceMode, List<Map<String, String>> disorders, List<PhenotypeFeature> features,
-			List<GenomicFeature> genomicFeatures) {
+	public Patient(String id, 
+					String label, 
+					Map<String, String> contact, 
+					String species, 
+					String sex,
+					String ageOfOnset, 
+					String inheritanceMode, 
+					List<Map<String, String>> disorders, 
+					List<PhenotypeFeature> features,
+					List<GenomicFeature> genomicFeatures) {
 		this.id = id;
 		this.label = label;
 		this.contact = contact;

@@ -69,17 +69,28 @@ public class Match implements MatchService{
 	/**
 	 * Merge phenotype and genotype scores into a single score,
 	 * 
-	 * Algorithm: the absolute value of the log of the weighted average of 
-	 * genotype (wieght:0.8) and phenotype(weight:0.2)
+	 * Algorithm: the absolute value of the weighted average of 
+	 * genotype (wieght:1) and phenotype(weight:1)
 	 * @param patientGenotypeRankingScores	scores based on genotypes
 	 * @param patientPhenotypeRankingScores scores based on phenotypes
 	 * @return	A merged score
 	 */
 	private List<Double> generateMergedScore(List<Double> patientGenotypeRankingScores,List<Double> patientPhenotypeRankingScores){
 		List<Double> merged = new ArrayList<Double>();
-		double genotypeWeight=0.8;
-		double phenotypeWeight=0.2;
+		//let's give them equal weight for now
+		double genotypeWeight=1;
+		double phenotypeWeight=1;
+		double mergedScore=0.0d;
 		for (int i=0;i<patientGenotypeRankingScores.size();i++){
+			mergedScore = patientGenotypeRankingScores.get(i)*genotypeWeight + patientPhenotypeRankingScores.get(i)*phenotypeWeight ;
+			if (mergedScore>1){
+				mergedScore=1;
+			}
+			if (mergedScore<0){
+				mergedScore=0;
+			}			
+			merged.add(mergedScore);
+			/**
 			merged.add(
 					1- Math.exp(-1*(
 							(patientGenotypeRankingScores.get(i)*genotypeWeight) + 
@@ -87,6 +98,7 @@ public class Match implements MatchService{
 							)/2
 							)
 					);
+			**/
 		}
 		return merged;
 	}
