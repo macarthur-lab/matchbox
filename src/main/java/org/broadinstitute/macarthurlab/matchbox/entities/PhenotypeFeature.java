@@ -81,16 +81,16 @@ public class PhenotypeFeature {
 	public String getEmptyFieldsRemovedJson(){
 		StringBuilder asJson=new StringBuilder();
 		asJson.append("{");
-		if (this.getId() != ""){
+		if (this.getId() != null && !this.getId().equals("")){
 			asJson.append("\"id\":");
 			asJson.append("\"" + this.getId() + "\"");
 		}
-		if (this.getObserved() != ""){
+		if (this.getObserved() != null && !this.getObserved().equals("")){
 			asJson.append(",");
 			asJson.append("\"observed\":");
 			asJson.append("\"" + this.getObserved() + "\"");
 		}
-		if (this.getAgeOfOnset() != ""){
+		if (this.getAgeOfOnset() != null && !this.getAgeOfOnset().equals("")){
 			asJson.append(",");
 			asJson.append("\"start\":");
 			asJson.append("\"" + this.getAgeOfOnset() + "\"");

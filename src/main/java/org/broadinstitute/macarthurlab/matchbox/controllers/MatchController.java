@@ -110,7 +110,6 @@ public class MatchController {
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			String inputData=decodedRequestString;
-			System.out.println(inputData);
 			//TODO figure out why there is a = at the end of JSON string when non-curled
 			if ('=' == inputData.charAt(decodedRequestString.length() - 1)){
 				inputData=decodedRequestString.substring(0, decodedRequestString.length() - 1);

@@ -231,18 +231,22 @@ public class Patient{
 		asJson.append("\"id\":");
 		asJson.append("\"" + this.getId() + "\"");
 		//OPTIONAL
-		asJson.append(",");
-		asJson.append("\"label\":");
-		asJson.append("\"" + this.getLabel() + "\"");
+		if (this.getLabel() !=null && !this.getLabel().equals("")){
+			asJson.append(",");
+			asJson.append("\"label\":");
+			asJson.append("\"" + this.getLabel() + "\"");
+		}
 		//REQUIRED
 		asJson.append(",");
 		asJson.append("\"contact\":{");
 		int i=0;
 		for (String k:this.getContact().keySet()){
-			asJson.append("\"" +  k + "\":");
-			asJson.append("\"" + this.getContact().get(k) + "\"");
-			if (i<this.getContact().size()-1){
-				asJson.append(",");
+			if (this.getContact().get(k) != null && !this.getContact().get(k).equals("")){
+				asJson.append("\"" +  k + "\":");
+				asJson.append("\"" + this.getContact().get(k) + "\"");
+				if (i<this.getContact().size()-1){
+					asJson.append(",");
+				}
 			}
 			i+=1;
 		}

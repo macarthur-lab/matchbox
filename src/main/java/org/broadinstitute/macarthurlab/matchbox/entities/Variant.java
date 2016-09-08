@@ -58,8 +58,8 @@ public class Variant {
 	public boolean isUnPopulated(){
 		if (this.assembly=="" &&
 				this.referenceName=="" &&
-				this.start==0L &&
-				this.end==0L   &&
+				this.start==0L || this.start==-1 &&
+				this.end==0L || this.end==-1   &&
 				this.referenceBases=="" &&
 				this.alternateBases==""){
 			return true;
@@ -123,16 +123,16 @@ public class Variant {
 	public String getEmptyFieldsRemovedJson(){
 		StringBuilder asJson=new StringBuilder();
 		asJson.append("{");
-		if (getAssembly() != ""){
+		if (!getAssembly().equals("")){
 			asJson.append("\"assembly\":");
 			asJson.append("\"" + this.getAssembly() + "\"");
 		}
-		if (getReferenceName() != ""){
+		if (!getReferenceName().equals("")){
 			asJson.append(",");
 			asJson.append("\"referenceName\":");
 			asJson.append("\"" + this.getReferenceName() + "\"");
 		}
-		if (getStart() != 0L){
+		if (getStart() != 0L && getStart() != -1){
 			asJson.append(",");
 			asJson.append("\"start\":");
 			asJson.append(this.getStart());	
@@ -142,12 +142,12 @@ public class Variant {
 			asJson.append("\"end\":");
 			asJson.append(this.getEnd());	
 		}
-		if (getReferenceBases() != ""){
+		if (!getReferenceBases().equals("")){
 			asJson.append(",");
 			asJson.append("\"referenceBases\":");
 			asJson.append("\"" + this.getReferenceBases() + "\"");
 		}
-		if (getAlternateBases() != ""){
+		if (!getAlternateBases().equals("")){
 			asJson.append(",");
 			asJson.append("\"alternateBases\":");
 			asJson.append("\"" + this.getAlternateBases() + "\"");

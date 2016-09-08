@@ -13,6 +13,8 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.broadinstitute.macarthurlab.matchbox.match.GenotypeMatch;
 import org.broadinstitute.macarthurlab.matchbox.match.Match;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
+
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -291,6 +293,14 @@ public class AppTest extends TestCase
         	return p; 
     }
         
+    
+    
+    
+    public void testPatientStructureParsing(){
+    	String patientString="{\"patient\":{\"id\":\"1\", \"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
+    	Patient patient = new PatientRecordUtility().parsePatientInformation(patientString);
+    	System.out.println(patient.getEmptyFieldsRemovedJson());
+    }
     
     
     

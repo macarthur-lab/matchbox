@@ -144,17 +144,31 @@ public class GenomicFeature {
 			asJson.append(this.getZygosity());
 		}
 		
-		if (this.getType().size()>0){
-			asJson.append(",");
-			asJson.append("\"type\":{\"id\":");
-			asJson.append("\"" + this.getType().get("id") + "\"");
-			
-			if (this.getType().containsKey("label")){
-				asJson.append(",");
-				asJson.append("\"label\":");
-				asJson.append("\"" + this.getType().get("label") + "\"");
+		if (this.getType().size() > 0) {
+			// if at least one of the keys were non-null add a comma
+			boolean hasType = false;
+			for (String k : this.getType().keySet()) {
+				if (this.getType().get(k) != null && !this.getType().get(k).equals("")) {
+					asJson.append(",");
+					hasType=true;
+					break;
+				}
 			}
-			asJson.append("}");
+			if (hasType == true) {
+				asJson.append("\"type\":{");
+				int i=0;
+				for (String k2 : this.getType().keySet()) {
+					if (this.getType().get(k2) != null && !this.getType().get(k2).equals("")) {
+						asJson.append("\"" + k2 + "\":");
+						asJson.append("\"" + this.getType().get(k2) + "\"");
+						if (i<this.getType().size()-1){
+							asJson.append(",");
+						}
+						i++;
+					}
+				}
+				asJson.append("}");
+			}
 		}
 		asJson.append("}");
 		return asJson.toString();

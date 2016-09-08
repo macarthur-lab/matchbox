@@ -48,10 +48,10 @@ public class Communication {
 	public List<MatchmakerResult> callNode(Node matchmakerNode, Patient queryPatient) {
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		
-		if (!this.isHostLive(matchmakerNode.getUrl(), 80)){
-			System.out.println("WARNING: the node "+ matchmakerNode.getName() + " doesn not seem to be live, moving on..");
-			return allResults;	
-		}
+		//if (!this.isHostLive(matchmakerNode.getUrl(), 80)){
+		//	System.out.println("WARNING: the node "+ matchmakerNode.getName() + " doesn't not seem to be live, moving on..");
+		//	return allResults;	
+		//}
 			
 		HttpsURLConnection connection = null;  
 		try {
@@ -76,9 +76,8 @@ public class Communication {
 		    connection.setDoOutput(true);	    
 
 		    //Send request
-		    //TODO: turn off testing here
-		    String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
-		    //String payload = queryPatient.getEmptyFieldsRemovedJson();
+		    //String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
+		    String payload = "{\"patient\":" + queryPatient.getEmptyFieldsRemovedJson() + "}";
 		    DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
 		    wr.writeBytes(payload);
 		    wr.close();
