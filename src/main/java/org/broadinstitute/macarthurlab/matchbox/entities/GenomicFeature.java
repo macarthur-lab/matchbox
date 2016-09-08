@@ -138,7 +138,7 @@ public class GenomicFeature {
 			asJson.append(this.getVariant().getEmptyFieldsRemovedJson());
 		}
 		
-		if (this.getZygosity() != 0L){
+		if (this.getZygosity() != 0L && this.getZygosity() != -1){
 			asJson.append(",");
 			asJson.append("\"zygosity\":");
 			asJson.append(this.getZygosity());

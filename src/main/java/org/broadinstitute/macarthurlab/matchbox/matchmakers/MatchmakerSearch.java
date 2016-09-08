@@ -90,8 +90,12 @@ public class MatchmakerSearch implements Search{
 	 * Search in local matchmaker node ONLY, not in the large matchmaker network
 	 * @param	A patient
 	 */
-	public List<MatchmakerResult> searchInLocalDatabaseOnly(Patient patient){
-		return this.getMatch().match(patient);
+	public List<String> searchInLocalDatabaseOnly(Patient patient){
+		List<String> scrubbedResults=new ArrayList<String>();
+		for (MatchmakerResult r:this.getMatch().match(patient)){
+			scrubbedResults.add(r.getEmptyFieldsRemovedJson());
+		}
+		return scrubbedResults;
 	}
 		
 

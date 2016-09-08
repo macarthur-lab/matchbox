@@ -90,15 +90,6 @@ public class Match implements MatchService{
 				mergedScore=0;
 			}			
 			merged.add(mergedScore);
-			/**
-			merged.add(
-					1- Math.exp(-1*(
-							(patientGenotypeRankingScores.get(i)*genotypeWeight) + 
-							 (patientPhenotypeRankingScores.get(i)*phenotypeWeight)
-							)/2
-							)
-					);
-			**/
 		}
 		return merged;
 	}

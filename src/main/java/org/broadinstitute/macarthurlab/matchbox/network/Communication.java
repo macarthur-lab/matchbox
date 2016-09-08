@@ -76,7 +76,9 @@ public class Communication {
 		    connection.setDoOutput(true);	    
 
 		    //Send request
+		    //TODO: turn off testing here
 		    String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
+		    //String payload = queryPatient.getEmptyFieldsRemovedJson();
 		    DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
 		    wr.writeBytes(payload);
 		    wr.close();
@@ -105,7 +107,7 @@ public class Communication {
 							parsedPatient
 							));
 				} else {
-					//TODO what to do here?
+					System.out.println("error parsing patient from external source (required fields missing):"+matchmakerNode.getName());
 				}
 				
 		    }		 

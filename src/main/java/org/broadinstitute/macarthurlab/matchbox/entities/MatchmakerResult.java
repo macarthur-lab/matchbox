@@ -55,5 +55,35 @@ public class MatchmakerResult {
 	
 	
 	
-
+	/**
+	 * Returns a JSON representation and keeps out empty fields
+	 * @return A JSON string
+	 */
+	public String getEmptyFieldsRemovedJson(){
+		StringBuilder asJson=new StringBuilder();
+		asJson.append("{");
+		
+		asJson.append("\"score\":");
+		asJson.append("{");
+		int i=0;
+		for (String k:this.getScore().keySet()){
+			asJson.append("\"" + k + "\":");
+			asJson.append(this.getScore().get(k));
+			if (i<this.getScore().size()-1){
+				asJson.append(",");
+			}
+			i++;
+		}
+		asJson.append("}");
+	
+		asJson.append(",");
+		asJson.append("\"patient\":");
+		asJson.append(this.getPatient().getEmptyFieldsRemovedJson());
+		
+		asJson.append("}");
+		System.out.println(asJson);
+		return asJson.toString();
+	}
+	
+	
 }

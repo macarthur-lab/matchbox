@@ -59,7 +59,7 @@ public class MatchController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/match")
 	public ResponseEntity<?> match(@RequestBody String requestString) {
-		Map<String, List<MatchmakerResult>> results = new HashMap<String, List<MatchmakerResult>>();
+		//Map<String, List<String>> results = new HashMap<String, List<String>>();
 		Patient patient = null;
 		try {
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
@@ -85,7 +85,10 @@ public class MatchController {
 			System.out.println("error parsing patient in /match :" + e.toString());
 		}
 		// return results if no error
-		results.put("results", this.getSearcher().searchInLocalDatabaseOnly(patient));
+		//results.put("results", this.getSearcher().searchInLocalDatabaseOnly(patient));
+		
+		String results = "{" + "\"results\":" + this.getSearcher().searchInLocalDatabaseOnly(patient).toString() + "}";
+		
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
 		return new ResponseEntity<>(results, httpHeaders,HttpStatus.OK);

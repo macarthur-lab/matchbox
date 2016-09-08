@@ -137,7 +137,7 @@ public class Variant {
 			asJson.append("\"start\":");
 			asJson.append(this.getStart());	
 		}
-		if (getEnd() != 0L){
+		if (getEnd() != 0L && getEnd() != -1){
 			asJson.append(",");
 			asJson.append("\"end\":");
 			asJson.append(this.getEnd());	

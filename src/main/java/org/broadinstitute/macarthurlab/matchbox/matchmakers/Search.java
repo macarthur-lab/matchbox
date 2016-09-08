@@ -14,5 +14,5 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
  */
 public interface Search {
 	public List<MatchmakerResult> searchInExternalMatchmakerNodesOnly(Patient patient);
-	public List<MatchmakerResult> searchInLocalDatabaseOnly(Patient patient);
+	public List<String> searchInLocalDatabaseOnly(Patient patient);
 }
