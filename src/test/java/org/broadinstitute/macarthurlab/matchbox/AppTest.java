@@ -1,13 +1,10 @@
 package org.broadinstitute.macarthurlab.matchbox;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
@@ -16,7 +13,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.broadinstitute.macarthurlab.matchbox.match.GenotypeMatch;
 import org.broadinstitute.macarthurlab.matchbox.match.Match;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
-
+import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -52,7 +49,7 @@ public class AppTest extends TestCase
      */
     public void testGeneTypeMatchConstructor()
     {
-        this.assertNotNull(this.genotypeMatch);
+        Assert.assertNotNull(this.genotypeMatch);
     }
 
     /**
@@ -77,7 +74,7 @@ public class AppTest extends TestCase
     {
     	Patient testP1 =  getTestPatient();    	
     	List<Patient> matches = this.genotypeMatch.searchByGenomicFeatures(testP1);
-    	this.assertEquals(1,matches.size());
+    	Assert.assertEquals(1,matches.size());
     }
     	
     	
@@ -91,10 +88,61 @@ public class AppTest extends TestCase
     	List<MatchmakerResult> scoredMatches =  match.match(testP1);
     	double score=0.0;
     	for (MatchmakerResult mr:scoredMatches){
-    		System.out.println(mr.getScore());
     		score=mr.getScore().get("patient");
     	}
-    	this.assertEquals(1.0, score);
+    	Assert.assertEquals(1.0, score);
+    }
+    
+    
+    /**
+     * Test if empty fields get scrubbed out in Variant class
+     */
+    public void testVariantEmptyFieldScrubbing(){
+    	Patient testP1 =  getTestPatient();
+    	for (GenomicFeature gf:testP1.getGenomicFeatures()){
+    		Assert.assertEquals(-1, gf.getVariant().getEmptyFieldsRemovedJson().indexOf("end"));
+    		Assert.assertEquals(-1, gf.getVariant().getEmptyFieldsRemovedJson().indexOf("referenceBases"));
+    		Assert.assertEquals(-1, gf.getVariant().getEmptyFieldsRemovedJson().indexOf("alternateBases"));
+    		Assert.assertEquals(42, gf.getVariant().getEmptyFieldsRemovedJson().indexOf("start"));
+    	}	
+    }
+    
+    
+    /**
+     * Test if empty fields get scrubbed out in PhenoTypeFeature class
+     */
+    public void testPhenotypeFeatureEmptyFieldScrubbing(){
+    	Patient testP1 =  getTestPatient();
+    	for (PhenotypeFeature ff:testP1.getFeatures()){
+    		Assert.assertEquals(-1, ff.getEmptyFieldsRemovedJson().indexOf("ageOfOnset"));
+    		Assert.assertEquals(2, ff.getEmptyFieldsRemovedJson().indexOf("id"));
+    	}	
+    }
+    
+    
+    /**
+     * Test if empty fields get scrubbed out in GenoTypeFeature class
+     */
+    public void testGenotypeFeatureEmptyFieldScrubbing(){
+    	Patient testP1 =  getTestPatient();
+    	for (GenomicFeature gf:testP1.getGenomicFeatures()){
+    		Assert.assertEquals(-1, gf.getEmptyFieldsRemovedJson().indexOf("zygosity"));
+    	}	
+    }
+    
+    
+    /**
+     * Test if empty fields get scrubbed out in complete Patient entity
+     */
+    public void testPatientEmptyFieldScrubbing(){
+    	Patient testP1 =  getTestPatient();
+    	Assert.assertEquals(-1, testP1.getEmptyFieldsRemovedJson().indexOf("species"));
+    	Assert.assertEquals(-1, testP1.getEmptyFieldsRemovedJson().indexOf("ageOfOnset"));
+    	Assert.assertEquals(-1, testP1.getEmptyFieldsRemovedJson().indexOf("sex"));
+    	Assert.assertEquals(-1, testP1.getEmptyFieldsRemovedJson().indexOf("inheritanceMode"));
+    	Assert.assertEquals(-1, testP1.getEmptyFieldsRemovedJson().indexOf("alternateBases"));
+    	Assert.assertEquals(-1, testP1.getEmptyFieldsRemovedJson().indexOf("referenceBases"));
+    	Assert.assertEquals(109, testP1.getEmptyFieldsRemovedJson().indexOf("name"));
     }
     
     
@@ -158,7 +206,10 @@ public class AppTest extends TestCase
     }
     
     
-    
+    /**
+     * Returns a complete test patient
+     * @return a test patient
+     */
     private Patient getTestPatient(){
 
        	    //contact

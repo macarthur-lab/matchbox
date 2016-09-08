@@ -53,6 +53,21 @@ public class Variant {
 	}
 	
 	/**
+	 * Returns true if ALL fields are unpopulated
+	 */
+	public boolean isUnPopulated(){
+		if (this.assembly=="" &&
+				this.referenceName=="" &&
+				this.start==0L &&
+				this.end==0L   &&
+				this.referenceBases=="" &&
+				this.alternateBases==""){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * @return the assembly
 	 */
 	public String getAssembly() {
@@ -98,6 +113,47 @@ public class Variant {
 	public String toString() {
 		return "Variant [assembly=" + assembly + ", referenceName=" + referenceName + ", start=" + start + ", end="
 				+ end + ", referenceBases=" + referenceBases + ", alternateBases=" + alternateBases + "]";
+	}
+	
+	
+	/**
+	 * Returns a JSON representation and keeps out empty fields
+	 * @return A JSON string
+	 */
+	public String getEmptyFieldsRemovedJson(){
+		StringBuilder asJson=new StringBuilder();
+		asJson.append("{");
+		if (getAssembly() != ""){
+			asJson.append("\"assembly\":");
+			asJson.append("\"" + this.getAssembly() + "\"");
+		}
+		if (getReferenceName() != ""){
+			asJson.append(",");
+			asJson.append("\"referenceName\":");
+			asJson.append("\"" + this.getReferenceName() + "\"");
+		}
+		if (getStart() != 0L){
+			asJson.append(",");
+			asJson.append("\"start\":");
+			asJson.append(this.getStart());	
+		}
+		if (getEnd() != 0L){
+			asJson.append(",");
+			asJson.append("\"end\":");
+			asJson.append(this.getEnd());	
+		}
+		if (getReferenceBases() != ""){
+			asJson.append(",");
+			asJson.append("\"referenceBases\":");
+			asJson.append("\"" + this.getReferenceBases() + "\"");
+		}
+		if (getAlternateBases() != ""){
+			asJson.append(",");
+			asJson.append("\"alternateBases\":");
+			asJson.append("\"" + this.getAlternateBases() + "\"");
+		}
+		asJson.append("}");
+		return asJson.toString();
 	}
 
 }

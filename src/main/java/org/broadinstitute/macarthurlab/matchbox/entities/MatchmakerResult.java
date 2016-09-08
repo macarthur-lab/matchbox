@@ -29,7 +29,6 @@ public class MatchmakerResult {
 		this.patient = new Patient();
 	}	
 	
-	
 	/**
 	 * @param score
 	 * @param patient
@@ -38,6 +37,9 @@ public class MatchmakerResult {
 		this.score = score;
 		this.patient = patient;
 	}
+	
+
+
 	/**
 	 * @return the score
 	 */
@@ -50,6 +52,7 @@ public class MatchmakerResult {
 	public Patient getPatient() {
 		return patient;
 	}
+	
 	
 	
 

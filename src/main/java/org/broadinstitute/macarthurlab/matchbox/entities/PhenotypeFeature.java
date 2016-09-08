@@ -63,16 +63,40 @@ public class PhenotypeFeature {
 	}
 
 
-
-	/* 
-	 * To string method
-	 * (non-Javadoc)
+	
+	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "PhenotypeFeature [id=" + id + ", observed=" + observed + ", ageOfOnset=" + ageOfOnset + "]";
 	}
-	
+
+
+
+	/**
+	 * Returns a JSON representation and keeps out empty fields
+	 * @return A JSON string
+	 */
+	public String getEmptyFieldsRemovedJson(){
+		StringBuilder asJson=new StringBuilder();
+		asJson.append("{");
+		if (this.getId() != ""){
+			asJson.append("\"id\":");
+			asJson.append("\"" + this.getId() + "\"");
+		}
+		if (this.getObserved() != ""){
+			asJson.append(",");
+			asJson.append("\"observed\":");
+			asJson.append("\"" + this.getObserved() + "\"");
+		}
+		if (this.getAgeOfOnset() != ""){
+			asJson.append(",");
+			asJson.append("\"start\":");
+			asJson.append("\"" + this.getAgeOfOnset() + "\"");
+		}
+		asJson.append("}");
+		return asJson.toString();
+	}
 	
 }

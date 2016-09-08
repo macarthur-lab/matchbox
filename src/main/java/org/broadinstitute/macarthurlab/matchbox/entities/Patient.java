@@ -204,7 +204,6 @@ public class Patient{
 	}
 
 
-
 	/* 
 	 * To String method
 	 * (non-Javadoc)
@@ -217,7 +216,113 @@ public class Patient{
 				+ disorders + ", features=" + features + ", genomicFeatures=" + genomicFeatures + "]";
 	}
 
-
 	
+	
+	
+	/**
+	 * Returns a JSON representation and keeps out empty fields
+	 * @return A JSON string
+	 */
+	public String getEmptyFieldsRemovedJson(){
+		StringBuilder asJson=new StringBuilder();
+		asJson.append("{");
+		
+		//REQUIRED
+		asJson.append("\"id\":");
+		asJson.append("\"" + this.getId() + "\"");
+		//OPTIONAL
+		asJson.append(",");
+		asJson.append("\"label\":");
+		asJson.append("\"" + this.getLabel() + "\"");
+		//REQUIRED
+		asJson.append(",");
+		asJson.append("\"contact\":{");
+		int i=0;
+		for (String k:this.getContact().keySet()){
+			asJson.append("\"" +  k + "\":");
+			asJson.append("\"" + this.getContact().get(k) + "\"");
+			if (i<this.getContact().size()-1){
+				asJson.append(",");
+			}
+			i+=1;
+		}
+		asJson.append("}");
+		//OPTIONAL
+		if (this.getSpecies() != ""){
+			asJson.append(",");
+			asJson.append("\"species\":");
+			asJson.append("\"" + this.getSpecies() + "\"");
+		}
+		//OPTIONAL
+		if (this.getSex() != ""){
+			asJson.append(",");
+			asJson.append("\"sex\":");
+			asJson.append("\"" + this.getSex() + "\"");
+		}
+		//OPTIONAL
+		if (this.getAgeOfOnset() != ""){
+			asJson.append(",");
+			asJson.append("\"ageOfOnset\":");
+			asJson.append("\"" + this.getAgeOfOnset() + "\"");
+		}
+		//OPTIONAL
+		if (this.getInheritanceMode() != ""){
+			asJson.append(",");
+			asJson.append("\"inheritanceMode\":");
+			asJson.append("\"" + this.getInheritanceMode() + "\"");
+		}
+		//OPTIONAL
+		if (this.getDisorders().size()>0){
+			asJson.append(",");
+			asJson.append("\"disorders\":[");
+			int j=0;
+			for (Map<String,String> disorder:this.getDisorders()){
+				asJson.append("{");
+				for (String k:disorder.keySet()){
+					asJson.append("\"" +  k + "\":");
+					asJson.append("\"" + disorder.get(k) + "\"");
+				}
+				asJson.append("}");
+				if (j<this.getDisorders().size()-1){
+					asJson.append(",");
+				}
+				j+=1;
+			}
+			asJson.append("]");
+		}
+
+		//possibly OPTIONAL
+		if (this.getFeatures().size()>0){
+			asJson.append(",");
+			asJson.append("\"features\":[");
+			int k=0;
+			for (PhenotypeFeature phenotypeFeature:this.getFeatures()){
+				asJson.append(phenotypeFeature.getEmptyFieldsRemovedJson());
+				if (k<this.getFeatures().size()-1){
+					asJson.append(",");
+				}
+				k+=1;
+			}
+			asJson.append("]");
+		}
+
+		//possibly OPTIONAL
+		if (this.getGenomicFeatures().size()>0){
+			asJson.append(",");
+			asJson.append("\"genomicFeatures\":[");
+			int p=0;
+			for (GenomicFeature genomicFeature:this.getGenomicFeatures()){
+				asJson.append(genomicFeature.getEmptyFieldsRemovedJson());
+				if (p<this.getGenomicFeatures().size()-1){
+					asJson.append(",");
+				}
+				p+=1;
+			}
+			asJson.append("]");
+		}
+		
+		asJson.append("}");
+		return asJson.toString();
+	}
 	
 }
