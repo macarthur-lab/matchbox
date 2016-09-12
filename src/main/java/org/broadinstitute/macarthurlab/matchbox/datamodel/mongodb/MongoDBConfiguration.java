@@ -34,8 +34,8 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration {
      * TODO: take out password from here
      */
     public Mongo mongo() throws Exception {
-    	MongoClient mongoClient = new MongoClient();
-    	DB db = mongoClient.getDB("http://localhost/mme_primary");
+    	MongoClient mongoClient = new MongoClient("127.0.0.1", 27017);
+    	DB db = mongoClient.getDB("mme_primary");
     	boolean auth = db.authenticate("matchmaker", "m@tchmaykrusr".toCharArray());
         //return new MongoClient("127.0.0.1", 27017);
     	return mongoClient;
