@@ -31,9 +31,14 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration {
 	@Bean
     /**
      * Hostname of database is set here. Assumed to be localhost for now. Please update as needed.
+     * TODO: take out password from here
      */
     public Mongo mongo() throws Exception {
-        return new MongoClient("127.0.0.1", 27017);
+    	MongoClient mongoClient = new MongoClient();
+    	DB db = mongoClient.getDB("http://localhost/mme_primary");
+    	boolean auth = db.authenticate("matchmaker", "m@tchmaykrusr".toCharArray());
+        //return new MongoClient("127.0.0.1", 27017);
+    	return mongoClient;
     }
 
     @Override
