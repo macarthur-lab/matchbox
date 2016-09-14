@@ -56,7 +56,7 @@ public class Communication {
 		HttpsURLConnection connection = null;  
 		try {
 		    //Create connection
-		    URL url = new URL(matchmakerNode.getUrl());
+		    URL url = new URL(null,matchmakerNode.getUrl(),new sun.net.www.protocol.https.Handler());
 		    connection = (HttpsURLConnection)url.openConnection();
 
 		    if (matchmakerNode.isSelfSignedCertificate()){
@@ -111,6 +111,7 @@ public class Communication {
 				
 		    }		 
 		  } catch (Exception e) {
+			  e.printStackTrace();
 			  System.out.println("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e);    
 		  } finally {
 		    if(connection != null) {
@@ -122,6 +123,7 @@ public class Communication {
 	
 	
 	/**
+	 * DEPRACATED--, need a better solution
 	 * Check if this host is live
 	 * @param hostName name of host
 	 * @param portNum port number
