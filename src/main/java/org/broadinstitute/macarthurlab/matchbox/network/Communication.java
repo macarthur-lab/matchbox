@@ -78,6 +78,7 @@ public class Communication {
 		    //Send request
 		    //String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
 		    String payload = "{\"patient\":" + queryPatient.getEmptyFieldsRemovedJson() + "}";
+		    System.out.println(payload);
 		    DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
 		    wr.writeBytes(payload);
 		    wr.close();
