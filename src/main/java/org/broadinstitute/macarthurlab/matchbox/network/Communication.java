@@ -94,6 +94,7 @@ public class Communication {
 		    }
 		    rd.close();
 		    JSONParser parser = new JSONParser();
+		    System.out.println(response);
 		    JSONObject resultJsonObject = (JSONObject) parser.parse(response.toString());
 		    JSONArray  results = (JSONArray)resultJsonObject.get("results");
 		    
