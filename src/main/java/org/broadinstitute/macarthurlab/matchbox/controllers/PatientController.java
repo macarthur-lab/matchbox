@@ -48,7 +48,7 @@ public class PatientController {
 	
 	
 	/**
-	 * Controller for /individual/add end-point. This adds a patient to the local MME database
+	 * Controller for /patient/add end-point. This adds a patient to the local MME database
 	 * 
 	 * @param patient
 	 *            A patient structure sent as JSON through the API
@@ -57,11 +57,23 @@ public class PatientController {
 	@RequestMapping(method = RequestMethod.POST, value = "/patient/add")
 	public ResponseEntity<String> add(@RequestBody String requestString) {
 		String jsonMessage = "{\"message\":\"insertion OK\",\"status_code\":200}";
+		Patient patient = null;
 		try {
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-			Patient patient = this.getPatientUtility()
-					.parsePatientInformation(decodedRequestString.substring(0, decodedRequestString.length() - 1));
+			String inputData=decodedRequestString;
+			if ('=' == inputData.charAt(decodedRequestString.length() - 1)){
+				inputData=decodedRequestString.substring(0, decodedRequestString.length() - 1);
+			}
+			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(inputData);
+			if (!inputDataValid) {
+				StringBuilder msg = new StringBuilder();
+				msg.append("add to MME request has invalid JSON data:");
+				msg.append(decodedRequestString);
+				System.out.println(msg.toString());
+				return new ResponseEntity<String>(msg.toString(),HttpStatus.BAD_REQUEST);
+			}
 			//if the patient doesn't exist already, add them
+			patient = this.getPatientUtility().parsePatientInformation(inputData);
 			if (null == this.patientMongoRepository.findOne(patient.getId())) {
 				System.out.println(this.patientMongoRepository.insert(patient));
 			} else {

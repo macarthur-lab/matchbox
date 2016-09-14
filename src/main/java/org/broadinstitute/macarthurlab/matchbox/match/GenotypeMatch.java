@@ -8,8 +8,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
@@ -116,14 +118,18 @@ public class GenotypeMatch {
 		
 		BasicQuery qGeneId = new BasicQuery(geneSymbolQuery.toString());
 		List<Patient> psGeneId = this.getOperator().find(qGeneId,Patient.class);
+		Set<String> usedIds = new HashSet<String>();
 		for (Patient p:psGeneId){
 			results.add(p);
+			usedIds.add(p.getId());
 		}
 		
 		BasicQuery qEnsemblId = new BasicQuery(ensemblIdQuery.toString());
 		List<Patient> psEnsembl = this.getOperator().find(qEnsemblId,Patient.class);
 		for (Patient p:psEnsembl){
-			results.add(p);
+			if (!usedIds.contains(p.getId())){
+				results.add(p);
+			}
 		}	
 		
 		

@@ -81,7 +81,6 @@ public class MatchmakerResult {
 		asJson.append(this.getPatient().getEmptyFieldsRemovedJson());
 		
 		asJson.append("}");
-		System.out.println(asJson);
 		return asJson.toString();
 	}
 	
