@@ -74,13 +74,16 @@ public class PatientController {
 			}
 			//if the patient doesn't exist already, add them
 			patient = this.getPatientUtility().parsePatientInformation(inputData);
-			if (null == this.patientMongoRepository.findOne(patient.getId())) {
+			Patient recordInDb = this.patientMongoRepository.findOne(patient.getId());
+			if (null == recordInDb) {
 				System.out.println(this.patientMongoRepository.insert(patient));
 			} else {
-				jsonMessage = "{\"message\":\"That patient record was not inserted, it (specifically that ID) already exists in Broad system\",\"status_code\":440}";
+				//let's delete the existing record and add in the new one
+				this.patientMongoRepository.delete(recordInDb);
+				System.out.println(this.patientMongoRepository.insert(patient));
+				jsonMessage = "{\"message\":\"That patient record (specifically that ID) had already been submitted in the past, it  already exists in Broad system. We are deleting that record and updating it with this new submission\",\"status_code\":200}";
 				return new ResponseEntity<String>(jsonMessage, HttpStatus.CONFLICT);
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			jsonMessage = "{\"message\":\"unable to insert, an unknown error occurred.\",\"status_code\":442, \"error_message\":\""

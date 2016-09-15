@@ -47,12 +47,6 @@ public class Communication {
 	
 	public List<MatchmakerResult> callNode(Node matchmakerNode, Patient queryPatient) {
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		
-		//if (!this.isHostLive(matchmakerNode.getUrl(), 80)){
-		//	System.out.println("WARNING: the node "+ matchmakerNode.getName() + " doesn't not seem to be live, moving on..");
-		//	return allResults;	
-		//}
-			
 		HttpsURLConnection connection = null;  
 		try {
 		    //Create connection

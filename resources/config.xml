@@ -29,7 +29,7 @@
   <bean id="defaultAccessToken"
       class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
       <constructor-arg type="java.lang.String" value="Default Access Token" />
-      <constructor-arg type="java.lang.String" value="854a439d278df4283bf5498ab020336cdc416a7d" />
+      <constructor-arg type="java.lang.String" value="" />
       <constructor-arg type="java.lang.String" value="Broad Institute JCMG" />
       <constructor-arg type="java.lang.String" value="harindra@broadinstitute.org" />
   </bean>
@@ -38,7 +38,7 @@
       class="org.broadinstitute.macarthurlab.matchbox.authentication.AccessAuthorizedNode">
       <property name="accessAuthorizedNodes">
          <list>
-            <ref bean="defaultAccessToken"/>
+            <ref bean="defaultAccessToken"/>            
          </list>
       </property>
   </bean>

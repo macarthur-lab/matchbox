@@ -18,7 +18,7 @@ __version__ = 0.1
 #set this value to 1 for profiling tool performance
 PROFILE=0
 
-ACCESS_TOKEN="854a439d278df4283bf5498ab020336cdc416a7d"
+ACCESS_TOKEN=""
 MME_NODE_ACCEPT_HEADER='application/vnd.ga4gh.matchmaker.v0.1+json'
 MME_CONTENT_TYPE_HEADER='application/x-www-form-urlencoded'
 MME_SERVER_HOST='http://localhost:8080'
