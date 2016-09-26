@@ -3,7 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-
+<!--  
   <bean id="testRefSvrNode"
       class="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
       <constructor-arg type="java.lang.String" value="Test Reference Server" />
@@ -14,12 +14,23 @@
       <constructor-arg type="java.lang.String" value="en-US"/>
       <constructor-arg type="boolean" value="false"/>
   </bean>
+ --> 
+    <bean id="tokenToAccessAustralianGenomicsHealthAlliance" class="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
+      <constructor-arg type="java.lang.String" value="Australian Genomics Health Alliance Matchmaker Node" />
+      <constructor-arg type="java.lang.String" value="" />
+      <constructor-arg type="java.lang.String" value="https://mme.australiangenomics.org.au/mme/match" />
+      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
+      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
+      <constructor-arg type="java.lang.String" value="en-US"/>
+      <constructor-arg type="boolean" value="false"/>
+  </bean>
 
   <bean id="matchmakerSearch"
       class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch">
       <property name="matchmakers">
          <list>
-            <ref bean="testRefSvrNode"/>
+            <!-- <ref bean="testRefSvrNode"/> -->
+            <ref bean="tokenToAccessAustralianGenomicsHealthAlliance"/>
          </list>
       </property>
   </bean>
