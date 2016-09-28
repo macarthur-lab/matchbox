@@ -1,0 +1,71 @@
+/**
+ * To persist a query from an external center and the results that were sent back to them.
+ * Objective: to help gather metrics on performance as well as function as a record of all 
+ * data communicated
+ */
+package org.broadinstitute.macarthurlab.matchbox.entities;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @author harindra
+ */
+public class ExternalMatchQuery {
+	private final Date timeStamp;
+	private final Patient incomingQuery;
+	private final List<MatchmakerResult> results;
+
+	/**
+	 * Constructor for testing
+	 */
+	public ExternalMatchQuery() {
+		this.incomingQuery=new Patient();
+		this.results= new ArrayList<MatchmakerResult>();
+		this.timeStamp = new Date();
+	}
+	
+	/**
+	 * Constructor
+	 */
+	public ExternalMatchQuery(Patient queryPatient, List<MatchmakerResult> results) {
+		this.incomingQuery=queryPatient;
+		this.results= results;
+		this.timeStamp = new Date();
+	}
+
+	/**
+	 * @return the timeStamp
+	 */
+	public Date getTimeStamp() {
+		return timeStamp;
+	}
+
+	/**
+	 * @return the incomingQuery
+	 */
+	public Patient getIncomingQuery() {
+		return incomingQuery;
+	}
+
+	/**
+	 * @return the results
+	 */
+	public List<MatchmakerResult> getResults() {
+		return results;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ExternalMatchQuery [timeStamp=" + timeStamp + ", incomingQuery=" + incomingQuery + ", results="
+				+ results + "]";
+	}
+	
+	
+	
+
+}
