@@ -14,6 +14,8 @@ import java.util.List;
  */
 public class ExternalMatchQuery {
 	private final Date timeStamp;
+	private final String requestOriginHostname;
+	private final String institution;
 	private final Patient incomingQuery;
 	private final List<MatchmakerResult> results;
 
@@ -21,18 +23,22 @@ public class ExternalMatchQuery {
 	 * Constructor for testing
 	 */
 	public ExternalMatchQuery() {
+		this.requestOriginHostname="";
 		this.incomingQuery=new Patient();
 		this.results= new ArrayList<MatchmakerResult>();
 		this.timeStamp = new Date();
+		this.institution="";
 	}
 	
 	/**
 	 * Constructor
 	 */
-	public ExternalMatchQuery(Patient queryPatient, List<MatchmakerResult> results) {
+	public ExternalMatchQuery(Patient queryPatient, List<MatchmakerResult> results, String requestOriginHostname, String institution) {
 		this.incomingQuery=queryPatient;
 		this.results= results;
 		this.timeStamp = new Date();
+		this.requestOriginHostname = requestOriginHostname;
+		this.institution=institution;
 	}
 
 	/**
@@ -63,6 +69,20 @@ public class ExternalMatchQuery {
 	public String toString() {
 		return "ExternalMatchQuery [timeStamp=" + timeStamp + ", incomingQuery=" + incomingQuery + ", results="
 				+ results + "]";
+	}
+
+	/**
+	 * @return the requestOriginHostname
+	 */
+	public String getRequestOriginHostname() {
+		return requestOriginHostname;
+	}
+
+	/**
+	 * @return the institution
+	 */
+	public String getInstitution() {
+		return institution;
 	}
 	
 	

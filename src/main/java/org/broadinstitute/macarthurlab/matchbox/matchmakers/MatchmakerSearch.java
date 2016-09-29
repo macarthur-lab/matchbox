@@ -95,16 +95,18 @@ public class MatchmakerSearch implements Search{
 	 * and the query that was used for those hits
 	 * @param	A patient
 	 */
-	public List<String> searchInLocalDatabaseOnly(Patient queryPatient){
+	public List<String> searchInLocalDatabaseOnly(Patient queryPatient, String hostNameOfRequestOrigin){
 		List<String> scrubbedResults=new ArrayList<String>();
 		List<MatchmakerResult> results = this.getMatch().match(queryPatient);
 		for (MatchmakerResult r:results){
 			scrubbedResults.add(r.getEmptyFieldsRemovedJson());
 		}
 		//persist for logging and metrics and tracking of data sent out
-		ExternalMatchQuery externalQueryMatch = new ExternalMatchQuery(queryPatient, results);
-		this.getOperator().save(externalQueryMatch);
-		
+		ExternalMatchQuery externalQueryMatch = new ExternalMatchQuery(queryPatient, 
+																	   results,
+																	   hostNameOfRequestOrigin,
+																	   queryPatient.getContact().get("institution"));
+		this.getOperator().save(externalQueryMatch);		
 		return scrubbedResults;
 	}
 		
