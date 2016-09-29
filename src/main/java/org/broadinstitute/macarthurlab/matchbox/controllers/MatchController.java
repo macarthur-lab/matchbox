@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
@@ -58,8 +61,8 @@ public class MatchController {
 	 * @throws IOException
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/match")
-	public ResponseEntity<?> match(@RequestBody String requestString) {
-		Patient patient = null;
+	public ResponseEntity<?> match(@RequestBody String requestString, HttpServletRequest request) {
+		Patient queryPatient = null;
 		try {
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			// TODO figure out why there is a = at the end of JSON string
@@ -69,10 +72,10 @@ public class MatchController {
 			}
 			boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(inputData);
 			if (inputDataValid) {
-				patient = this.getPatientUtility().parsePatientInformation(inputData);
+				queryPatient = this.getPatientUtility().parsePatientInformation(inputData);
 				StringBuilder msg = new StringBuilder();
 				msg.append("matchmaker request from:");
-				msg.append(patient.getContact().toString());
+				msg.append(queryPatient.getContact().toString());
 				System.out.println(msg.toString());
 			} else {
 				System.out.println("input data invalid:");
@@ -83,7 +86,8 @@ public class MatchController {
 			e.printStackTrace();
 			System.out.println("error parsing patient in /match :" + e.toString());
 		}
-		String results = "{" + "\"results\":" + this.getSearcher().searchInLocalDatabaseOnly(patient).toString() + "}";
+		String matches = this.getSearcher().searchInLocalDatabaseOnly(queryPatient,request.getRemoteHost()).toString();
+		String results = "{" + "\"results\":" + matches + "}";
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
 		return new ResponseEntity<>(results, httpHeaders,HttpStatus.OK);

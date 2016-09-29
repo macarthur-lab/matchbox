@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
+import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
@@ -48,6 +49,7 @@ public class MatchmakerSearch implements Search{
 	 */
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
+
 	
 	private MongoOperations operator;
 	
@@ -60,6 +62,8 @@ public class MatchmakerSearch implements Search{
 	 * A set of tools to help with make a Http call to an external node
 	 */
 	private final Communication httpCommunication;
+	
+	
 	
 	
 	/**
@@ -87,14 +91,22 @@ public class MatchmakerSearch implements Search{
 	}
 	
 	/**
-	 * Search in local matchmaker node ONLY, not in the large matchmaker network
+	 * Search in local matchmaker node ONLY, not in the large matchmaker network. Log the results
+	 * and the query that was used for those hits
 	 * @param	A patient
 	 */
-	public List<String> searchInLocalDatabaseOnly(Patient patient){
+	public List<String> searchInLocalDatabaseOnly(Patient queryPatient, String hostNameOfRequestOrigin){
 		List<String> scrubbedResults=new ArrayList<String>();
-		for (MatchmakerResult r:this.getMatch().match(patient)){
+		List<MatchmakerResult> results = this.getMatch().match(queryPatient);
+		for (MatchmakerResult r:results){
 			scrubbedResults.add(r.getEmptyFieldsRemovedJson());
 		}
+		//persist for logging and metrics and tracking of data sent out
+		ExternalMatchQuery externalQueryMatch = new ExternalMatchQuery(queryPatient, 
+																	   results,
+																	   hostNameOfRequestOrigin,
+																	   queryPatient.getContact().get("institution"));
+		this.getOperator().save(externalQueryMatch);		
 		return scrubbedResults;
 	}
 		
@@ -176,6 +188,14 @@ public class MatchmakerSearch implements Search{
 	 */
 	public MatchService getMatch() {
 		return this.match;
+	}
+	
+
+	/**
+	 * @param patientMongoRepository the patientMongoRepository to set
+	 */
+	public void setPatientMongoRepository(PatientMongoRepository patientMongoRepository) {
+		this.patientMongoRepository = patientMongoRepository;
 	}
 
 
