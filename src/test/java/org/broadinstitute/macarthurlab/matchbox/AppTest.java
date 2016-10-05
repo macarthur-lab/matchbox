@@ -14,6 +14,7 @@ import org.broadinstitute.macarthurlab.matchbox.match.GenotypeMatch;
 import org.broadinstitute.macarthurlab.matchbox.match.Match;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
 
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -295,14 +296,22 @@ public class AppTest extends TestCase
         
     
     
-    
+    /**
+     * Test parsing patient structure
+     */
     public void testPatientStructureParsing(){
     	String patientString="{\"patient\":{\"id\":\"1\", \"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
     	Patient patient = new PatientRecordUtility().parsePatientInformation(patientString);
     	System.out.println(patient.getEmptyFieldsRemovedJson());
     }
     
-    
+    /**
+     * Test counting distinct genes for metrics
+     */
+    public void testMetricsDistinctGenes(){
+    	Metric metric = new Metric();
+    	metric.countGenesInSystem();
+    }
     
     
     
