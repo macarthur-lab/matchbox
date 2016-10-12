@@ -13,6 +13,7 @@ import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfigu
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -63,6 +64,36 @@ public class Metric {
 					counts.put(gf.getGene().get("id"),1);
 				}
 			}
+		}
+		return counts;
+	}
+	
+
+	
+	/**
+	 * Counts the number of patients for a given gene
+	 * @return a map of gene name to count
+	 */
+	public int countTotalNumOfPatientsInSystem(){
+		StringBuilder query = new StringBuilder("{}");
+		BasicQuery q = new BasicQuery(query.toString());
+		List<Patient> patients = this.getOperator().find(q,Patient.class);
+		return patients.size();
+	}
+	
+	
+	/**
+	 * Counts the number of patients for a given gene
+	 * #TODO return count by HPO term to show diversity
+	 * @return a map of gene name to count
+	 */
+	public int countTotalNumOfPhenotypesInSystem(){
+		StringBuilder query = new StringBuilder("{}");
+		BasicQuery q = new BasicQuery(query.toString());
+		List<Patient> patients = this.getOperator().find(q,Patient.class);
+		int counts=0;
+		for (Patient p: patients){
+			counts += p.getFeatures().size();
 		}
 		return counts;
 	}
