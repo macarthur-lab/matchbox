@@ -101,12 +101,26 @@ public class MatchmakerSearch implements Search{
 		for (MatchmakerResult r:results){
 			scrubbedResults.add(r.getEmptyFieldsRemovedJson());
 		}
-		//persist for logging and metrics and tracking of data sent out
-		ExternalMatchQuery externalQueryMatch = new ExternalMatchQuery(queryPatient, 
-																	   results,
-																	   hostNameOfRequestOrigin,
-																	   queryPatient.getContact().get("institution"));
-		this.getOperator().save(externalQueryMatch);		
+		/**persist for logging and metrics and tracking of data sent out. Persist the 
+		*  incoming query ONLY if a match is made, otherwise don't keep any of the
+		*  information that is sent in, which is only fair.
+		*/
+		ExternalMatchQuery externalQueryMatch;
+		if (results.size()>0){
+				externalQueryMatch = new ExternalMatchQuery(queryPatient, 
+															results,
+															hostNameOfRequestOrigin,
+															queryPatient.getContact().get("institution"),
+															true);
+				
+		}else{
+			externalQueryMatch = new ExternalMatchQuery(null, 
+					   									results,
+					   									hostNameOfRequestOrigin,
+					   									queryPatient.getContact().get("institution"),
+					   									false);
+		}
+		this.getOperator().save(externalQueryMatch);
 		return scrubbedResults;
 	}
 		

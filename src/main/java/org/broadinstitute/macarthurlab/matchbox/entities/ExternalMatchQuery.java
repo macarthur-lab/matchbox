@@ -17,6 +17,7 @@ public class ExternalMatchQuery {
 	private final String requestOriginHostname;
 	private final String institution;
 	private final Patient incomingQuery;
+	private final boolean matchFound;
 	private final List<MatchmakerResult> results;
 
 	/**
@@ -28,17 +29,19 @@ public class ExternalMatchQuery {
 		this.results= new ArrayList<MatchmakerResult>();
 		this.timeStamp = new Date();
 		this.institution="";
+		this.matchFound=false;
 	}
 	
 	/**
 	 * Constructor
 	 */
-	public ExternalMatchQuery(Patient queryPatient, List<MatchmakerResult> results, String requestOriginHostname, String institution) {
+	public ExternalMatchQuery(Patient queryPatient, List<MatchmakerResult> results, String requestOriginHostname, String institution, boolean matchFound) {
 		this.incomingQuery=queryPatient;
 		this.results= results;
 		this.timeStamp = new Date();
 		this.requestOriginHostname = requestOriginHostname;
 		this.institution=institution;
+		this.matchFound=matchFound;
 	}
 
 	/**
@@ -84,6 +87,14 @@ public class ExternalMatchQuery {
 	public String getInstitution() {
 		return institution;
 	}
+
+	/**
+	 * @return the matchFound
+	 */
+	public boolean isMatchFound() {
+		return matchFound;
+	}
+	
 	
 	
 	

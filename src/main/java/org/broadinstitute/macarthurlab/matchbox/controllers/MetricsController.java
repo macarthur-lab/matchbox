@@ -43,6 +43,7 @@ public class MetricsController {
 	@RequestMapping(method = RequestMethod.GET, value = "/metrics")
 	public ResponseEntity<?> match() {
 		Map<String,Integer> geneCounts = this.getMetric().countGenesInSystem();
+		Map<String,Integer> phenotypeCounts = this.getMetric().countPhenotypesInSystem();
 		StringBuilder msg = new StringBuilder();	
 		
 		
@@ -60,12 +61,12 @@ public class MetricsController {
 		
 		//----
 		msg.append("\"totalNumberOfPhenotypes\":");
-		msg.append(this.getMetric().countTotalNumOfPhenotypesInSystem());
+		msg.append(this.getMetric().getTotalNumOfPhenotypesInSystem());
 		msg.append(",");
 		
 		//----
 		msg.append("\"totalNumberOfPatients\":");
-		msg.append(this.getMetric().countTotalNumOfPatientsInSystem());
+		msg.append(this.getMetric().getNumOfPatientsInSystem());
 		msg.append(",");
 		
 		//----
@@ -84,26 +85,46 @@ public class MetricsController {
 		}
 		msg.append("},");
 		
+		
+		//----
+		msg.append("\"phenotypeCounts\":{");
+		int j=0;
+		for (String k:phenotypeCounts.keySet()){
+			msg.append("\"");
+			msg.append(k);
+			msg.append("\"");
+			msg.append(":");
+			msg.append(phenotypeCounts.get(k));
+			if (j<phenotypeCounts.size()-1){
+				msg.append(",");
+			}
+			j+=1;
+		}
+		msg.append("},");
+		
+		
 		//----
 		msg.append("\"matches\":{");
-		
-		//----
-		msg.append("\"numberOfMatchesMade\":");
-		msg.append("");
-		msg.append(",");
-		
+				
+		int numMatches=this.getMetric().getNumOfMatches();
+		int numIncomingReqs=this.getMetric().getNumOfIncomingMatchRequests();
 		//----
 		msg.append("\"numberOfIncomingMatchRequests\":");
-		msg.append("");
+		msg.append(numIncomingReqs);
 		msg.append(",");
 		
 		//----
 		msg.append("\"numberOfMatchesMade\":");
+		msg.append(numMatches);
 		msg.append(",");
 		
 		//----
 		msg.append("\"matchRatio\":");
-		msg.append("");
+		double ratio=(double)numMatches / (double)numIncomingReqs;
+		if (Double.isNaN(ratio)){
+			ratio=0.0d;
+		}
+		msg.append(ratio);
 		
 		msg.append("}");
 		msg.append("}}");
