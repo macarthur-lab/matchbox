@@ -99,7 +99,9 @@ public class MatchmakerSearch implements Search{
 		List<String> scrubbedResults=new ArrayList<String>();
 		List<MatchmakerResult> results = this.getMatch().match(queryPatient);
 		for (MatchmakerResult r:results){
-			scrubbedResults.add(r.getEmptyFieldsRemovedJson());
+			if (!r.getPatient().getId().equals(queryPatient.getId())){
+				scrubbedResults.add(r.getEmptyFieldsRemovedJson());
+			}
 		}
 		/**persist for logging and metrics and tracking of data sent out. Persist the 
 		*  incoming query ONLY if a match is made, otherwise don't keep any of the

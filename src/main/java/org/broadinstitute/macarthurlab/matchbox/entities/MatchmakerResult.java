@@ -96,6 +96,17 @@ public class MatchmakerResult {
 		
 		return disclaimer.toString();
 	}
+
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "MatchmakerResult [score=" + score + ", patient=" + patient + "]";
+	}
+	
+	
 	
 	
 }
