@@ -46,6 +46,7 @@ public class Communication {
 	
 	
 	public List<MatchmakerResult> callNode(Node matchmakerNode, Patient queryPatient) {
+		System.setProperty("javax.net.ssl.trustStore","/local/mme/config/java/jdk1.8.0_101/keystore");
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		HttpsURLConnection connection = null;  
 		try {
