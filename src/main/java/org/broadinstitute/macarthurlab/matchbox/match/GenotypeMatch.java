@@ -166,35 +166,36 @@ public class GenotypeMatch {
 		double simScore=0.0;
 		List<String> commonGenes = findCommonGenes(p1, queryP);
 		//total possible addition of 0.25 (if perfect match)
-		simScore += getCommonGenesScore(p1, queryP,commonGenes);
+		simScore += getZygosityScore(p1, queryP,commonGenes);
 		//total possible addition of 0.25 (if perfect match)
 		simScore += getTypeScore(p1, queryP,commonGenes);
 		return simScore;
 	}
+
 	
 	
 	/**
-	 * As a first naive step, we will simply get the number of 
-	 * genes they have in common against the total number of genes
-	 * @param p1 patient
-	 * @param queryP another patient
-	 * @param p1p2Intersect genes both patients have in common
-	 * @return	A genes in common metric
+	 * Access zygosity's affect on the score. If zygosity is the same 0.25 is returned.
+	 * @param p1	The patient in question
+	 * @param queryP	The query patient
+	 * @return A score (0.25 is returned if there is a match in zygositys)
 	 */
-	public double getCommonGenesScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
-		List<String> p1Genes = new ArrayList<String>();
-		p1.getGenomicFeatures().forEach((k)->{
-			p1Genes.add(k.getGene().get("id"));
-		});
-		/**
-		 * this implies a perfect match of genes (at least that the match has all
-		 * the genes listed in the query, so will return a perfect score (TODO: validate with team)
-		 */
-		if (p1Genes.size() == p1p2Intersect.size() ){
-			return 0.25d;
+	public double getZygosityScore(Patient p1, Patient queryP,List<String> commonGenes){
+		double score=0.0d;
+		for (GenomicFeature gf: p1.getGenomicFeatures()){
+			if (commonGenes.contains(gf.getGene().get("id"))){
+				long queryPZygosity=-1L;
+				for (GenomicFeature queryPgf: queryP.getGenomicFeatures()){
+					if (queryPgf.getGene().get("id").equals(gf.getGene().get("id"))){
+						queryPZygosity=queryPgf.getZygosity();
+					}
+				}
+				if (gf.getZygosity() == queryPZygosity){
+					score=0.25;
+				}
+			}
 		}
-		return (double)p1p2Intersect.size() / 
-				((double)p1.getGenomicFeatures().size() +(double)queryP.getGenomicFeatures().size());
+		return score;
 	}
 	
 	
