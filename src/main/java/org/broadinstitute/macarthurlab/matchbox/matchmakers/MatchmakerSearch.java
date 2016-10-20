@@ -6,9 +6,6 @@ package org.broadinstitute.macarthurlab.matchbox.matchmakers;
 
 
 import java.net.MalformedURLException;
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
@@ -24,7 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author harindra
@@ -63,7 +61,7 @@ public class MatchmakerSearch implements Search{
 	 */
 	private final Communication httpCommunication;
 	
-	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	
 	/**
@@ -135,7 +133,7 @@ public class MatchmakerSearch implements Search{
 	 * @throws MalformedURLException 
 	 */
 	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient queryPatient) {
-		System.out.println("searching in external node: "+matchmakerNode.getName());
+		this.getLogger().info("searching in external node: "+matchmakerNode.getName());
 			return this.getHttpCommunication().callNode(matchmakerNode, queryPatient);	
 	}
 
@@ -214,11 +212,15 @@ public class MatchmakerSearch implements Search{
 		this.patientMongoRepository = patientMongoRepository;
 	}
 
+	
+	
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
+	}
 
-
-	
-	
-	
 	
 	
 }

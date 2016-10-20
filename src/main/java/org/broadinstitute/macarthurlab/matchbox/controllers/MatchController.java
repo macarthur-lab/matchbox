@@ -27,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author harindra
@@ -39,6 +42,7 @@ public class MatchController {
 	private final Search searcher;
 	private final PatientRecordUtility patientUtility;
 	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Constructor populates search functionality
@@ -76,15 +80,13 @@ public class MatchController {
 				StringBuilder msg = new StringBuilder();
 				msg.append("matchmaker request from:");
 				msg.append(queryPatient.getContact().toString());
-				System.out.println(msg.toString());
+				this.getLogger().warn(msg.toString());
 			} else {
-				System.out.println("input data invalid:");
-				System.out.println(inputData);
+				this.getLogger().warn("input data invalid:" + inputData.toString());
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("error parsing patient in /match :" + e.toString());
+			this.getLogger().error("error parsing patient in /match :" + e.toString() + " : " + e.getMessage());
 		}
 		String matches = this.getSearcher().searchInLocalDatabaseOnly(queryPatient,request.getRemoteHost()).toString();
 		String results = "{" + "\"results\":" + matches + "}";
@@ -124,8 +126,7 @@ public class MatchController {
 			results.put("results", matchmakerResults);
 		}
 		catch(Exception e){
-			System.out.println("error occurred in match controller:"+e.toString());
-			e.printStackTrace();
+			this.getLogger().error("error occurred in match controller:"+e.toString() + " : " + e.getMessage());
 		}
 		
 		final HttpHeaders httpHeaders= new HttpHeaders();
@@ -150,6 +151,13 @@ public class MatchController {
 		return patientUtility;
 	}
 
+
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
+	}
 
 	
 

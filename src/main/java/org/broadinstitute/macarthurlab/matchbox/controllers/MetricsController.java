@@ -3,11 +3,11 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.controllers;
 
-import java.io.IOException;
-import java.util.Map;
 
-import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import java.util.Map;
 import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MetricsController {
 	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
 	private final Metric metric;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Constructor for testing
@@ -150,6 +151,15 @@ public class MetricsController {
 	 */
 	public Metric getMetric() {
 		return metric;
+	}
+
+
+
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
 	}
 	
 	
