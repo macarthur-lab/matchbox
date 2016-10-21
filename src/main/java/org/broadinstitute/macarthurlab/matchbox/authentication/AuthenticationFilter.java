@@ -19,15 +19,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class AuthenticationFilter implements Filter{
@@ -35,7 +32,8 @@ public class AuthenticationFilter implements Filter{
 	private static final String ACCEPT_HEADER="Accept";
 	private final AccessAuthorizedNode accessAuthorizedNode;
 	private final List<String> authorizedTokens;
-
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 
 		
 	/**
@@ -56,7 +54,6 @@ public class AuthenticationFilter implements Filter{
 
 	@Override
     public void destroy() {
-        // Do nothing
     }
 
     @Override
@@ -70,10 +67,12 @@ public class AuthenticationFilter implements Filter{
             
             //Unauthorized
             if (!validateXAuthToken(request.getHeader(AuthenticationFilter.getxAuthTokenHeader()))){
+            	this.getLogger().warn("authentication failed for: "+req.getServerName());
             	response.sendError(401,"authentication failed");
             }
             //unsupported API version
             if (!validateAcceptHeader(request.getHeader(AuthenticationFilter.getAcceptHeader()))){
+            	this.getLogger().warn("Accept header validation failed for: "+req.getServerName());
             	response.sendError(406,"unsupported API version, supported versions=[1.0]");
             }
             chain.doFilter(request, response);
@@ -142,6 +141,14 @@ public class AuthenticationFilter implements Filter{
 	 */
 	public List<String> getAuthorizedTokens() {
 		return authorizedTokens;
+	}
+
+
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
 	}
 	
 	

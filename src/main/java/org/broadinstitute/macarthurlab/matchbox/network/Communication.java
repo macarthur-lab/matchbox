@@ -23,6 +23,8 @@ import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,6 +32,7 @@ import org.json.simple.parser.JSONParser;
  *
  */
 public class Communication {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * A set of tools to parse and store patient information
@@ -73,7 +76,7 @@ public class Communication {
 		    //Send request
 		    //String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
 		    String payload = "{\"patient\":" + queryPatient.getEmptyFieldsRemovedJson() + "}";
-		    System.out.println(payload);
+		    this.getLogger().info("patient being sent out to external MME node: "+payload);
 		    DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
 		    wr.writeBytes(payload);
 		    wr.close();
@@ -89,7 +92,7 @@ public class Communication {
 		    }
 		    rd.close();
 		    JSONParser parser = new JSONParser();
-		    System.out.println(response);
+		    this.getLogger().info("response back from external node: "+response.toString());
 		    JSONObject resultJsonObject = (JSONObject) parser.parse(response.toString());
 		    JSONArray  results = (JSONArray)resultJsonObject.get("results");
 		    
@@ -103,13 +106,14 @@ public class Communication {
 							parsedPatient
 							));
 				} else {
-					System.out.println("error parsing patient from external source (required fields missing):"+matchmakerNode.getName());
+					this.getLogger().error("error parsing patient from external source (required fields missing):"+
+													matchmakerNode.getName() + " : " + result.toString());
 				}
 				
 		    }		 
 		  } catch (Exception e) {
 			  e.printStackTrace();
-			  System.out.println("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e);    
+			  this.getLogger().error("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e.getMessage());    
 		  } finally {
 		    if(connection != null) {
 		      connection.disconnect(); 
@@ -118,22 +122,6 @@ public class Communication {
 		return allResults;
 	}
 	
-	
-	/**
-	 * DEPRACATED--, need a better solution
-	 * Check if this host is live
-	 * @param hostName name of host
-	 * @param portNum port number
-	 * @return	true if live
-	 */
-	public boolean isHostLive(String hostName, int portNum) {
-	    try (Socket socket = new Socket()) {
-	        socket.connect(new InetSocketAddress(hostName, portNum));
-	        return true;
-	    } catch (IOException e) {
-	        return false; 
-	    }
-	}
 
 
 	/**
@@ -143,5 +131,11 @@ public class Communication {
 		return patientUtility;
 	}
 
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
+	}
 
 }

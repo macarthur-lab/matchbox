@@ -3,18 +3,16 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.controllers;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -35,6 +33,8 @@ public class PatientController {
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
 	private final Search searcher;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	
 	/**
 	 * Constructor populates search functionality
@@ -76,16 +76,19 @@ public class PatientController {
 			patient = this.getPatientUtility().parsePatientInformation(inputData);
 			Patient recordInDb = this.patientMongoRepository.findOne(patient.getId());
 			if (null == recordInDb) {
-				System.out.println(this.patientMongoRepository.insert(patient));
+				this.patientMongoRepository.insert(patient);
+				this.getLogger().info("inserting new patient for the first time: " + patient.toString());
 			} else {
-				//let's delete the existing record and add in the new one
+				//let's delete the existing record and add in the new one.
+				//#TODO add an audit here for external users who don't use seqr to audit this
 				this.patientMongoRepository.delete(recordInDb);
-				System.out.println(this.patientMongoRepository.insert(patient));
+				this.patientMongoRepository.insert(patient);
+				this.getLogger().info("deleting existing patient record and inserting new patient record: " + patient.toString());
 				jsonMessage = "{\"message\":\"That patient record (specifically that ID) had already been submitted in the past, it  already exists in Broad system. We are deleting that record and updating it with this new submission\",\"status_code\":200}";
 				return new ResponseEntity<String>(jsonMessage, HttpStatus.CONFLICT);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			this.getLogger().error(e.getMessage());
 			jsonMessage = "{\"message\":\"unable to insert, an unknown error occurred.\",\"status_code\":442, \"error_message\":\""
 					+ e.getMessage() + "\"}";
 			return new ResponseEntity<String>(jsonMessage, HttpStatus.SERVICE_UNAVAILABLE);
@@ -104,7 +107,7 @@ public class PatientController {
 		try{
 			patients = this.patientMongoRepository.findAll();
 		}catch(Exception e){
-			e.printStackTrace();
+			this.getLogger().error(e.getMessage());
 		}
         return patients;
     }
@@ -133,7 +136,7 @@ public class PatientController {
 		catch(Exception e){
 			jsonMessage = "{\"message\":\"unable to delete, an unknown error occurred.\",\"status_code\":442, \"error_message\":\""
 					+ e.getMessage() + "\"}";
-			System.out.println("error occurred in match controller DELETE endpoint:"+e);
+			this.getLogger().error(e.getMessage());
 			return new ResponseEntity<String>(jsonMessage, HttpStatus.MULTI_STATUS);
 		}
 		return new ResponseEntity<String>(jsonMessage, HttpStatus.OK);
@@ -156,6 +159,11 @@ public class PatientController {
 	}
 
 	
-	
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
+	}
 
 }

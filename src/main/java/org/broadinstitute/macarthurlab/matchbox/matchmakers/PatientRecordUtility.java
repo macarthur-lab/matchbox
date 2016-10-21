@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
@@ -18,6 +17,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author harindra
@@ -27,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PatientRecordUtility {
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Default constructor does nothing
@@ -46,7 +49,7 @@ public class PatientRecordUtility {
 			String id = (String)patient.get("id");
 		}
 		else{
-			System.out.println("Error-areAllRequiredFieldsPresent: id missing, failing requirements!");
+			this.getLogger().error("Error-areAllRequiredFieldsPresent: id missing, failing requirements!: "+patientJsonString);
 			verdict=false;
 		}
 		//Contact
@@ -58,19 +61,18 @@ public class PatientRecordUtility {
 			contactDets.put("href", (String)contact.get("href"));
 			}
 		else{
-			System.out.println("Error-areAllRequiredFieldsPresent: Some or all contact information missing, failing requirements!");
+			this.getLogger().warn("areAllRequiredFieldsPresent: Some or all contact information missing, failing requirements!: "+patientJsonString);
 			verdict=false;
 		}
 		
 		//Either features or genomicFeature HAVE TO BE PRESENT
 		if (!patient.containsKey("features")  && !patient.containsKey("genomicFeatures") ){
-			System.out.println("Error-areAllRequiredFieldsPresent: features and genomicFeature both missing, failing requirements!");
+			this.getLogger().warn("areAllRequiredFieldsPresent: features and genomicFeature both missing, failing requirements!: "+patientJsonString);
 			verdict=false;
 		}
 		}
 		catch(Exception e){
-			System.out.println("ERROR: a required value is missing or wrong value in place, error parsing and absorbing patient data (areAllRequiredFieldsPresent): " + e.toString());
-			System.out.println("Entered patient: "+ patientJsonString);
+			this.getLogger().warn("required value is missing or wrong value in place, error parsing and absorbing patient data (areAllRequiredFieldsPresent): " + e.toString() + " : " + patientJsonString);
 			verdict=false;
 		}
 		return verdict;
@@ -271,7 +273,7 @@ public class PatientRecordUtility {
 			parsed.put("id", id);
 		}
 		catch(Exception e){
-				System.out.println("ERROR: parsing id from JSON DELETE call :"+e);
+				this.getLogger().error("ERROR: parsing id from JSON DELETE call :"+e.getMessage());
 			}
 		return parsed;
 	}
@@ -294,6 +296,13 @@ public class PatientRecordUtility {
 	 */
 	public PatientMongoRepository getPatientMongoRepository() {
 		return patientMongoRepository;
+	}
+
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
 	}
 
 	

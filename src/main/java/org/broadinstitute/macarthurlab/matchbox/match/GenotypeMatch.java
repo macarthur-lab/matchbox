@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
-
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
@@ -22,6 +21,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author harindra
@@ -34,6 +35,7 @@ public class GenotypeMatch {
 	private MongoOperations operator;
 	private final Map<String,String> geneSymbolToEnsemblId;
 	private final Map<String,String> ensemblIdToGeneSymbol;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Constructor
@@ -69,8 +71,7 @@ public class GenotypeMatch {
         reader.close();
 		}
 		catch (Exception e){
-			e.printStackTrace();
-			System.out.println("Error in reading in gene symbol to emsembl id map:"+e.toString());
+			this.getLogger().error("Error reading gene symbol to emsembl id map:"+e.toString() + " : " + e.getMessage());
 		}	
 	}
 
@@ -123,16 +124,13 @@ public class GenotypeMatch {
 			results.add(p);
 			usedIds.add(p.getId());
 		}
-		
 		BasicQuery qEnsemblId = new BasicQuery(ensemblIdQuery.toString());
 		List<Patient> psEnsembl = this.getOperator().find(qEnsemblId,Patient.class);
 		for (Patient p:psEnsembl){
 			if (!usedIds.contains(p.getId())){
 				results.add(p);
 			}
-		}	
-		
-		
+		}		
 		return results;
 	}
 	
@@ -322,7 +320,12 @@ public class GenotypeMatch {
 	}
 	
 	
-	
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
+	}	
 	
 	
 
