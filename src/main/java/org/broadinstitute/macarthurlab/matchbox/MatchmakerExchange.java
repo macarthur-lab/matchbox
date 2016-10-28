@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 /**
- * Entry point to application
+ * Entry point to application. Application starts here.
  *
  */
 
