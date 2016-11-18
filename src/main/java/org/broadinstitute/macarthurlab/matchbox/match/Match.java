@@ -3,19 +3,25 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-
 /**
  * @author harindra
  *
  */
-public class Match implements MatchService{
+@Component
+public class Match implements MatchService {
+
+	private static final Logger logger = LoggerFactory.getLogger(Match.class);
 	
 	/**
 	 * Genotype matching tools
@@ -29,9 +35,9 @@ public class Match implements MatchService{
 	/**
 	 * Does a MME match
 	 */
-	public Match() {
-		this.genotypeMatch = new GenotypeMatch();
-		this.phenotypeMatch = new PhenotypeMatch();
+	public Match(GenotypeMatch genotypeMatch, PhenotypeMatch phenotypeMatch) {
+		this.genotypeMatch = genotypeMatch;
+		this.phenotypeMatch = phenotypeMatch;
 	}
 	
 	
@@ -45,21 +51,19 @@ public class Match implements MatchService{
 	 * @param patient a patient to match on
 	 */
 	public List<MatchmakerResult> match(Patient patient){
-		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		List<Patient> genomicFeatMatches = this.getGenotypeMatch().searchByGenomicFeatures(patient);
-		
-		List<Double> patientGenotypeRankingScores = this.getGenotypeMatch().rankByGenotypes(genomicFeatMatches, patient);
-		List<Double> patientPhenotypeRankingScores = this.getPhenotypeMatch().rankByPhenotypes(genomicFeatMatches, patient);
-		List<Double> scores = generateMergedScore(patientGenotypeRankingScores,patientPhenotypeRankingScores);
-		
-		int i=0;
-		for (Patient p: genomicFeatMatches){
+		logger.info("Searching for patient matches to {}", patient.getId());
+		List<MatchmakerResult> allResults = new ArrayList<>();
+		List<Patient> genomicFeatMatches = genotypeMatch.searchByGenomicFeatures(patient);
+
+		List<Double> patientGenotypeRankingScores = genotypeMatch.rankByGenotypes(genomicFeatMatches, patient);
+		List<Double> patientPhenotypeRankingScores = phenotypeMatch.rankByPhenotypes(genomicFeatMatches, patient);
+		List<Double> scores = generateMergedScore(patientGenotypeRankingScores, patientPhenotypeRankingScores);
+
+		int i = 0;
+		for (Patient p : genomicFeatMatches) {
 			Map<String, Double> score = new HashMap<String, Double>();
 			score.put("patient", scores.get(i));
-			allResults.add(new MatchmakerResult(
-												score,
-												p
-												));
+			allResults.add(new MatchmakerResult(score, p));
 			i++;
 		}
 		return allResults;
@@ -75,44 +79,24 @@ public class Match implements MatchService{
 	 * @param patientPhenotypeRankingScores scores based on phenotypes
 	 * @return	A merged score
 	 */
-	private List<Double> generateMergedScore(List<Double> patientGenotypeRankingScores,List<Double> patientPhenotypeRankingScores){
-		List<Double> merged = new ArrayList<Double>();
+	private List<Double> generateMergedScore(List<Double> patientGenotypeRankingScores, List<Double> patientPhenotypeRankingScores){
+		List<Double> merged = new ArrayList<>();
 		//let's give them equal weight for now
-		double genotypeWeight=1;
-		double phenotypeWeight=1;
-		double mergedScore=0.0d;
-		for (int i=0;i<patientGenotypeRankingScores.size();i++){
-			mergedScore = patientGenotypeRankingScores.get(i)*genotypeWeight + patientPhenotypeRankingScores.get(i)*phenotypeWeight ;
-			if (mergedScore>1){
-				mergedScore=1;
+		double genotypeWeight = 1;
+		double phenotypeWeight = 1;
+		//TODO: Check!! mergedScore is being overwritten and added to the list - shouldn't this be locally scoped to the loop below?
+		double mergedScore = 0;
+		for (int i = 0; i < patientGenotypeRankingScores.size(); i++) {
+			mergedScore = patientGenotypeRankingScores.get(i) * genotypeWeight + patientPhenotypeRankingScores.get(i) * phenotypeWeight;
+			if (mergedScore > 1) {
+				mergedScore = 1;
 			}
-			if (mergedScore<0){
-				mergedScore=0;
-			}			
+			if (mergedScore < 0) {
+				mergedScore = 0;
+			}
 			merged.add(mergedScore);
 		}
 		return merged;
 	}
-	
-	
-	
-	/**
-	 * @return the genotypeMatch
-	 */
-	public GenotypeMatch getGenotypeMatch() {
-		return genotypeMatch;
-	}
-
-
-	/**
-	 * @return the phenotypeMatch
-	 */
-	public PhenotypeMatch getPhenotypeMatch() {
-		return phenotypeMatch;
-	}
-	
-	
-	
-	
 
 }

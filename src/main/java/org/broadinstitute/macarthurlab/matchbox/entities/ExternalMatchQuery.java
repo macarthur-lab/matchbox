@@ -13,6 +13,7 @@ import java.util.List;
  * @author harindra
  */
 public class ExternalMatchQuery {
+
 	private final Date timeStamp;
 	private final String requestOriginHostname;
 	private final String institution;

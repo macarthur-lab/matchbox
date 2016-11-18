@@ -3,16 +3,20 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author harindra
  *
  */
+@Component
 public class PhenotypeMatch {
 
 	/**
@@ -22,8 +26,6 @@ public class PhenotypeMatch {
 
 	}
 
-	
-	
 	/**
 	 * Ranks a patient list by their phenotype similarity to a query patient
 	 * @param patients a list of patients to rank
@@ -31,9 +33,9 @@ public class PhenotypeMatch {
 	 * @return Sends back a list of scores for each patient based on phenotype. Order matches input list
 	 */
 	public List<Double> rankByPhenotypes(List<Patient> patients, Patient queryPatient){
-		List<Double> patientPhenotypeRankingScores = new ArrayList<Double>();
-		for (Patient patient :patients){
-			double phenotypeSimilarityScore=this.getPhenotypeSimilarity(patient, queryPatient);
+		List<Double> patientPhenotypeRankingScores = new ArrayList<>();
+		for (Patient patient : patients) {
+			double phenotypeSimilarityScore = this.getPhenotypeSimilarity(patient, queryPatient);
 			patientPhenotypeRankingScores.add(phenotypeSimilarityScore);
 		}
 		return patientPhenotypeRankingScores;
@@ -48,36 +50,36 @@ public class PhenotypeMatch {
 	 * @param p2	patient 2
 	 * @return	a representative number (described above)
 	 */
-	private double getPhenotypeSimilarity(Patient p1, Patient queryPatient){
-		List<String> p1Features = new ArrayList<String>();
-		p1.getFeatures().forEach((k)->{
-							p1Features.add(k.getId());
-						});
-		List<String> queryFeatures = new ArrayList<String>();
-		queryPatient.getFeatures().forEach((k)->{
-							queryFeatures.add(k.getId());
-						});
+	private double getPhenotypeSimilarity(Patient p1, Patient queryPatient) {
+		List<String> p1Features = p1.getFeatures().stream()
+				.map(PhenotypeFeature::getId)
+				.collect(toList());
+
+		List<String> queryFeatures = queryPatient.getFeatures().stream()
+				.map(PhenotypeFeature::getId)
+				.collect(toList());
+
 		List<String> p1p2Intersect = p1Features.stream()
-                .filter(queryFeatures::contains)
-                .collect(Collectors.toList());		
+				.filter(queryFeatures::contains)
+				.collect(toList());
 		/**
 		 * If ALL of the query is a subset of the match, still return
 		 * a high score of 0.4. Then it is assumed that the query just
 		 * didn't have/send all the information, but a good match anyway.
 		 */
-		if (p1p2Intersect.size() == queryFeatures.size() && p1p2Intersect.size() < p1Features.size()){
+		if (p1p2Intersect.size() == queryFeatures.size() && p1p2Intersect.size() < p1Features.size()) {
 			return 0.4d;
 		}
 		/**
 		 * If a PERFECT match return 0.5
 		 */
-		if (p1p2Intersect.size() == p1Features.size()){
+		if (p1p2Intersect.size() == p1Features.size()) {
 			return 0.5d;
 		}
 		/**
 		 * Otherwise return a metric of inclusion
 		 */
-		return (double)p1p2Intersect.size() / ((double)p1.getFeatures().size() + (double)queryPatient.getFeatures().size());
+		return (double) p1p2Intersect.size() / ((double) p1.getFeatures().size() + (double) queryPatient.getFeatures().size());
 	}
 	
 }

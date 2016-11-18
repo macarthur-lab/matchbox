@@ -4,7 +4,6 @@
 package org.broadinstitute.macarthurlab.matchbox.controllers;
 
 
-import java.util.Map;
 import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 /**
  * @author harindra
  *
@@ -25,26 +26,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin(origins = "*")
 public class MetricsController {
-	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
+	private static final Logger logger = LoggerFactory.getLogger(MetricsController.class);
+
+	private static final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
 	private final Metric metric;
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	/**
-	 * Constructor for testing
-	 */
-	public MetricsController() {
-    	this.metric = new Metric();
+
+	public MetricsController(Metric metric) {
+    	this.metric = metric;
 	}
-	
-	
-	
+
 	/**
 	 * Controller for /metrics GET end-point.Returns metric of LOCAL DATABASE ONLY
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/metrics")
+	@RequestMapping(method = RequestMethod.GET, value = "/metrics", produces = CONTENT_TYPE_HEADER)
 	public ResponseEntity<?> match() {
-		Map<String,Integer> geneCounts = this.getMetric().countGenesInSystem();
-		Map<String,Integer> phenotypeCounts = this.getMetric().countPhenotypesInSystem();
+		Map<String,Integer> geneCounts = metric.countGenesInSystem();
+		Map<String,Integer> phenotypeCounts = metric.countPhenotypesInSystem();
 		StringBuilder msg = new StringBuilder();	
 		
 		
@@ -54,7 +51,7 @@ public class MetricsController {
 		//----
 		msg.append("\"totalNumberOfGenes\":");
 		int totalNumGenes=0;
-		for (String k:geneCounts.keySet()){
+		for (String k : geneCounts.keySet()){
 			totalNumGenes += geneCounts.get(k);
 		}
 		msg.append(totalNumGenes);
@@ -62,12 +59,12 @@ public class MetricsController {
 		
 		//----
 		msg.append("\"totalNumberOfPhenotypes\":");
-		msg.append(this.getMetric().getTotalNumOfPhenotypesInSystem());
+		msg.append(metric.getTotalNumOfPhenotypesInSystem());
 		msg.append(",");
 		
 		//----
 		msg.append("\"totalNumberOfPatients\":");
-		msg.append(this.getMetric().getNumOfPatientsInSystem());
+		msg.append(metric.getNumOfPatientsInSystem());
 		msg.append(",");
 		
 		//----
@@ -106,9 +103,9 @@ public class MetricsController {
 		
 		//----
 		msg.append("\"matches\":{");
-				
-		int numMatches=this.getMetric().getNumOfMatches();
-		int numIncomingReqs=this.getMetric().getNumOfIncomingMatchRequests();
+
+		int numMatches= metric.getNumOfMatches();
+		int numIncomingReqs= metric.getNumOfIncomingMatchRequests();
 		//----
 		msg.append("\"numberOfIncomingMatchRequests\":");
 		msg.append(numIncomingReqs);
@@ -131,37 +128,8 @@ public class MetricsController {
 		msg.append("}}");
 		
 		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
+	    httpHeaders.setContentType(MediaType.valueOf(CONTENT_TYPE_HEADER));
 		return new ResponseEntity<>(msg.toString(), httpHeaders,HttpStatus.OK);
 	}
 
-
-
-	/**
-	 * @return the cONTENT_TYPE_HEADER
-	 */
-	public String getCONTENT_TYPE_HEADER() {
-		return CONTENT_TYPE_HEADER;
-	}
-
-
-
-	/**
-	 * @return the metric
-	 */
-	public Metric getMetric() {
-		return metric;
-	}
-
-
-
-	/**
-	 * @return the logger
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-	
-	
-	
 }

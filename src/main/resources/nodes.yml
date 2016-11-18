@@ -1,0 +1,11 @@
+nodes:
+  test:
+    name: Test Reference Server
+    token: none
+    url: http://localhost:8090/match
+    selfSignedCertificate: true
+  monarch:
+    name: Monarch Inititive:
+    token: none
+    url: https://mme.monarchinitiative.org/match
+    selfSignedCertificate: false

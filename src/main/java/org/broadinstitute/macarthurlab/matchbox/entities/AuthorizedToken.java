@@ -6,7 +6,7 @@ package org.broadinstitute.macarthurlab.matchbox.entities;
 import org.springframework.data.annotation.Id;
 
 /**
- * Represents an athorized token
+ * Represents an authorized token
  *
  */
 public class AuthorizedToken {

@@ -4,11 +4,6 @@
 package org.broadinstitute.macarthurlab.matchbox.matchmakers;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
@@ -16,9 +11,13 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author harindra
@@ -26,16 +25,14 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class PatientRecordUtility {
-	@Autowired
-	private PatientMongoRepository patientMongoRepository;
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+	private static final Logger logger = LoggerFactory.getLogger(PatientRecordUtility.class);
+
 	/**
 	 * Default constructor does nothing
 	 */
 	public PatientRecordUtility(){}
-	
+
 	
 	public boolean areAllRequiredFieldsPresent(String patientJsonString){
 		boolean verdict=true;
@@ -45,11 +42,8 @@ public class PatientRecordUtility {
 			JSONObject patient = (JSONObject)jsonObject.get("patient");	
 
 		//Id
-		if (patient.containsKey("id")){
-			String id = (String)patient.get("id");
-		}
-		else{
-			this.getLogger().error("Error-areAllRequiredFieldsPresent: id missing, failing requirements!: "+patientJsonString);
+		if (!patient.containsKey("id")){
+			logger.error("Error-areAllRequiredFieldsPresent: id missing, failing requirements!: {}", patientJsonString);
 			verdict=false;
 		}
 		//Contact
@@ -61,18 +55,18 @@ public class PatientRecordUtility {
 			contactDets.put("href", (String)contact.get("href"));
 			}
 		else{
-			this.getLogger().warn("areAllRequiredFieldsPresent: Some or all contact information missing, failing requirements!: "+patientJsonString);
+			logger.warn("areAllRequiredFieldsPresent: Some or all contact information missing, failing requirements!: {}", patientJsonString);
 			verdict=false;
 		}
 		
 		//Either features or genomicFeature HAVE TO BE PRESENT
 		if (!patient.containsKey("features")  && !patient.containsKey("genomicFeatures") ){
-			this.getLogger().warn("areAllRequiredFieldsPresent: features and genomicFeature both missing, failing requirements!: "+patientJsonString);
+			logger.warn("areAllRequiredFieldsPresent: features and genomicFeature both missing, failing requirements!: {}", patientJsonString);
 			verdict=false;
 		}
 		}
 		catch(Exception e){
-			this.getLogger().warn("required value is missing or wrong value in place, error parsing and absorbing patient data (areAllRequiredFieldsPresent): " + e.toString() + " : " + patientJsonString);
+			logger.warn("required value is missing or wrong value in place, error parsing and absorbing patient data (areAllRequiredFieldsPresent): {} : {}",  e, patientJsonString);
 			verdict=false;
 		}
 		return verdict;
@@ -253,7 +247,7 @@ public class PatientRecordUtility {
 					genomicFeaturesDets);
 		}
 		catch(Exception e){
-			e.printStackTrace();
+			logger.error("{}", e);
 		}
 		return new Patient();
 	}
@@ -266,14 +260,14 @@ public class PatientRecordUtility {
 	 */
 	public Map<String,String> parsePatientIdFromDeleteCall(String jsonString){
 		JSONParser parser = new JSONParser();
-		Map<String,String> parsed = new HashMap<String,String> ();
+		Map<String,String> parsed = new HashMap<> ();
 		try{
 			JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
 			String id = (String)jsonObject.get("id");
 			parsed.put("id", id);
 		}
 		catch(Exception e){
-				this.getLogger().error("ERROR: parsing id from JSON DELETE call :"+e.getMessage());
+			logger.error("ERROR: parsing id from JSON DELETE call: {}", e.getMessage());
 			}
 		return parsed;
 	}
@@ -291,19 +285,4 @@ public class PatientRecordUtility {
 	}
 
 
-	/**
-	 * @return the patientMongoRepository
-	 */
-	public PatientMongoRepository getPatientMongoRepository() {
-		return patientMongoRepository;
-	}
-
-	/**
-	 * @return the logger
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-
-	
 }

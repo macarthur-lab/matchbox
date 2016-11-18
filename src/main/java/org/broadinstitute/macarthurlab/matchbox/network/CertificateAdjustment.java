@@ -5,13 +5,12 @@
 package org.broadinstitute.macarthurlab.matchbox.network;
 
 
+import javax.net.ssl.*;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
-import javax.net.ssl.*;
 
 /**
  * A {@link X509TrustManager} and {@link HostnameVerifier} which trust everything.
@@ -55,18 +54,10 @@ public final class CertificateAdjustment implements X509TrustManager, HostnameVe
             throw new RuntimeException("Failed setting up all thrusting certificate manager.", e);
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    //
-    private static final TrustingHostnameVerifier 
-    TRUSTING_HOSTNAME_VERIFIER = new TrustingHostnameVerifier();
- private static SSLSocketFactory factory;
+
+    private static final TrustingHostnameVerifier TRUSTING_HOSTNAME_VERIFIER = new TrustingHostnameVerifier();
+
+    private static SSLSocketFactory factory;
 
  /** Call this with any HttpURLConnection, and it will 
   modify the trust settings if it is an HTTPS connection. */

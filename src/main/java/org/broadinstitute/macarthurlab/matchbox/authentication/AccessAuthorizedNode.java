@@ -3,28 +3,28 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.authentication;
 
-import java.util.List;
-
 import org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author harindra
  *
  */
+@Component
 public class AccessAuthorizedNode {
+
 	private List<AuthorizedToken> accessAuthorizedNodes;
 
 	/**
 	 * Sets up tokens
 	 */
+	@Autowired
 	public AccessAuthorizedNode(List<AuthorizedToken> authorisedNodes) {
 		this.accessAuthorizedNodes = authorisedNodes;
 	}
-	
-	/**
-	 * Default constructor for spring
-	 */
-	public AccessAuthorizedNode() {}
 
 	/**
 	 * @return the accessAuthorizedNodes

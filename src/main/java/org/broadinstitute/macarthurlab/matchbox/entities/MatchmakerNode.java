@@ -27,6 +27,7 @@ public class MatchmakerNode implements Node{
 						  String contentTypeHeader, 
 						  String contentLanguage,
 						  boolean selfSignedCertificate){
+		//todo: acceptHeader, contentTypeHeader and contentLanguage should all be used on the controllers, or at least constants here.
 		this.name=name;
 		this.token=token;
 		this.url=url;

@@ -3,22 +3,9 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.network;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
-
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.Node;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -26,13 +13,24 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 
 /**
  * @author harindra
  *
  */
 public class Communication {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final Logger logger = LoggerFactory.getLogger(Communication.class);
 	
 	/**
 	 * A set of tools to parse and store patient information
@@ -45,97 +43,85 @@ public class Communication {
 	public Communication(){
 		this.patientUtility = new PatientRecordUtility();
 	}
-	
-	
-	
+
+
 	public List<MatchmakerResult> callNode(Node matchmakerNode, Patient queryPatient) {
-		System.setProperty("javax.net.ssl.trustStore","/local/mme/config/java/jdk1.8.0_101/keystore");
+		//TODO: this needs to be injected too
+		System.setProperty("javax.net.ssl.trustStore", "/local/mme/config/java/jdk1.8.0_101/keystore");
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		HttpsURLConnection connection = null;  
+		HttpsURLConnection connection = null;
 		try {
-		    //Create connection
-		    URL url = new URL(null,matchmakerNode.getUrl(),new sun.net.www.protocol.https.Handler());
-		    connection = (HttpsURLConnection)url.openConnection();
+			//Create connection
+			URL url = new URL(null, matchmakerNode.getUrl(), new sun.net.www.protocol.https.Handler());
+//			TODO: Why not just do this? URL url = new URL(matchmakerNode.getUrl());
+//			URL url = new URL(matchmakerNode.getUrl());
+			connection = (HttpsURLConnection) url.openConnection();
 
-		    if (matchmakerNode.isSelfSignedCertificate()){
-		    	CertificateAdjustment.install();
-		    	CertificateAdjustment.relaxHostChecking(connection);
-		    }
-		    
-		    connection.setRequestMethod("POST");
-		    
-		    //node specific attributes
-		    connection.setRequestProperty("X-Auth-Token",matchmakerNode.getToken());
-		    connection.setRequestProperty("Content-Type",matchmakerNode.getContentTypeHeader());
-		    connection.setRequestProperty("Accept",matchmakerNode.getAcceptHeader());
-		    connection.setRequestProperty("Content-Language",matchmakerNode.getContentLanguage());  	    
-		    
-		    connection.setUseCaches(false);
-		    connection.setDoOutput(true);	    
+			if (matchmakerNode.isSelfSignedCertificate()) {
+				CertificateAdjustment.install();
+				CertificateAdjustment.relaxHostChecking(connection);
+			}
 
-		    //Send request
-		    //String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
-		    String payload = "{\"patient\":" + queryPatient.getEmptyFieldsRemovedJson() + "}";
-		    this.getLogger().info("patient being sent out to external MME node: "+payload);
-		    DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
-		    wr.writeBytes(payload);
-		    wr.close();
+			connection.setRequestMethod("POST");
 
-		    //Get Response  
-		    java.io.InputStream is = connection.getInputStream();
-		    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-		    StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+ 
-		    String line;
-		    while((line = rd.readLine()) != null) {
-		      response.append(line);
-		      response.append('\r');
-		    }
-		    rd.close();
-		    JSONParser parser = new JSONParser();
-		    this.getLogger().info("response back from external node: "+response.toString());
-		    JSONObject resultJsonObject = (JSONObject) parser.parse(response.toString());
-		    JSONArray  results = (JSONArray)resultJsonObject.get("results");
-		    
-		    for (int i=0; i<results.size(); i++){
-				JSONObject result = (JSONObject)results.get(i);
-				boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(result.toString());
+			//node specific attributes
+			connection.setRequestProperty("X-Auth-Token", matchmakerNode.getToken());
+			connection.setRequestProperty("Content-Type", matchmakerNode.getContentTypeHeader());
+			connection.setRequestProperty("Accept", matchmakerNode.getAcceptHeader());
+			connection.setRequestProperty("Content-Language", matchmakerNode.getContentLanguage());
+
+			connection.setUseCaches(false);
+			connection.setDoOutput(true);
+
+			//Send request
+			Instant start = Instant.now();
+			//String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
+			String payload = "{\"patient\":" + queryPatient.getEmptyFieldsRemovedJson() + "}";
+			logger.info("patient being sent out to external MME node: {} {}", matchmakerNode.getName(), payload);
+			DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+			wr.writeBytes(payload);
+			wr.close();
+
+			//Get Response
+			java.io.InputStream is = connection.getInputStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+			StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
+			String line;
+			while ((line = rd.readLine()) != null) {
+				response.append(line);
+				response.append('\r');
+			}
+			rd.close();
+			JSONParser parser = new JSONParser();
+			Instant end = Instant.now();
+
+			logger.info("response back from {} ({} ms): {}", matchmakerNode.getName(), Duration.between(start, end).toMillis(), response);
+			JSONObject resultJsonObject = (JSONObject) parser.parse(response.toString());
+			JSONArray results = (JSONArray) resultJsonObject.get("results");
+
+			for (int i = 0; i < results.size(); i++) {
+				JSONObject result = (JSONObject) results.get(i);
+				boolean inputDataValid = patientUtility.areAllRequiredFieldsPresent(result.toString());
 				if (inputDataValid) {
-					Patient parsedPatient = this.getPatientUtility().parsePatientInformation(result.toString());
+					Patient parsedPatient = patientUtility.parsePatientInformation(result.toString());
 					allResults.add(new MatchmakerResult(
 							new HashMap<String, Double>(),
 							parsedPatient
-							));
+					));
 				} else {
-					this.getLogger().error("error parsing patient from external source (required fields missing):"+
-													matchmakerNode.getName() + " : " + result.toString());
+					logger.error("error parsing patient from external source (required fields missing): {} : {}", matchmakerNode.getName(), result.toString());
 				}
-				
-		    }		 
-		  } catch (Exception e) {
-			  e.printStackTrace();
-			  this.getLogger().error("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e.getMessage());    
-		  } finally {
-		    if(connection != null) {
-		      connection.disconnect(); 
-		    }
-		  }
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("error connecting to: {}, moving on.. : {}", matchmakerNode.getName(), e.getMessage());
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
+		}
 		return allResults;
-	}
-	
-
-
-	/**
-	 * @return the patientUtility
-	 */
-	public PatientRecordUtility getPatientUtility() {
-		return patientUtility;
-	}
-
-	/**
-	 * @return the logger
-	 */
-	public Logger getLogger() {
-		return logger;
 	}
 
 }

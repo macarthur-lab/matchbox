@@ -90,7 +90,7 @@ org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration
 ```
 
   <bean id="ANameToGiveThisNodeRepresentationInCode"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerNode">
+      class="org.broadinstitute.macarthurlab.matchbox.matchmakerNodes.MatchmakerNode">
       <constructor-arg type="java.lang.String" value="Some name" />
       <constructor-arg type="java.lang.String" value="The authentication token" />
       <constructor-arg type="java.lang.String" value="The URI" />
@@ -103,7 +103,7 @@ org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration
 ```  
 
   <bean id="ANameToGiveThisNode"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerNode">
+      class="org.broadinstitute.macarthurlab.matchbox.matchmakerNodes.MatchmakerNode">
       <constructor-arg type="java.lang.String" value="Test Reference Server" />
       <constructor-arg type="java.lang.String" value="854a439d278df4283bf5498ab020336cdc416a7d" />
       <constructor-arg type="java.lang.String" value="http://localhost:8090" />
@@ -115,8 +115,8 @@ then add it to this list,
 ```
 
   <bean id="matchmakerSearch"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch">
-      <property name="matchmakers">
+      class="org.broadinstitute.macarthurlab.matchbox.matchmakerNodes.MatchmakerSearch">
+      <property name="matchmakerNodes">
          <list>
             <ref bean="phenomeCentralMatchmakerNode"/>
             <ref bean="testRefSvrNode"/>
@@ -171,7 +171,7 @@ API endpoint (POST):  individual/match
 
 *  **Find a match in local matchbox data model** (look for matches ONLY in local beamer database of patients)  (eventually this will be a privileged branch with limited access)
 
-API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at Broad (POST):  /match
+API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakerNodes looking for matches at Broad (POST):  /match
 
 
 curl -X POST -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/match -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
