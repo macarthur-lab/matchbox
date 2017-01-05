@@ -1,7 +1,13 @@
 # <i>matchbox</i>
-**Broad Institute Matchmaker Exchange** 
 
-<i>matchbox</i> is the Matchmaker Exchange application for the joint Center for Mendelian Genomics. It has been developed at the MacArthur Lab and shared as open source software under the AGPL License. The objective of this system is to allow the automated comparison at scale, of patients with rare diseases cared-for in other centers world wide. We hope to facilitate the identification of novel variants via finding common instances of such in these individuals.
+
+<i>matchbox</i> was originally developed at the MacArthur Lab for the Broad Center for Mendelian Genomics as the primary connection point to the Matchmaker Exchange. It was then shared as open source software under the BSD License. 
+
+A major challenge faced by rare disease investigators is the difficulty of finding more than one individual with the same genetic disorder. This complicates the identification of causal variants and novel gene discovery. The Matchmaker Exchange (MME) provides a decentralized federated network of genomic centers with collections of rare disease cases. MME allows you to find similar individuals based on genotype, phenotype -and soon other types of data-, globally and at scale. It allows members to host data locally and reduce data ownership challenges  as well have more control of sharing preferences and matching algorithms. Having an API also allows them to keep existing infrastructure. It has gained international support via the GA4GH and currently has many members spanning multiple continents.
+
+A significant amount of development is typically required to join the MME; this has a detrimental effect on network growth. To address this and facilitate growth, we developed <i>matchbox</i> to be completely portable and easily usable in any center wishing to join the MME.
+
+
 
 ## Requirements:
 
@@ -13,35 +19,33 @@
 
 ## Installation:
 
-In the future, you would be able to either,
+* Download the source code and simply build on your system via.
 
-* Download the JAR file and simply start the server via [distribution process for this method is not ready yet],
+	- Clone the repository
 
-java -jar matchbox-0.1.0.jar
+		git clone https://username@github.com/macarthur-lab/matchbox
 
-NOTE: if you would like to change the default port the server listens on (8080), please set/use the environment variable SERVER_PORT
+	- Build source files (maven is required to be on your system)
 
-for example,
-export SERVER_PORT=9020
+		mvn clean package
 
-* Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process is quite easy as well, and is described below and supported as of now.
+	- That should create a directory called "target" with an executable JAR file
+
+	- Start server
+
+		java -jar target/matchbox-0.1.0.jar
 
 
-## Install from source.
+* In the near future, you would be able to download the JAR file and simply start the server via [distribution process for this method is not ready yet],
 
-* Clone the repository
+		java -jar matchbox-0.1.0.jar
 
-git clone https://username@github.com/macarthur-lab/beamr.git
+* NOTE: if you would like to change the default port the server listens on (8080), please set/use the environment variable SERVER_PORT
 
-* Build source files (maven is required to be on your system)
+		for example,
+		export SERVER_PORT=9020
 
-mvn clean package
 
-* That should create a directory called "target" with an executable JAR file
-
-* Start server
-
-java -jar target/matchbox-0.1.0.jar
 
 
 ## Test run
