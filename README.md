@@ -3,7 +3,7 @@
 
 <i>matchbox</i> was originally developed at the MacArthur Lab for the Broad Center for Mendelian Genomics. Its purpose was to function as the primary connection point to the Matchmaker Exchange. It was then shared as open source software under the BSD License. 
 
-A major challenge faced by rare disease investigators is the difficulty of finding more than one individual with the same genetic disorder. This complicates the identification of causal variants and novel gene discovery. The Matchmaker Exchange (MME) provides a decentralized federated network of genomic centers with collections of rare disease cases. MME allows you to find similar individuals based on genotype, phenotype -and soon other types of data-, globally and at scale. It allows members to host data locally and reduce data ownership challenges  as well have more control of sharing preferences and matching algorithms. Having an API also allows them to keep existing infrastructure. It has gained international support via the GA4GH and currently has many members spanning multiple continents.
+A major challenge faced by rare disease investigators is the difficulty of finding more than one individual with the same genetic disorder. This complicates the identification of causal variants and novel gene discovery. The Matchmaker Exchange (MME) provides a decentralized federated network of genomic centers with collections of rare disease cases. MME allows you to find similar individuals based on genotype, phenotype -and soon other types of data-, globally and at scale. It allows members to host data locally and reduce data ownership challenges  as well have more control of sharing preferences and matching algorithms. Its service oriented architecture allows member centers to keep existing infrastructure. It has gained international support via the GA4GH and currently has many members spanning multiple continents.
 
 A significant amount of development is typically required to join the MME; this has a detrimental effect on network growth. To address this and facilitate growth, we developed <i>matchbox</i> to be completely portable and easily usable in any center wishing to join the MME.
 
@@ -23,7 +23,7 @@ A significant amount of development is typically required to join the MME; this 
 
 	- Clone the repository
 
-		git clone https://username@github.com/macarthur-lab/matchbox
+		git clone https://github.com/macarthur-lab/matchbox
 
 	- Build source files (maven is required to be on your system)
 
