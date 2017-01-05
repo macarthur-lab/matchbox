@@ -28,9 +28,9 @@
   <bean id="defaultAccessToken"
       class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
       <constructor-arg type="java.lang.String" value="Default Access Token" />
-      <constructor-arg type="java.lang.String" value="" />
-      <constructor-arg type="java.lang.String" value="Broad Institute JCMG" />
-      <constructor-arg type="java.lang.String" value="harindra@broadinstitute.org" />
+      <constructor-arg type="java.lang.String" value="abcd" />
+      <constructor-arg type="java.lang.String" value="Local Center name" />
+      <constructor-arg type="java.lang.String" value="user@center.org" />
   </bean>
    
   <bean id="accessAuthorizedNode"
