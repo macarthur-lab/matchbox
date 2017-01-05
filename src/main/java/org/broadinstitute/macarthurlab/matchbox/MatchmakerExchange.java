@@ -20,7 +20,7 @@ public class MatchmakerExchange
 {
     public static void main( String[] args )
     {
-        System.out.println( "Starting server.." );
+        System.out.println( "Starting matchbox server.." );
         SpringApplication.run(MatchmakerExchange.class, args);
     }
 }
