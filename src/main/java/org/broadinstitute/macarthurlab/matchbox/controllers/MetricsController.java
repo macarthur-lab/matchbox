@@ -53,11 +53,7 @@ public class MetricsController {
 
 		//----
 		msg.append("\"totalNumberOfGenes\":");
-		int totalNumGenes=0;
-		for (String k:geneCounts.keySet()){
-			totalNumGenes += geneCounts.get(k);
-		}
-		msg.append(totalNumGenes);
+		msg.append(geneCounts.size());
 		msg.append(",");
 		
 		//----
