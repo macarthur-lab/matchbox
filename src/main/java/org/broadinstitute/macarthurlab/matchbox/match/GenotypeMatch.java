@@ -100,18 +100,22 @@ public class GenotypeMatch {
 				geneId=this.getEnsemblIdToGeneSymbol().get(id);
 			}
 			
-
 			geneSymbolQuery.append("'"+geneId+"'"); 
 			if (i<patient.getGenomicFeatures().size()-1){
 				geneSymbolQuery.append(",");
 			}
-			
 
 			ensemblIdQuery.append("'"+ensemblId+"'"); 
 			if (i<patient.getGenomicFeatures().size()-1){
 				ensemblIdQuery.append(",");
 			}
-								
+			
+			System.out.println(id);
+			if(!this.getGeneSymbolToEnsemblId().containsKey(id) &&
+					!this.getEnsemblIdToGeneSymbol().containsKey(id)){
+				String mesg="could not identify provided gene ID as ensmbl or hgnc:"+id;
+				this.getLogger().error(mesg);
+			}
 			i++;
 		}
 		geneSymbolQuery.append("]}}");
