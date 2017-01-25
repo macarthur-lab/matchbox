@@ -1,5 +1,5 @@
 /**
- * Simple class to handle Http communicstions
+ * Simple class to handle HTTP communications
  */
 package org.broadinstitute.macarthurlab.matchbox.network;
 

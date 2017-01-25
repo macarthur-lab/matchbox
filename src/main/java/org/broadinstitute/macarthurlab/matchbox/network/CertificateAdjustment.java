@@ -1,6 +1,8 @@
 /**
  * Adjusting for certificate issues
  * - This was needed for GeneMatcher node certificate issues
+ * This feature is only needed for connecting to staging servers with
+ * self signed certificates. Production systems will not need this
  */
 package org.broadinstitute.macarthurlab.matchbox.network;
 
