@@ -13,9 +13,9 @@ A significant amount of development is typically required to join the MME; this 
 
 * Java 1.8
 
-* A MongoDB instance (https://www.mongodb.org/)
+* A MongoDB instance (available from https://www.mongodb.org/)
 
-* Maven (https://maven.apache.org/) if you wish to build from source (only option supported as of now)  
+* Maven 3.1 (available from https://maven.apache.org/)   
 
 ## Installation:
 
@@ -27,18 +27,14 @@ A significant amount of development is typically required to join the MME; this 
 
 	- Build source files (maven is required to be on your system)
 
-		mvn clean package
+		mvn clean install package
 
 	- That should create a directory called "target" with an executable JAR file
 
 	- Start server
 
-		java -jar target/matchbox-0.1.0.jar
+		java -jar target/matchbox-<version>.jar
 
-
-* In the near future, you would be able to download the JAR file and simply start the server via [distribution process for this method is not ready yet],
-
-		java -jar matchbox-0.1.0.jar
 
 * NOTE: if you would like to change the default port the server listens on (8080), please set/use the environment variable SERVER_PORT
 
@@ -56,131 +52,133 @@ http://localhost:8080/match
 
 * with the following headers:
 
-X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d
+	X-Auth-Token: abcd
 
-Accept: application/vnd.ga4gh.matchmaker.v0.1+json
+	Accept: application/vnd.ga4gh.matchmaker.v1.0+json
 
-Content-Type: application/x-www-form-urlencoded
+	Content-Type: application/x-www-form-urlencoded
 
 ## Execution process map
 
-The following describes the typical sequence of events in execution. An addition
-of a patient to the matchmaker system starts the following process.
+* Patients (one at a time) can be added to the matchmaker system via:
 
-1. A new patient record get's inserted into matchbox via seqr https://seqr.broadinstitute.org. This action implies "search in other matchmaker nodes for patients 'similar' to this patient".
+	/patient/add
+	
+* You can view all patients in the system with:
 
-2. A search get's initiated in every match maker node that is on record 
+	/patient/view
+	
+* You can match a patient, with all other patients ONLY IN the matchbox database with a POST containing query patient JSON to:
 
-3. All results are aggregated and sieved through matchbox "similarity" tests. 
+	/match
 
-4. Valid matches along with scores are communicated back to the patients primary contact.
+* You can match a patient, with all other patients ONLY IN the Matchmaker network (EXCLUDING matchbox database). The nodes that it will query against are specified in the config.xml file found in the resources directory at the application root. To make the query, make a POST containing patient JSON to:
+
+	/match/external
+	
+* The correct JSON format a query patient should be described in can be found at:
+
+	https://github.com/ga4gh/mme-apis/blob/master/search-api.md
+
+
 
 ## Matching criteria
 
-1. Gene matching is the primary matching strategy. (if 2 individuals have at least 1 gene in common, it is considered a match)
+* Gene based matching is the current primary matching strategy. (if 2 individuals have at least 1 gene in common, it is considered a match). 
 
-2. Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.(not implemented yet)
+* Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.(not implemented yet). Though we are in the process of adding in phenotype-only based matching in the absence of genotype information.
 
 ## Data model notes
-* A database named "mme_primary" will be created in your localhost MongoDB instance. If you wish to use a different host name or different database name please update class as needed,
 
-org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration
+* A database named "mme_primary" will be created in your localhost MongoDB instance. If you wish to use a different host name or different database name please update the application.properties file in the resources directory as needed,
 
 
-## Adding a new matchmaker node
 
-1. To the config.xml file found at the top level of the application directory, add the following lines,
+## Adding a new matchmaker node to search in:
+
+* To the config.xml file found at the top level of the application in the resources directory, add the following lines,
 
 ```
 
-  <bean id="ANameToGiveThisNodeRepresentationInCode"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerNode">
-      <constructor-arg type="java.lang.String" value="Some name" />
-      <constructor-arg type="java.lang.String" value="The authentication token" />
-      <constructor-arg type="java.lang.String" value="The URI" />
+  <bean id="testRefSvrNode"
+      class="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
+      <constructor-arg type="java.lang.String" value="A name" />
+      <constructor-arg type="java.lang.String" value="token" />
+      <constructor-arg type="java.lang.String" value="http://localhost:8090/match" />
+      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
+      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
+      <constructor-arg type="java.lang.String" value="en-US"/>
+      <constructor-arg type="boolean" value="false"/>
   </bean>
-  
-```
-
-  
-  For example:
-```  
-
-  <bean id="ANameToGiveThisNode"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerNode">
-      <constructor-arg type="java.lang.String" value="Test Reference Server" />
-      <constructor-arg type="java.lang.String" value="854a439d278df4283bf5498ab020336cdc416a7d" />
-      <constructor-arg type="java.lang.String" value="http://localhost:8090" />
-  </bean>
-  
-```
-
-then add it to this list,
-```
 
   <bean id="matchmakerSearch"
       class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch">
       <property name="matchmakers">
          <list>
-            <ref bean="phenomeCentralMatchmakerNode"/>
-            <ref bean="testRefSvrNode"/>
+         	<ref bean="testRefSvrNode"/> 
+         </list>
+      </property>
+  </bean>
+
+  
+```
+
+## Adding a token to give a user access to matchbox:
+
+
+```
+  <bean id="defaultAccessToken"
+      class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
+      <constructor-arg type="java.lang.String" value="Default Access Token" />
+      <constructor-arg type="java.lang.String" value="abcd" />
+      <constructor-arg type="java.lang.String" value="Local Center name" />
+      <constructor-arg type="java.lang.String" value="user@center.org" />
+  </bean>
+  
+  <bean id="accessAuthorizedNode"
+      class="org.broadinstitute.macarthurlab.matchbox.authentication.AccessAuthorizedNode">
+      <property name="accessAuthorizedNodes">
+         <list>
+            <ref bean="defaultAccessToken"/>            
          </list>
       </property>
   </bean>
 
 ```
 
-## To do
-*  More tests!
-
-*  Even better exception handling
-
-*  Metrics gathering for quality control
-
-
-
 ## Examples
 
-*  **View all individuals in matchbox**(eventually this will be a privileged branch with limited access)
+*  View all individuals in matchbox(eventually this will be a privileged branch with limited access)
 
-API endpoint (GET):  individual/view
+API endpoint (GET):  patient/view
 
-curl -X GET -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/individual/view
-
-Result would look something like:
-
-
-[{"id":"id_ttn-2","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}]
+	curl -X GET -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/view
 
 
 
-*  **Add a patient to matchbox** (eventually this will be a privileged branch with limited access)
+* Add a patient to matchbox 
 
 
-API endpoint (POST):  individual/add
+API endpoint (POST):  patient/add
 
-curl -X POST -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/individual/add -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
+	curl -X POST -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/add -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
 
-Result would look something like:
+A successful result would look something like:
 
 {"message":"insertion OK"}
 
 
-*  **Find a match for a patient in other Matchmaker nodes**  (not privileged, accessible to everybody with a token)
+*  Find a match for a patient in other Matchmaker nodes ONLY
 
-API endpoint (POST):  individual/match
-
---NOT IMPLEMENTED YET: AWAITAING AUTH TOKEN GENERATION WITH OTHER CENTERS
+API endpoint (POST):  /match/external
 
 
-*  **Find a match in local matchbox data model** (look for matches ONLY in local beamer database of patients)  (eventually this will be a privileged branch with limited access)
+*  Find a match in local matchbox data model ONLY
 
-API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at Broad (POST):  /match
-
-
-curl -X POST -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/match -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
+API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at in local DB:  /match
 
 
-Result would look something like:
+	curl -X POST -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost/match -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
 
-{"results":[{"score":{},"patient":{"id":"id_ttn-2","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}},{"score":{},"patient":{"id":"id_ttn-4","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}},{"score":{},"patient":{"id":"id_ttn-8","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}}]}
+
+
