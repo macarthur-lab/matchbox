@@ -146,39 +146,34 @@ http://localhost:8080/match
 
 ```
 
+## Recommended deployment architecture
+
+We recommend matchbox be deployed behind a fire-wall. The front-end website would communicate with its back-end. That back-end would communicate with matchbox via a privileged port. That port would be the only port opened on the machine matchbox would live on. This would provide its data maximum security layers.
+
 ## Examples
 
 *  View all individuals in matchbox(eventually this will be a privileged branch with limited access)
 
-API endpoint (GET):  patient/view
-
-	curl -X GET -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/view
-
+	API endpoint (GET):  patient/view
 
 
 * Add a patient to matchbox 
 
+	API endpoint (POST):  patient/add
 
-API endpoint (POST):  patient/add
+	A successful result would look something like:
 
-	curl -X POST -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/add -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
-
-A successful result would look something like:
-
-{"message":"insertion OK"}
+	{"message":"insertion OK"}
 
 
 *  Find a match for a patient in other Matchmaker nodes ONLY
 
-API endpoint (POST):  /match/external
+	API endpoint (POST):  /match/external
 
 
 *  Find a match in local matchbox data model ONLY
 
-API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at in local DB:  /match
-
-
-	curl -X POST -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost/match -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
-
+	API endpoint (POST):/match
+	As per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at in local DB
 
 
