@@ -15,7 +15,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
  * @author harindra
  *
  */
-public class Match implements MatchService{
+public class MatchImpl implements MatchService{
 	
 	/**
 	 * Genotype matching tools
@@ -29,7 +29,7 @@ public class Match implements MatchService{
 	/**
 	 * Does a MME match
 	 */
-	public Match() {
+	public MatchImpl() {
 		this.genotypeMatch = new GenotypeMatch();
 		this.phenotypeMatch = new PhenotypeMatch();
 	}
@@ -46,8 +46,10 @@ public class Match implements MatchService{
 	 */
 	public List<MatchmakerResult> match(Patient patient){
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		List<Patient> genomicFeatMatches = this.getGenotypeMatch().searchByGenomicFeatures(patient);
 		
+		//#TODO must add code here to search by phenotypes if genotypes are not given
+		List<Patient> genomicFeatMatches = this.getGenotypeMatch().searchByGenomicFeatures(patient);
+
 		List<Double> patientGenotypeRankingScores = this.getGenotypeMatch().rankByGenotypes(genomicFeatMatches, patient);
 		List<Double> patientPhenotypeRankingScores = this.getPhenotypeMatch().rankByPhenotypes(genomicFeatMatches, patient);
 		List<Double> scores = generateMergedScore(patientGenotypeRankingScores,patientPhenotypeRankingScores);
@@ -70,12 +72,12 @@ public class Match implements MatchService{
 	 * Merge phenotype and genotype scores into a single score,
 	 * 
 	 * Algorithm: the absolute value of the weighted average of 
-	 * genotype (wieght:1) and phenotype(weight:1)
+	 * genotype (weight:1) and phenotype(weight:1)
 	 * @param patientGenotypeRankingScores	scores based on genotypes
 	 * @param patientPhenotypeRankingScores scores based on phenotypes
 	 * @return	A merged score
 	 */
-	private List<Double> generateMergedScore(List<Double> patientGenotypeRankingScores,List<Double> patientPhenotypeRankingScores){
+	public List<Double> generateMergedScore(List<Double> patientGenotypeRankingScores,List<Double> patientPhenotypeRankingScores){
 		List<Double> merged = new ArrayList<Double>();
 		//let's give them equal weight for now
 		double genotypeWeight=1;

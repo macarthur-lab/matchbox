@@ -177,7 +177,8 @@ public class GenotypeMatch {
 	
 	
 	/**
-	 * Access zygosity's affect on the score. If zygosity is the same 0.25 is returned.
+	 * Access zygosity's affect on the score. If zygosity is the same in at least
+	 * one of the common genes, 0.25 is returned.
 	 * @param p1	The patient in question
 	 * @param queryP	The query patient
 	 * @return A score (0.25 is returned if there is a match in zygositys)

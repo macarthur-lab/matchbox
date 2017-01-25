@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearchImpl;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
+import org.broadinstitute.macarthurlab.matchbox.matchmakers.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -32,7 +32,7 @@ public class PatientController {
 	private final PatientRecordUtility patientUtility;
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
-	private final Search searcher;
+	private final SearchService searcher;
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	
@@ -43,7 +43,7 @@ public class PatientController {
         this.patientUtility = new PatientRecordUtility();
         String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
         ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
-        this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
+        this.searcher = context.getBean("matchmakerSearch", MatchmakerSearchImpl.class);
 	}
 	
 	
@@ -154,7 +154,7 @@ public class PatientController {
     /**
 	 * @return the searcher
 	 */
-	public Search getSearcher() {
+	public SearchService getSearcher() {
 		return this.searcher;
 	}
 
