@@ -15,7 +15,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
  * @author harindra
  *
  */
-public class Match implements MatchService{
+public class MatchImpl implements MatchService{
 	
 	/**
 	 * Genotype matching tools
@@ -29,7 +29,7 @@ public class Match implements MatchService{
 	/**
 	 * Does a MME match
 	 */
-	public Match() {
+	public MatchImpl() {
 		this.genotypeMatch = new GenotypeMatch();
 		this.phenotypeMatch = new PhenotypeMatch();
 	}

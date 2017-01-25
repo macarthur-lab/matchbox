@@ -12,7 +12,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
  * @author harindra
  *
  */
-public interface Search {
+public interface SearchService {
 	public List<MatchmakerResult> searchInExternalMatchmakerNodesOnly(Patient patient);
 	public List<String> searchInLocalDatabaseOnly(Patient patient, String requestOriginHostname);
 }

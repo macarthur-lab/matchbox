@@ -11,7 +11,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.broadinstitute.macarthurlab.matchbox.match.GenotypeMatch;
-import org.broadinstitute.macarthurlab.matchbox.match.Match;
+import org.broadinstitute.macarthurlab.matchbox.match.MatchImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeMatch;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
@@ -311,7 +311,7 @@ public class AppTest extends TestCase
      */
     public void testPerfectMatchScore()
     {
-    	MatchService match = new Match();
+    	MatchService match = new MatchImpl();
     	
     	Patient testP1 =  getTestPatient(); 
  
