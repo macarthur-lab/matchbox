@@ -17,7 +17,7 @@
 
 
   <bean id="matchmakerSearch"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch">
+      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearchImpl">
       <property name="matchmakers">
          <list>
          	<ref bean="testRefSvrNode"/> 

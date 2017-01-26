@@ -50,20 +50,28 @@ A significant amount of development is typically required to join the MME; this 
 
 http://localhost:8080/match
 
-* with the following headers:
+* with the following headers (we are using "abcd" as an example token"):
 
 	X-Auth-Token: abcd
 
 	Accept: application/vnd.ga4gh.matchmaker.v1.0+json
 
 	Content-Type: application/x-www-form-urlencoded
+	
+	And a JSON payload representing a patient. (complete examples below)
 
 ## Execution process map
 
 * Patients (one at a time) can be added to the matchmaker system via:
 
 	/patient/add
+
+* Patients (one at a time) can be deleted from the system via a POST to:
+
+	/patient/delete
 	
+	with payload : {"id":"id_to_delete"}
+		
 * You can view all patients in the system with:
 
 	/patient/view
@@ -90,7 +98,7 @@ http://localhost:8080/match
 
 ## Data model notes
 
-* A database named "mme_primary" will be created in your localhost MongoDB instance. If you wish to use a different host name or different database name please update the application.properties file in the resources directory as needed,
+* A database named "mme_primary" will be created in your localhost MongoDB instance. If you wish to use a different host name or different database name please update the application.properties file in the resources directory as needed. You can add your password and username in that file as well.
 
 
 
@@ -150,6 +158,8 @@ http://localhost:8080/match
 
 We recommend matchbox be deployed behind a fire-wall. The front-end website would communicate with its back-end. That back-end would communicate with matchbox via a privileged port. That port would be the only port opened on the machine matchbox would live on. This would provide its data maximum security layers.
 
+Further we recommend that precautions be taken to avoid commiting to github the config.xml file that contains your tokens. We use a separate private github repository to maintain the completed config.xml file.
+
 ## Testing
 
 There are unit tests included that can be executed via Maven. Prior to doing so, you will need an instance of MongoDB to be running and wired into matchbox via the application.properties file found in the top-level resources directory
@@ -170,7 +180,7 @@ Once the above values are set,
 	
 should execute the unit tests.
 
-## Examples
+## API end points
 
 *  View all individuals in matchbox(eventually this will be a privileged branch with limited access)
 
@@ -197,3 +207,53 @@ should execute the unit tests.
 	As per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at in local DB
 
 
+## End to end example
+
+* Clone the repo
+
+	git clone https://github.com/macarthur-lab/matchbox
+
+* Update the resource directory with your database connection information
+
+	vi resources/application.properties
+	
+	spring.http.encoding.force=false
+	logging.file=logs/spring-boot-logging.log
+	mongoDatabaseHostName=<your-database-host-name>
+	mongoDatabaseUserName=<your-username>
+	mongoDatabasePassword=<your-password>
+	mongoDatabaseName=mme_primary
+	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
+	
+* You can update resources/config.xml with your connections. But for initial test, we can use the default client connection with token "abcd" to connect into. We won't search external databases yet, since that involves getting tokens from other centers.
+
+```
+   <bean id="defaultAccessToken"
+      class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
+      <constructor-arg type="java.lang.String" value="Default Access Token" />
+      <constructor-arg type="java.lang.String" value="abcd" />
+      <constructor-arg type="java.lang.String" value="Local Center name" />
+      <constructor-arg type="java.lang.String" value="user@center.org" />
+   </bean>
+   
+   <bean id="accessAuthorizedNode"
+      class="org.broadinstitute.macarthurlab.matchbox.authentication.AccessAuthorizedNode">
+      <property name="accessAuthorizedNodes">
+         <list>
+            <ref bean="defaultAccessToken"/>            
+         </list>
+      </property>
+   </bean>
+  
+```
+  
+	
+
+* Build the source code (skip unit-tests for now)
+
+ 	mvn clean install package -Dmaven.test.skip=true
+
+* Start the server
+
+	java -jar target/matchbox-version.jar
+	
