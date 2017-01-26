@@ -150,6 +150,26 @@ http://localhost:8080/match
 
 We recommend matchbox be deployed behind a fire-wall. The front-end website would communicate with its back-end. That back-end would communicate with matchbox via a privileged port. That port would be the only port opened on the machine matchbox would live on. This would provide its data maximum security layers.
 
+## Testing
+
+There are unit tests included that can be executed via Maven. Prior to doing so, you will need an instance of MongoDB to be running and wired into matchbox via the application.properties file found in the top-level resources directory
+
+```
+spring.http.encoding.force=false
+logging.file=logs/spring-boot-logging.log
+mongoDatabaseHostName=<your-database-host-name>
+mongoDatabaseUserName=<your-username>
+mongoDatabasePassword=<your-password>
+mongoDatabaseName=<a-name-for-your-database>
+mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
+```
+
+Once the above values are set,
+
+	mvn test
+	
+should execute the unit tests.
+
 ## Examples
 
 *  View all individuals in matchbox(eventually this will be a privileged branch with limited access)
