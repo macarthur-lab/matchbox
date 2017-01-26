@@ -259,7 +259,7 @@ should execute the unit tests.
 	
 * Insert a test patient with a cURL command to the API
 
-	A Patient structure would look like,
+	An example MINIMUM Patient structure would look like,
 	```
 	{
 	  "patient" : {
@@ -287,15 +287,19 @@ should execute the unit tests.
 	
 	An example CURL would be,
 	
+	```
 	curl -X POST -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/add -d '{"patient" : {"id" : "1","contact" : {"name" : "Test Contact","href" : "test@test.com"},"features":[{"id" : "HP:0000118","observed" : "yes"}],"genomicFeatures":[{"gene" : {"id" : "TTN"}}]}}'
-	 
+	```
+	
 	A successful result would be,
 	
     {"message":"insertion OK","status_code":200}bash-3.2
 	
-* To view all contents of matchbox (this endpoint is work in progress and the JSON needs further formatting)
+* To view all contents of matchbox (this endpoint is work-in-progress and the JSON needs further formatting)
 
+	```
 	curl -X GET -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/view
+	```
 	
 	```
 	[{
