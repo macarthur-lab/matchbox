@@ -109,8 +109,6 @@ public class GenotypeMatch {
 			if (i<patient.getGenomicFeatures().size()-1){
 				ensemblIdQuery.append(",");
 			}
-			
-			System.out.println(id);
 			if(!this.getGeneSymbolToEnsemblId().containsKey(id) &&
 					!this.getEnsemblIdToGeneSymbol().containsKey(id)){
 				String mesg="could not identify provided gene ID as ensmbl or hgnc:"+id;
@@ -120,6 +118,9 @@ public class GenotypeMatch {
 		}
 		geneSymbolQuery.append("]}}");
 		ensemblIdQuery.append("]}}");
+		
+		this.logger.info(geneSymbolQuery.toString());
+		this.logger.info(ensemblIdQuery.toString());
 		
 		BasicQuery qGeneId = new BasicQuery(geneSymbolQuery.toString());
 		List<Patient> psGeneId = this.getOperator().find(qGeneId,Patient.class);
@@ -135,6 +136,7 @@ public class GenotypeMatch {
 				results.add(p);
 			}
 		}		
+		this.logger.info(results.toString());
 		return results;
 	}
 	

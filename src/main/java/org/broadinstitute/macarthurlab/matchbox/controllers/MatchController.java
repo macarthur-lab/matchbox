@@ -56,11 +56,11 @@ public class MatchController {
 	
 
 	/**
-	 * Controller for /match POST end-point.ONLY SEARCHES INSIDE LOCAL DATABASE
+	 * Controller for /match POST end-point. ONLY SEARCHES INSIDE LOCAL DATABASE
 	 * 
 	 * @param patient
 	 *            A patient structure sent as JSON through the API
-	 * @return A list of result patients found in the network that match input
+	 * @return A list of result patients found in the local database that match input
 	 *         patient
 	 * @throws IOException
 	 */

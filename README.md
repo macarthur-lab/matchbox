@@ -38,8 +38,8 @@ A significant amount of development is typically required to join the MME; this 
 
 * NOTE: if you would like to change the default port the server listens on (8080), please set/use the environment variable SERVER_PORT
 
-		for example,
-		export SERVER_PORT=9020
+	for example,
+	export SERVER_PORT=9020
 
 
 
@@ -48,7 +48,7 @@ A significant amount of development is typically required to join the MME; this 
 
 * Use the the following path
 
-http://localhost:8080/match
+	http://localhost:8080/match
 
 * with the following headers (we are using "abcd" as an example token"):
 
@@ -60,19 +60,19 @@ http://localhost:8080/match
 	
 	And a JSON payload representing a patient. (complete examples below)
 
-## Execution process map
+## API endpoints
 
 * Patients (one at a time) can be added to the matchmaker system via:
 
 	/patient/add
 
-* Patients (one at a time) can be deleted from the system via a POST to:
+* Patients (one at a time) can be deleted from the system via a DELETE to:
 
 	/patient/delete
 	
 	with payload : {"id":"id_to_delete"}
 		
-* You can view all patients in the system with:
+* You can view all patients in the system with (GET):
 
 	/patient/view
 	
@@ -95,6 +95,8 @@ http://localhost:8080/match
 * Gene based matching is the current primary matching strategy. (if 2 individuals have at least 1 gene in common, it is considered a match). 
 
 * Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.(not implemented yet). Though we are in the process of adding in phenotype-only based matching in the absence of genotype information.
+
+* If the matched result patient has the same ID as the query patient, it won't be sent back. In these cases it is assumed that the result and the query -for some reason- are the same patient.
 
 ## Data model notes
 
@@ -165,13 +167,13 @@ Further we recommend that precautions be taken to avoid commiting to github the 
 There are unit tests included that can be executed via Maven. Prior to doing so, you will need an instance of MongoDB to be running and wired into matchbox via the application.properties file found in the top-level resources directory
 
 ```
-spring.http.encoding.force=false
-logging.file=logs/spring-boot-logging.log
-mongoDatabaseHostName=<your-database-host-name>
-mongoDatabaseUserName=<your-username>
-mongoDatabasePassword=<your-password>
-mongoDatabaseName=<a-name-for-your-database>
-mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
+	spring.http.encoding.force=false
+	logging.file=logs/spring-boot-logging.log
+	mongoDatabaseHostName=<your-database-host-name>
+	mongoDatabaseUserName=<your-username>
+	mongoDatabasePassword=<your-password>
+	mongoDatabaseName=<a-name-for-your-database>
+	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
 ```
 
 Once the above values are set,
@@ -277,7 +279,7 @@ should execute the unit tests.
 	    "genomicFeatures" : [
 	      {
 	        "gene" : {
-	          "id" : "TTN"
+	          "id" : "ENSG00000128573"
 	        }
 	      }
 	    ]
@@ -288,12 +290,12 @@ should execute the unit tests.
 	An example CURL would be,
 	
 	```
-	curl -X POST -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/add -d '{"patient" : {"id" : "1","contact" : {"name" : "Test Contact","href" : "test@test.com"},"features":[{"id" : "HP:0000118","observed" : "yes"}],"genomicFeatures":[{"gene" : {"id" : "TTN"}}]}}'
+	curl -X POST -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/add -d '{"patient" : {"id" : "1","contact" : {"name" : "Test Contact","href" : "test@test.com"},"features":[{"id" : "HP:0000118","observed" : "yes"}],"genomicFeatures":[{"gene" : {"id" : "ENSG00000128573"}}]}}'
 	```
 	
 	A successful result would be,
 	
-    {"message":"insertion OK","status_code":200}bash-3.2
+    {"message":"insertion OK","status_code":200}
 	
 * To view all contents of matchbox (this endpoint is work-in-progress and the JSON needs further formatting)
 
@@ -301,48 +303,128 @@ should execute the unit tests.
 	curl -X GET -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/view
 	```
 	
+	The result would look something like,
 	```
 	[{
-		"id": "1",
-		"label": "",
+	"id": "1",
+	"label": "",
+	"contact": {
+		"institution": null,
+		"name": "Test Contact",
+		"href": "test@test.com"
+	},
+	"species": "",
+	"sex": "",
+	"ageOfOnset": "",
+	"inheritanceMode": "",
+	"disorders": [],
+	"features": [{
+		"id": "HP:0000118",
+		"observed": "yes",
+		"ageOfOnset": "",
+		"emptyFieldsRemovedJson": "{\"id\":\"HP:0000118\",\"observed\":\"yes\"}"
+	}],
+	"genomicFeatures": [{
+		"gene": {
+			"id": "ENSG00000128573"
+		},
+		"variant": {
+			"assembly": "",
+			"referenceName": "",
+			"start": -1,
+			"end": -1,
+			"referenceBases": "",
+			"alternateBases": "",
+			"emptyFieldsRemovedJson": "{}",
+			"unPopulated": true
+		},
+		"zygosity": -1,
+		"type": {
+			"id": "",
+			"label": ""
+		},
+		"emptyFieldsRemovedJson": "{\"gene\":{\"id\":\"ENSG00000128573\"}}"
+	}],
+	"emptyFieldsRemovedJson": "{\"id\":\"1\",\"contact\":{\"name\":\"Test Contact\",\"href\":\"test@test.com\"},\"features\":[{\"id\":\"HP:0000118\",\"observed\":\"yes\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"ENSG00000128573\"}}],\"_disclaimer\":\"The data in Matchmaker Exchange is provided for research use only. Broad Institute provides the data in Matchmaker Exchange 'as is'. Broad Institute makes no representations or warranties of any kind concerning the data, express or implied, including without limitation, warranties of merchantability, fitness for a particular purpose, noninfringement, or the absence of latent or other defects, whether or not discoverable. Broad will not be liable to the user or any third parties claiming through user, for any loss or damage suffered through the use of Matchmaker Exchange. In no event shall Broad Institute or its respective directors, officers, employees, affiliated investigators and affiliates be liable for indirect, special, incidental or consequential damages or injury to property and lost profits, regardless of whether the foregoing have been advised, shall have other reason to know, or in fact shall know of the possibility of the foregoing. Prior to using Broad Institute data in a publication, the user will contact the owner of the matching dataset to assess the integrity of the match. If the match is validated, the user will offer appropriate recognition of the data owner's contribution, in accordance with academic standards and custom. Proper acknowledgment shall be made for the contributions of a party to such results being published or otherwise disclosed, which may include co-authorship. If Broad Institute contributes to the results being published, the authors must acknowledge Broad Institute using the following wording: 'This study makes use of data shared through the Broad Institute matchbox repository. Funding for the Broad Institute was provided in part by National Institutes of Health grant UM1 HG008900 to Daniel MacArthur and Heidi Rehm.' User will not attempt to use the data or Matchmaker Exchange to establish the individual identities of any of the subjects from whom the data were obtained. This applies to matches made within Broad Institute or with any other database included in the Matchmaker Exchange. \"}"
+	}]
+	```
+	
+	
+* To do a match of patients inside matchbox we can use the /match endpoint. For our example, we can use the patient we just inserted, except changing the ID to be different. matchbox doesn't not send back results that have the same ID as the incoming query. It assumes those cases are the same individual.
+
+	An example patient JSON structure would be,
+	```
+	{
+	"patient": {
+		"id": "2",
 		"contact": {
-			"institution": null,
 			"name": "Test Contact",
 			"href": "test@test.com"
 		},
-		"species": "",
-		"sex": "",
-		"ageOfOnset": "",
-		"inheritanceMode": "",
-		"disorders": [],
 		"features": [{
 			"id": "HP:0000118",
-			"observed": "yes",
-			"ageOfOnset": "",
-			"emptyFieldsRemovedJson": "{\"id\":\"HP:0000118\",\"observed\":\"yes\"}"
+			"observed": "yes"
 		}],
 		"genomicFeatures": [{
 			"gene": {
-				"id": "TTN"
-			},
-			"variant": {
-				"assembly": "",
-				"referenceName": "",
-				"start": -1,
-				"end": -1,
-				"referenceBases": "",
-				"alternateBases": "",
-				"emptyFieldsRemovedJson": "{}",
-				"unPopulated": true
-			},
-			"zygosity": -1,
-			"type": {
-				"id": "",
-				"label": ""
-			},
-			"emptyFieldsRemovedJson": "{\"gene\":{\"id\":\"TTN\"}}"
-		}],
-		"emptyFieldsRemovedJson": "{\"id\":\"1\",\"contact\":{\"name\":\"Test Contact\",\"href\":\"test@test.com\"},\"features\":[{\"id\":\"HP:0000118\",\"observed\":\"yes\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"TTN\"}}],\"_disclaimer\":\"The data in Matchmaker Exchange is provided for research use only. Broad Institute provides the data in Matchmaker Exchange 'as is'. Broad Institute makes no representations or warranties of any kind concerning the data, express or implied, including without limitation, warranties of merchantability, fitness for a particular purpose, noninfringement, or the absence of latent or other defects, whether or not discoverable. Broad will not be liable to the user or any third parties claiming through user, for any loss or damage suffered through the use of Matchmaker Exchange. In no event shall Broad Institute or its respective directors, officers, employees, affiliated investigators and affiliates be liable for indirect, special, incidental or consequential damages or injury to property and lost profits, regardless of whether the foregoing have been advised, shall have other reason to know, or in fact shall know of the possibility of the foregoing. Prior to using Broad Institute data in a publication, the user will contact the owner of the matching dataset to assess the integrity of the match. If the match is validated, the user will offer appropriate recognition of the data owner's contribution, in accordance with academic standards and custom. Proper acknowledgment shall be made for the contributions of a party to such results being published or otherwise disclosed, which may include co-authorship. If Broad Institute contributes to the results being published, the authors must acknowledge Broad Institute using the following wording: 'This study makes use of data shared through the Broad Institute matchbox repository. Funding for the Broad Institute was provided in part by National Institutes of Health grant UM1 HG008900 to Daniel MacArthur and Heidi Rehm.' User will not attempt to use the data or Matchmaker Exchange to establish the individual identities of any of the subjects from whom the data were obtained. This applies to matches made within Broad Institute or with any other database included in the Matchmaker Exchange. \"}"
-	}]
+				"id": "ENSG00000128573"
+			}
+		}]
+	}
+	}
+	```
 	
+	A cURL would look like,
+	
+	```
+	curl -X POST -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/match -d '{"patient" : {"id" : "2","contact" : {"name" : "Test Contact","href" : "test@test.com"},"features":[{"id" : "HP:0000118","observed" : "yes"}],"genomicFeatures":[{"gene" : {"id" : "ENSG00000128573"}}]}}'
+	```
+	
+	The result would look like. The score of 1.0 represents a perfect match.
+	```
+	{
+	"results": [{
+		"score": {
+			"patient": 1.0
+		},
+		"patient": {
+			"id": "1",
+			"contact": {
+				"name": "Test Contact",
+				"href": "test@test.com"
+			},
+			"features": [{
+				"id": "HP:0000118",
+				"observed": "yes"
+			}],
+			"genomicFeatures": [{
+				"gene": {
+					"id": "ENSG00000128573"
+				}
+			}],
+			"_disclaimer": "The data in Matchmaker Exchange is provided for research use only. Broad Institute provides the data in Matchmaker Exchange 'as is'. Broad Institute makes no representations or warranties of any kind concerning the data, express or implied, including without limitation, warranties of merchantability, fitness for a particular purpose, noninfringement, or the absence of latent or other defects, whether or not discoverable. Broad will not be liable to the user or any third parties claiming through user, for any loss or damage suffered through the use of Matchmaker Exchange. In no event shall Broad Institute or its respective directors, officers, employees, affiliated investigators and affiliates be liable for indirect, special, incidental or consequential damages or injury to property and lost profits, regardless of whether the foregoing have been advised, shall have other reason to know, or in fact shall know of the possibility of the foregoing. Prior to using Broad Institute data in a publication, the user will contact the owner of the matching dataset to assess the integrity of the match. If the match is validated, the user will offer appropriate recognition of the data owner's contribution, in accordance with academic standards and custom. Proper acknowledgment shall be made for the contributions of a party to such results being published or otherwise disclosed, which may include co-authorship. If Broad Institute contributes to the results being published, the authors must acknowledge Broad Institute using the following wording: 'This study makes use of data shared through the Broad Institute matchbox repository. Funding for the Broad Institute was provided in part by National Institutes of Health grant UM1 HG008900 to Daniel MacArthur and Heidi Rehm.' User will not attempt to use the data or Matchmaker Exchange to establish the individual identities of any of the subjects from whom the data were obtained. This applies to matches made within Broad Institute or with any other database included in the Matchmaker Exchange. "
+		}
+	}]
+	}
+	```
+
+* To delete a patient, you would need to know the ID of it (retrieved by the /patient/view endpoint)
+
+	```
+	curl -X DELETE -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/delete -d '{"id":"1"}'
+	```
+	
+	The result would look like,
+	```
+	{"message":"deleted 1 patient.","status_code":200"
+	```
+	
+	To confirm that the patient was deleted, we can do a view,
+	```
+	curl -X GET -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:8080/patient/view
+	```
+	
+	The result would now be,
+	```
+	[]
 	```
