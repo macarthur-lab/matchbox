@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 
 
-public class GenotypeMatch {
+public class GenotypeSimilarity {
 	private MongoOperations operator;
 	private final Map<String,String> geneSymbolToEnsemblId;
 	private final Map<String,String> ensemblIdToGeneSymbol;
@@ -40,7 +40,7 @@ public class GenotypeMatch {
 	/**
 	 * Constructor
 	 */
-	public GenotypeMatch() {
+	public GenotypeSimilarity() {
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 		

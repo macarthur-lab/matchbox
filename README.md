@@ -162,6 +162,14 @@ We recommend matchbox be deployed behind a fire-wall. The front-end website woul
 
 Further we recommend that precautions be taken to avoid commiting to github the config.xml file that contains your tokens. We use a separate private github repository to maintain the completed config.xml file.
 
+## User interface
+
+At Broad we have integrated <i>matchbox</i> into the <i>seqr</i> open-source web application (https://seqr.broadinstitute.org/). The method with which we did this can be observed in the <i>seqr</i> source code at https://github.com/macarthur-lab/seqr.
+
+<i>seqr</i> is a web application that stores variant and phenotype information on patients. Functionality has been added to it such that subsets of information can be grabbed from it and formatted into the matchmaker JSON format and inserted into <i>matchbox</i>, as well has pages that allow users to search in Matchmaker easily via <i>matchbox</i>.
+
+While commandline tools such as cURL can be used with <i>matchbox</i>, an user interface such as <i>seqr</i> (freely available) does make using it very easy.
+
 ## Testing
 
 There are unit tests included that can be executed via Maven. Prior to doing so, you will need an instance of MongoDB to be running and wired into matchbox via the application.properties file found in the top-level resources directory
@@ -416,7 +424,7 @@ should execute the unit tests.
 	
 	The result would look like,
 	```
-	{"message":"deleted 1 patient.","status_code":200"
+	{"message":"deleted 1 patient.","status_code":200"}
 	```
 	
 	To confirm that the patient was deleted, we can do a view,

@@ -10,10 +10,10 @@ import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
-import org.broadinstitute.macarthurlab.matchbox.match.GenotypeMatch;
+import org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarity;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
-import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeMatch;
+import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeSimilarity;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
 import junit.framework.Assert;
@@ -26,8 +26,8 @@ import junit.framework.TestSuite;
  */
 public class AppTest extends TestCase
 {
-	private GenotypeMatch genotypeMatch = new GenotypeMatch();
-	private PhenotypeMatch phenotypeMatch = new PhenotypeMatch();
+	private GenotypeSimilarity genotypeSimilarity = new GenotypeSimilarity();
+	private PhenotypeSimilarity phenotypeSimilarity = new PhenotypeSimilarity();
 	
     /**
      * Create the test case
@@ -53,7 +53,7 @@ public class AppTest extends TestCase
      */
     public void testGeneTypeMatchConstructor()
     {
-        Assert.assertNotNull(this.genotypeMatch);
+        Assert.assertNotNull(this.genotypeSimilarity);
     }
 
     /**
@@ -65,7 +65,7 @@ public class AppTest extends TestCase
     	Patient testP1 = testPatients.get(0);   	
     	Patient testP2 = testPatients.get(1);
   
-    	List<String> commonGenes=this.genotypeMatch.findCommonGenes(testP1, testP2);
+    	List<String> commonGenes=this.genotypeSimilarity.findCommonGenes(testP1, testP2);
     	assertTrue(1==commonGenes.size());
         assertTrue("ENSG00000178104"==commonGenes.get(0));
     }
@@ -226,20 +226,7 @@ public class AppTest extends TestCase
     	Patient patient = new PatientRecordUtility().parsePatientInformation(patientString);
     	System.out.println(patient.getEmptyFieldsRemovedJson());
     }
-    
-    
-
-    
-    /**
-     * Test if a perfect match gives
-     */
-    public void testGeneTypeMatchSearchByGenomicFeatures()
-    {
-    	Patient testP1 =  getTestPatient();    	
-    	List<Patient> matches = this.genotypeMatch.searchByGenomicFeatures(testP1);
-    	Assert.assertEquals(1,matches.size());
-    }
-    
+ 
     
     /**
      * Test if empty fields get scrubbed out in Variant class
@@ -319,8 +306,8 @@ public class AppTest extends TestCase
     	List<Patient> matches = new ArrayList<Patient>();
     	matches.add(testP1);
     	
-    	List<Double> patientGenotypeRankingScores = this.genotypeMatch.rankByGenotypes(matches, testP1);
-    	List<Double> patientPhenotypeRankingScores = this.phenotypeMatch.rankByPhenotypes(matches, testP1);
+    	List<Double> patientGenotypeRankingScores = this.genotypeSimilarity.rankByGenotypes(matches, testP1);
+    	List<Double> patientPhenotypeRankingScores = this.phenotypeSimilarity.rankByPhenotypes(matches, testP1);
     	List<Double> scores = match.generateMergedScore(patientGenotypeRankingScores,patientPhenotypeRankingScores);
     	Assert.assertEquals(1.0, scores.get(0));
     }

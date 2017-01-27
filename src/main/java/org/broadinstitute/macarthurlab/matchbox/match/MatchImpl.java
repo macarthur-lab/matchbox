@@ -20,18 +20,18 @@ public class MatchImpl implements MatchService{
 	/**
 	 * Genotype matching tools
 	 */
-	private final GenotypeMatch genotypeMatch;
+	private final GenotypeSimilarity genotypeMatch;
 	/**
 	 * Phenotype matching tools
 	 */
-	private final PhenotypeMatch phenotypeMatch;
+	private final PhenotypeSimilarity phenotypeMatch;
 
 	/**
 	 * Does a MME match
 	 */
 	public MatchImpl() {
-		this.genotypeMatch = new GenotypeMatch();
-		this.phenotypeMatch = new PhenotypeMatch();
+		this.genotypeMatch = new GenotypeSimilarity();
+		this.phenotypeMatch = new PhenotypeSimilarity();
 	}
 	
 	
@@ -101,7 +101,7 @@ public class MatchImpl implements MatchService{
 	/**
 	 * @return the genotypeMatch
 	 */
-	public GenotypeMatch getGenotypeMatch() {
+	public GenotypeSimilarity getGenotypeMatch() {
 		return genotypeMatch;
 	}
 
@@ -109,7 +109,7 @@ public class MatchImpl implements MatchService{
 	/**
 	 * @return the phenotypeMatch
 	 */
-	public PhenotypeMatch getPhenotypeMatch() {
+	public PhenotypeSimilarity getPhenotypeMatch() {
 		return phenotypeMatch;
 	}
 	
