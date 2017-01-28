@@ -4,7 +4,7 @@
  * interface in order to leave room for searching in other
  * networks in the future
  */
-package org.broadinstitute.macarthurlab.matchbox.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.search;
 
 import java.util.List;
 

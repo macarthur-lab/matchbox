@@ -13,9 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearchImpl;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.SearchService;
+import org.broadinstitute.macarthurlab.matchbox.search.MatchmakerSearchImpl;
+import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.matchbox.search.SearchService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpHeaders;

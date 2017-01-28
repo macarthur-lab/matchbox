@@ -14,8 +14,9 @@ import org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarity;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeSimilarity;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
+import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
+
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;

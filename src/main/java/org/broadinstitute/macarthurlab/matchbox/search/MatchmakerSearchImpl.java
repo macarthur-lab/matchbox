@@ -1,7 +1,7 @@
 /**
  * Intiates a call to all match maker nodes recorded
  */
-package org.broadinstitute.macarthurlab.matchbox.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.search;
 
 
 
