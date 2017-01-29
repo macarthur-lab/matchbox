@@ -25,18 +25,13 @@ A significant amount of development is typically required to join the MME; this 
 
 		git clone https://github.com/macarthur-lab/matchbox
 
-	- Build source files (maven is required to be on your system) (at this point MongoDB should be installed and wired into your application via resources/appliation.properties. If you haven't some tests will fail and your build will fail.
-	
-		If you already have an instance of MongoDB up and wired into the application via resources/appliation.properties,
-
-		mvn clean install package
+	- Build source files (maven is required to be on your system). At this point MongoDB should be installed and wired into your application via resources/appliation.properties. If you haven't, some tests will fail and your build will fail.
 		
-		Otherwise, you can skip tests and build with,
+		For now, you can skip tests and build with,
 		
 		mvn -Dmaven.test.skip=true clean install package
 		
-		
-		to wire in MongoDB, update the following lines in resources/appliation.properties appropriately,
+		to wire in MongoDB, update the following lines in top-level resources/appliation.properties appropriately,
 		```
 		spring.http.encoding.force=false
 		logging.file=logs/spring-boot-logging.log
@@ -47,9 +42,12 @@ A significant amount of development is typically required to join the MME; this 
 		mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
 		
 		```
-		
-		
+		Following that, with the instance of MongoDB up and running and accessible to the application network,
 
+		mvn clean install package
+		
+		Should build successfully.
+		
 	- That should create a directory called "target" with an executable JAR file
 
 	- Start server
