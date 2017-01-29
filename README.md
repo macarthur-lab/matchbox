@@ -208,32 +208,6 @@ Once the above values are set,
 	
 should execute the unit tests.
 
-## API end points
-
-*  View all individuals in matchbox(eventually this will be a privileged branch with limited access)
-
-	API endpoint (GET):  patient/view
-
-
-* Add a patient to matchbox 
-
-	API endpoint (POST):  patient/add
-
-	A successful result would look something like:
-
-	{"message":"insertion OK"}
-
-
-*  Find a match for a patient in other Matchmaker nodes ONLY
-
-	API endpoint (POST):  /match/external
-
-
-*  Find a match in local matchbox data model ONLY
-
-	API endpoint (POST):/match
-	As per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at in local DB
-
 
 ## End to end example
 
