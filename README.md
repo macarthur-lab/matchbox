@@ -25,13 +25,13 @@ A significant amount of development is typically required to join the MME; this 
 
 		git clone https://github.com/macarthur-lab/matchbox
 
-	- Build source files (maven is required to be on your system). At this point MongoDB should be installed and wired into your application via resources/appliation.properties. If you haven't, some tests will fail and your build will fail.
+	- Build source files (maven is required to be on your system). At this point MongoDB should be installed and wired into your application via resources/application.properties. If you haven't, some tests will fail and your build will fail.
 		
 		For now, if you like, you can skip tests and build without MongoDB with,
 		
 		mvn -Dmaven.test.skip=true clean install package
 		
-		To buid with tests you will have to wire in MongoDB. To wire in MongoDB, update the following lines in top-level resources/appliation.properties appropriately (add in your Java key certificate key store to enable Java HTTPS connections to other nodes,
+		To build with tests you will have to wire in MongoDB. To wire in MongoDB, update the following lines in top-level resources/application.properties appropriately (add in your Java key certificate key store to enable Java HTTPS connections to other nodes,
 		```
 		spring.http.encoding.force=false
 		logging.file=logs/spring-boot-logging.log
@@ -61,13 +61,13 @@ A significant amount of development is typically required to join the MME; this 
 	export SERVER_PORT=9020
 
 
-## Test run
+## General overview:
 
-* Use the the following path
+* Typically you would use something like the following path
 
 	http://localhost:8080/match
 
-* with the following headers (we are using "abcd" as an example token"):
+* Along with the following headers (we are using "abcd" as an example token, please change before production!"):
 
 	X-Auth-Token: abcd
 
@@ -75,9 +75,10 @@ A significant amount of development is typically required to join the MME; this 
 
 	Content-Type: application/x-www-form-urlencoded
 	
-	And a JSON payload representing a patient. (complete examples below)
 
-## API endpoints
+* And a JSON payload when a POST is required. (complete examples below)
+
+## List of API endpoints
 
 * Patients (one at a time) can be added to the matchmaker system via:
 
@@ -109,9 +110,30 @@ A significant amount of development is typically required to join the MME; this 
 
 ## Matching criteria
 
-* Gene based matching is the current primary matching strategy. (if 2 individuals have at least 1 gene in common, it is considered a match). 
+* Gene based matching is the current primary matching strategy. (if 2 individuals have at least 1 gene in common, it is considered a match). We will then evaluate the similarity of 
+	* Zygosity
+	* Variant type using SO codes impact HIGH. We are using the following codes. For now, can be changed in the org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarity class and we will soon abstract this out to application.properties for easier modification.
+	```
+		SO:1000182
+		SO:0001624
+		SO:0001572
+		SO:0001909
+		SO:0001910
+		SO:0001589
+		SO:0001908
+		SO:0001906
+		SO:0001583
+		SO:1000005
+		SO:0002012
+		SO:0002012
+		SO:0002012
+		SO:0001619
+		SO:0001575
+		SO:0001619	
+	```
+	* We will soon also integrate disorder, and variant position to further improve this matching strategy.
 
-* Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.(not implemented yet). Though we are in the process of adding in phenotype-only based matching in the absence of genotype information.
+* Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.(naive implementation as of now, improvement in progress). We are also in the process of adding in phenotype-only based matching in the absence of genotype information.
 
 * If the matched result patient has the same ID as the query patient, it won't be sent back. In these cases it is assumed that the result and the query -for some reason- are the same patient.
 
@@ -219,6 +241,7 @@ should execute the unit tests.
 
 	vi resources/application.properties
 	
+	```
 	spring.http.encoding.force=false
 	logging.file=logs/spring-boot-logging.log
 	mongoDatabaseHostName=<your-database-host-name>
@@ -227,10 +250,11 @@ should execute the unit tests.
 	mongoDatabaseName=mme_primary
 	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
 	keyTrustStore=<path-to-your-java-keystore>
+	```
 	
 * You can update resources/config.xml with your connections. But for initial test, we can use the default client connection with token "abcd" to connect into. We won't search external databases yet, since that involves getting tokens from other centers.
 
-```
+	```
    <bean id="defaultAccessToken"
       class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
       <constructor-arg type="java.lang.String" value="Default Access Token" />
@@ -248,17 +272,21 @@ should execute the unit tests.
       </property>
    </bean>
   
-```
+	```
   
 	
 
 * Build the source code (skip unit-tests for now), if you would like to test as well, make sure you have MongoDB installed and wired into application via resources/application.properties
 
+	```
  	mvn clean install package -Dmaven.test.skip=true
+	```
 
 * Start the server
 
+	```
 	java -jar target/matchbox-version.jar
+	```
 	
 * Insert a test patient with a cURL command to the API
 
@@ -296,7 +324,9 @@ should execute the unit tests.
 	
 	A successful result would be,
 	
+	```
     {"message":"insertion OK","status_code":200}
+    ```
 	
 * To view all contents of matchbox (this endpoint is work-in-progress and the JSON needs further formatting)
 
