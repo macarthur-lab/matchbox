@@ -9,13 +9,13 @@ A significant amount of development is typically required to join the MME; this 
 
 
 
-## Requirements:
+## You will need:
 
 * Java 1.8
 
-* A MongoDB instance (available from https://www.mongodb.org/)
-
 * Maven 3.1 (available from https://maven.apache.org/)   
+
+* An authenticated MongoDB instance (available from https://www.mongodb.org/). This application requires a password protected MongoDB instance for tests and build to succeed (you can build without tests and MongoDB and configure MongoDB later if required as described below).
 
 ## Quick start build:
 
@@ -27,11 +27,11 @@ A significant amount of development is typically required to join the MME; this 
 
 	- Build source files (maven is required to be on your system). At this point MongoDB should be installed and wired into your application via resources/appliation.properties. If you haven't, some tests will fail and your build will fail.
 		
-		For now, you can skip tests and build with,
+		For now, if you like, you can skip tests and build without MongoDB with,
 		
 		mvn -Dmaven.test.skip=true clean install package
 		
-		to wire in MongoDB, update the following lines in top-level resources/appliation.properties appropriately (add in your Java key certificate key store to enable Java HTTPS connections to other nodes,
+		To buid with tests you will have to wire in MongoDB. To wire in MongoDB, update the following lines in top-level resources/appliation.properties appropriately (add in your Java key certificate key store to enable Java HTTPS connections to other nodes,
 		```
 		spring.http.encoding.force=false
 		logging.file=logs/spring-boot-logging.log
