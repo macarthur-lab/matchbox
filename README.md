@@ -17,7 +17,7 @@ A significant amount of development is typically required to join the MME; this 
 
 * Maven 3.1 (available from https://maven.apache.org/)   
 
-## Installation:
+## Quick start build:
 
 * Download the source code and simply build on your system via.
 
@@ -31,7 +31,7 @@ A significant amount of development is typically required to join the MME; this 
 		
 		mvn -Dmaven.test.skip=true clean install package
 		
-		to wire in MongoDB, update the following lines in top-level resources/appliation.properties appropriately,
+		to wire in MongoDB, update the following lines in top-level resources/appliation.properties appropriately (add in your Java key certificate key store to enable Java HTTPS connections to other nodes,
 		```
 		spring.http.encoding.force=false
 		logging.file=logs/spring-boot-logging.log
@@ -40,7 +40,7 @@ A significant amount of development is typically required to join the MME; this 
 		mongoDatabasePassword=<your-password>
 		mongoDatabaseName=<a-name-for-your-database>
 		mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
-		
+		keyTrustStore=<path-to-your-java-keystore>
 		```
 		Following that, with the instance of MongoDB up and running and accessible to the application network,
 
@@ -199,6 +199,7 @@ There are unit tests included that can be executed via Maven. Prior to doing so,
 	mongoDatabasePassword=<your-password>
 	mongoDatabaseName=<a-name-for-your-database>
 	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
+	keyTrustStore=<path-to-your-java-keystore>
 ```
 
 Once the above values are set,
@@ -240,7 +241,7 @@ should execute the unit tests.
 
 	git clone https://github.com/macarthur-lab/matchbox
 
-* Update the resource directory with your database connection information
+* Update the resource directory with your database connection information and trust store for Java HTTPS connections to other nodes,
 
 	vi resources/application.properties
 	
@@ -251,6 +252,7 @@ should execute the unit tests.
 	mongoDatabasePassword=<your-password>
 	mongoDatabaseName=mme_primary
 	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
+	keyTrustStore=<path-to-your-java-keystore>
 	
 * You can update resources/config.xml with your connections. But for initial test, we can use the default client connection with token "abcd" to connect into. We won't search external databases yet, since that involves getting tokens from other centers.
 

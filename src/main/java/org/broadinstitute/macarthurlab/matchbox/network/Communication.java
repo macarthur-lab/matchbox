@@ -25,14 +25,20 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 
 
 /**
  * @author harindra
  *
  */
+@PropertySource("file:resources/application.properties")
 public class Communication {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Value("${keyTrustStore}")
+	private String keyTrustStore;
 	
 	/**
 	 * A set of tools to parse and store patient information
@@ -49,7 +55,7 @@ public class Communication {
 	
 	
 	public List<MatchmakerResult> callNode(Node matchmakerNode, Patient queryPatient) {
-		System.setProperty("javax.net.ssl.trustStore","/local/mme/config/java/jdk1.8.0_101/keystore");
+		System.setProperty("javax.net.ssl.trustStore",this.getKeyTrustStore());
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		HttpsURLConnection connection = null;  
 		try {
@@ -137,5 +143,23 @@ public class Communication {
 	public Logger getLogger() {
 		return logger;
 	}
+
+
+
+	/**
+	 * @return the keyTrustStore
+	 */
+	public String getKeyTrustStore() {
+		return keyTrustStore;
+	}
+
+	/**
+	 * @param keyTrustStore the keyTrustStore to set
+	 */
+	public void setKeyTrustStore(String keyTrustStore) {
+		this.keyTrustStore = keyTrustStore;
+	}
+	
+	
 
 }
