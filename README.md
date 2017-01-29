@@ -235,11 +235,16 @@ should execute the unit tests.
 
 * Clone the repo
 
+	```
 	git clone https://github.com/macarthur-lab/matchbox
+	```
 
 * Update the resource directory with your database connection information and trust store for Java HTTPS connections to other nodes,
 
+	Edit properties file,
+	```
 	vi resources/application.properties
+	```
 	
 	```
 	spring.http.encoding.force=false
