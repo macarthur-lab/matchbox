@@ -4,7 +4,7 @@
 
 A major challenge faced by rare disease investigators is the difficulty of finding more than one individual with the same genetic disorder. This complicates the identification of causal variants and novel gene discovery. The Matchmaker Exchange (MME) provides a decentralized federated network of genomic centers with collections of rare disease cases. MME allows you to find similar individuals based on genotype, phenotype -and soon other types of data-, globally and at scale. 
 
-Some important characteristics of the MME as related to data are:
+Some important characteristics of the MME as relates to data are:
 
 * It allows members to host data locally and reduce data ownership challenges
 * Allows you to have more control of sharing preferences and matching algorithms. 
