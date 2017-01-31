@@ -1,15 +1,21 @@
 # <i>matchbox</i>
 
+<i>matchbox</i> was originally developed at the MacArthur Lab for the Broad Center for Mendelian Genomics. Its purpose was to function as a bridge to the Matchmaker Exchange. It was then shared as open source software under the BSD License. 
 
-<i>matchbox</i> was originally developed at the MacArthur Lab for the Broad Center for Mendelian Genomics. Its purpose was to function as the primary connection point to the Matchmaker Exchange. It was then shared as open source software under the BSD License. 
+A major challenge faced by rare disease investigators is the difficulty of finding more than one individual with the same genetic disorder. This complicates the identification of causal variants and novel gene discovery. The Matchmaker Exchange (MME) provides a decentralized federated network of genomic centers with collections of rare disease cases. MME allows you to find similar individuals based on genotype, phenotype -and soon other types of data-, globally and at scale. 
 
-A major challenge faced by rare disease investigators is the difficulty of finding more than one individual with the same genetic disorder. This complicates the identification of causal variants and novel gene discovery. The Matchmaker Exchange (MME) provides a decentralized federated network of genomic centers with collections of rare disease cases. MME allows you to find similar individuals based on genotype, phenotype -and soon other types of data-, globally and at scale. It allows members to host data locally and reduce data ownership challenges  as well have more control of sharing preferences and matching algorithms. Its service oriented architecture allows member centers to keep existing infrastructure. It has gained international support via the GA4GH and currently has many members spanning multiple continents.
+Some important characteristics of the MME as related to data are:
+
+* It allows members to host data locally and reduce data ownership challenges
+* Allows you to have more control of sharing preferences and matching algorithms. 
+* Its service oriented architecture allows member centers to keep existing infrastructure. 
+
+MME has gained international support via the GA4GH and currently has many members spanning multiple continents. If you are interested in joining the Matchmaker Exchange, please contact us at matchmaker@broadinstitute.org and we will be happy to help you. More information on Matchmaker Exchange can also be found at http://www.matchmakerexchange.org/
 
 A significant amount of development is typically required to join the MME; this has a detrimental effect on network growth. To address this and facilitate growth, we developed <i>matchbox</i> to be completely portable and easily usable in any center wishing to join the MME.
 
 
-
-## You will need:
+## To use <i>matchbox</i>, you will need:
 
 * Java 1.8
 
