@@ -13,12 +13,12 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
  * @author harindra
  *
  */
-public class PhenotypeMatch {
+public class PhenotypeSimilarity {
 
 	/**
 	 * Constructor sets up everything
 	 */
-	public PhenotypeMatch() {
+	public PhenotypeSimilarity() {
 
 	}
 

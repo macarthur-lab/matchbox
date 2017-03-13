@@ -108,19 +108,12 @@ public class Metric {
 	
 	
 	/**
-	 * Counts the number of patients for a given gene
+	 * Counts the number of unique phenotypes in the system
 	 * #TODO return count by HPO term to show diversity
 	 * @return a count
 	 */
 	public int getTotalNumOfPhenotypesInSystem(){
-		StringBuilder query = new StringBuilder("{}");
-		BasicQuery q = new BasicQuery(query.toString());
-		List<Patient> patients = this.getOperator().find(q,Patient.class);
-		int counts=0;
-		for (Patient p: patients){
-			counts += p.getFeatures().size();
-		}
-		return counts;
+		return this.countPhenotypesInSystem().size();
 	}
 
 	

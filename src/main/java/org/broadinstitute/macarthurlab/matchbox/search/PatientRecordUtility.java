@@ -1,7 +1,7 @@
 /**
  * A suite of methods to help process patient records from other matchmakers
  */
-package org.broadinstitute.macarthurlab.matchbox.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.search;
 
 
 import java.util.ArrayList;

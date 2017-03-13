@@ -1,7 +1,7 @@
 /**
  * Intiates a call to all match maker nodes recorded
  */
-package org.broadinstitute.macarthurlab.matchbox.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.search;
 
 
 
@@ -14,7 +14,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.match.Match;
+import org.broadinstitute.macarthurlab.matchbox.match.MatchImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author harindra
  *
  */
-public class MatchmakerSearch implements Search{
+public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * A list of MatchmakeNode objs that would be all
 	 * available nodes in system to look for. 
@@ -67,12 +67,12 @@ public class MatchmakerSearch implements Search{
 	/**
 	 * Default constructor
 	 */
-	public MatchmakerSearch(){
+	public MatchmakerSearchImpl(){
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 		this.patientUtility = new PatientRecordUtility();
 		this.httpCommunication = new Communication();
-		this.match = new Match();
+		this.match = new MatchImpl();
 	}
 	
 	
@@ -99,6 +99,9 @@ public class MatchmakerSearch implements Search{
 		for (MatchmakerResult r:results){
 			if (!r.getPatient().getId().equals(queryPatient.getId())){
 				scrubbedResults.add(r.getEmptyFieldsRemovedJson());
+			}
+			else{
+				this.getLogger().info("ignoring this result since it is the same as query patient (same ID)");
 			}
 		}
 		/**persist for logging and metrics and tracking of data sent out. Persist the 

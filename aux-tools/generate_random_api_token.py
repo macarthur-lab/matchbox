@@ -18,7 +18,7 @@ def main(argv=None):
     parser.add_argument('-V', '--version', action='store_true', help='display version information')
     args = parser.parse_args()
   except Exception as e:
-    print 'error parsing command-line arguments, please contact harindra@broadinstitute.org.\n\n',e,'\n\n'
+    print 'error parsing command-line arguments\n\n',e,'\n\n'
     sys.exit()
   if args.version:
     print program_version_message
