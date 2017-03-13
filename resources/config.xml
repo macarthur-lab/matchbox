@@ -7,17 +7,17 @@
   <bean id="testRefSvrNode"
       class="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
       <constructor-arg type="java.lang.String" value="Test Reference Server" />
-      <constructor-arg type="java.lang.String" value="none" />
-      <constructor-arg type="java.lang.String" value="http://localhost:8090/match" />
+      <constructor-arg type="java.lang.String" value="abcd" />
+      <constructor-arg type="java.lang.String" value="https://localhost:8443/match" />
       <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
       <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
       <constructor-arg type="java.lang.String" value="en-US"/>
-      <constructor-arg type="boolean" value="false"/>
+      <constructor-arg type="boolean" value="true"/>
   </bean>
 
 
   <bean id="matchmakerSearch"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearchImpl">
+      class="org.broadinstitute.macarthurlab.matchbox.search.MatchmakerSearchImpl">
       <property name="matchmakers">
          <list>
          	<ref bean="testRefSvrNode"/> 
