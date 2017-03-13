@@ -37,7 +37,7 @@ A significant amount of development is typically required to join the MME; this 
 		
 		mvn -Dmaven.test.skip=true clean install package
 		
-		To build with tests you will have to wire in MongoDB. To wire in MongoDB, update the following lines in top-level resources/application.properties appropriately (add in your Java key certificate key store to enable Java HTTPS connections to other nodes,
+		To build with tests you will have to wire in MongoDB. To wire in MongoDB, update the following lines in top-level resources/application.properties appropriately. Add in your Java key certificate key store to enable Java HTTPS connections to other nodes, and uncomment plus populate the server.ssl.* attributes to start matchbox as HTTPS. If you are not planning to proxy matchbox behind a HTTPS service, you would have to server matchbox as HTTPS per MME requirements.
 		```
 		spring.http.encoding.force=false
 		logging.file=logs/spring-boot-logging.log
@@ -47,6 +47,11 @@ A significant amount of development is typically required to join the MME; this 
 		mongoDatabaseName=<a-name-for-your-database>
 		mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
 		keyTrustStore=<path-to-your-java-keystore>
+		#--populate the following to be HTTPS (required if server is not proxied)
+		#server.port=8443
+		#server.ssl.key-store=file:<path-to-JKS-file>
+		#server.ssl.key-store-password=<your-password>
+		#server.ssl.key-password=<you-jks-domain>
 		```
 		Following that, with the instance of MongoDB up and running and accessible to the application network,
 
