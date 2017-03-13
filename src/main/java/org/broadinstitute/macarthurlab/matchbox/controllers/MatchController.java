@@ -106,6 +106,8 @@ public class MatchController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/match/external")
     public ResponseEntity<?> individualMatch(@RequestBody String requestString) {
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
 		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
 		Patient patient=null;
 		try{
@@ -126,11 +128,10 @@ public class MatchController {
 			results.put("results", matchmakerResults);
 		}
 		catch(Exception e){
-			this.getLogger().error("error occurred in match controller:"+e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			this.getLogger().error("error occurred in match controller :"+e.toString() + " : " + e.toString());
+			return new ResponseEntity<>(results, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
     	return new ResponseEntity<>(results, httpHeaders, HttpStatus.OK);
     }
 	
