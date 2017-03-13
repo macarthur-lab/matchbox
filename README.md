@@ -47,7 +47,7 @@ A significant amount of development is typically required to join the MME; this 
 		mongoDatabaseName=<a-name-for-your-database>
 		mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
 		keyTrustStore=<path-to-your-java-keystore>
-		#--populate the following to be HTTPS (required if server is not proxied)
+		#--populate the following to be HTTPS (required if server is not behind proxy)
 		#server.port=8443
 		#server.ssl.key-store=file:<path-to-JKS-file>
 		#server.ssl.key-store-password=<your-password>
@@ -233,6 +233,11 @@ There are unit tests included that can be executed via Maven. Prior to doing so,
 	mongoDatabaseName=<a-name-for-your-database>
 	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
 	keyTrustStore=<path-to-your-java-keystore>
+	#--populate the following to be HTTPS (required if server is not behind proxy)
+	#server.port=8443
+	#server.ssl.key-store=file:<path-to-JKS-file>
+	#server.ssl.key-store-password=<your-password>
+	#server.ssl.key-password=<you-jks-domain>
 ```
 
 Once the above values are set,
@@ -266,6 +271,11 @@ should execute the unit tests.
 	mongoDatabaseName=mme_primary
 	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
 	keyTrustStore=<path-to-your-java-keystore>
+	#--populate the following to be HTTPS (required if server is not behind proxy)
+	#server.port=8443
+	#server.ssl.key-store=file:<path-to-JKS-file>
+	#server.ssl.key-store-password=<your-password>
+	#server.ssl.key-password=<you-jks-domain>
 	```
 	
 * You can update resources/config.xml with your connections. But for initial test, we can use the default client connection with token "abcd" to connect into. We won't search external databases yet, since that involves getting tokens from other centers.
