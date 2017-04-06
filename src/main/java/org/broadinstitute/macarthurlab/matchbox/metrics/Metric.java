@@ -3,6 +3,7 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.metrics;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfigu
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,10 +135,29 @@ public class Metric {
 	 * @return a count
 	 */
 	public int getNumOfMatches(){
+		Map<String, Set<String>> matchedIdPairs = new HashMap<String,Set<String>>();
 		StringBuilder query = new StringBuilder("{matchFound:true}");
 		BasicQuery q = new BasicQuery(query.toString());
 		List<ExternalMatchQuery> extQueries = this.getOperator().find(q,ExternalMatchQuery.class);
-		return extQueries.size();
+		for (ExternalMatchQuery matchedQuery:extQueries){
+			String queryId = matchedQuery.getIncomingQuery().getId();
+			for (MatchmakerResult result: matchedQuery.getResults()){
+				if (matchedIdPairs.containsKey(queryId)){
+					if (!queryId.equals(result.getPatient().getId())){
+						matchedIdPairs.get(queryId).add(result.getPatient().getId());
+					}
+				}
+				else{
+					Set<String> s = new HashSet<String>();
+					s.add(result.getPatient().getId());
+					matchedIdPairs.put(queryId,s);
+				}
+			}
+			for (String s: matchedIdPairs.keySet()){
+				System.out.println(s);
+			}
+		}
+		return matchedIdPairs.size();
 	}
 	
 	

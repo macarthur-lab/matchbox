@@ -66,7 +66,9 @@ public class MatchController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/match")
 	public ResponseEntity<?> match(@RequestBody String requestString, HttpServletRequest request) {
+		String originMatchmakerNodeName = request.getAttribute("originMatchmakerNodeName").toString();
 		Patient queryPatient = null;
+		
 		try {
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			// TODO figure out why there is a = at the end of JSON string
@@ -80,6 +82,8 @@ public class MatchController {
 				StringBuilder msg = new StringBuilder();
 				msg.append("matchmaker request from:");
 				msg.append(queryPatient.getContact().toString());
+				msg.append(", orignating from matchmaker node:");
+				msg.append(originMatchmakerNodeName);
 				this.getLogger().warn(msg.toString());
 			} else {
 				this.getLogger().warn("input data invalid:" + inputData.toString());
@@ -88,7 +92,7 @@ public class MatchController {
 		} catch (Exception e) {
 			this.getLogger().error("error parsing patient in /match :" + e.toString() + " : " + e.getMessage());
 		}
-		String matches = this.getSearcher().searchInLocalDatabaseOnly(queryPatient,request.getRemoteHost()).toString();
+		String matches = this.getSearcher().searchInLocalDatabaseOnly(queryPatient,originMatchmakerNodeName).toString();
 		String results = "{" + "\"results\":" + matches + "}";
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
