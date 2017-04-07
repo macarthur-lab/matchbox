@@ -8,22 +8,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.springframework.stereotype.Service;
 
 /**
  * @author harindra
  *
  */
+@Service
 public class PhenotypeSimilarity {
 
 	/**
 	 * Constructor sets up everything
 	 */
-	public PhenotypeSimilarity() {
+	public PhenotypeSimilarity() {}
 
-	}
-
-	
-	
 	/**
 	 * Ranks a patient list by their phenotype similarity to a query patient
 	 * @param patients a list of patients to rank

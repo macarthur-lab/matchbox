@@ -42,7 +42,8 @@ public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * Genotype matching tools
 	 */
-	private final MatchService match;
+	@Autowired
+	private MatchService match;
 	
 	/**
 	 * A connection to MongoDB for queries
@@ -56,12 +57,14 @@ public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * A set of tools to parse and store patient information
 	 */
-	private final PatientRecordUtility patientUtility;
+	@Autowired
+	private PatientRecordUtility patientUtility;
 
 	/**
 	 * A set of tools to help with make a Http call to an external node
 	 */
-	private final Communication httpCommunication;
+	@Autowired
+	private Communication httpCommunication;
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -72,9 +75,6 @@ public class MatchmakerSearchImpl implements SearchService{
 	public MatchmakerSearchImpl(){
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
-		this.patientUtility = new PatientRecordUtility();
-		this.httpCommunication = new Communication();
-		this.match = new MatchImpl();
 	}
 	
 	
@@ -119,6 +119,7 @@ public class MatchmakerSearchImpl implements SearchService{
 															true);
 				
 		}else{
+			//we don't persist query unless there is a match per MME rules
 			externalQueryMatch = new ExternalMatchQuery(null, 
 					   									results,
 					   									hostNameOfRequestOrigin,
