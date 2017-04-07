@@ -3,7 +3,6 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.metrics;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,13 +10,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -153,15 +150,9 @@ public class Metric {
 					matchedIdPairs.put(queryId,s);
 				}
 			}
-			for (String s: matchedIdPairs.keySet()){
-				System.out.println(s);
-			}
 		}
 		return matchedIdPairs.size();
 	}
-	
-	
-	
 
 	/**
 	 * @param operator the operator to set

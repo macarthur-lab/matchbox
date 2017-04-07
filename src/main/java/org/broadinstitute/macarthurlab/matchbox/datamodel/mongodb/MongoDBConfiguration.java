@@ -13,6 +13,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.stereotype.Component;
+
+import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
@@ -63,8 +65,8 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration{
     	System.setProperty("javax.net.ssl.trustStore",this.getKeyTrustStore());
     	
     	MongoClient mongoClient = new MongoClient(this.getDatabaseHostName(), 27017);
-    	//DB db = mongoClient.getDB(this.getDatabaseName());
-    	//boolean auth = db.authenticate(this.getUsername(), this.getPassword().toCharArray());
+    	DB db = mongoClient.getDB(this.getDatabaseName());
+    	boolean auth = db.authenticate(this.getUsername(), this.getPassword().toCharArray());
     	return mongoClient;
     }
 

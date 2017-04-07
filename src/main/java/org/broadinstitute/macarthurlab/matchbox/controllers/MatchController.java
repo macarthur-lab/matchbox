@@ -13,11 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.search.MatchmakerSearchImpl;
 import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.matchbox.search.SearchService;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,7 +37,10 @@ import org.slf4j.LoggerFactory;
 @RestController
 @CrossOrigin(origins = "*")
 public class MatchController {
-	private final SearchService searcher;
+	
+	@Autowired
+	private SearchService searcher;
+	
 	private final PatientRecordUtility patientUtility;
 	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -48,9 +49,6 @@ public class MatchController {
 	 * Constructor populates search functionality
 	 */
 	public MatchController(){
-        String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
-        ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
-        this.searcher = context.getBean("matchmakerSearch", MatchmakerSearchImpl.class);
         this.patientUtility = new PatientRecordUtility();
 	}
 	
@@ -146,6 +144,14 @@ public class MatchController {
 	 */
 	public SearchService getSearcher() {
 		return this.searcher;
+	}
+	
+
+	/**
+	 * @param searcher the searcher to set
+	 */
+	public void setSearcher(SearchService searcher) {
+		this.searcher = searcher;
 	}
 
 
