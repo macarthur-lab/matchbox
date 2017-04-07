@@ -8,18 +8,14 @@ package org.broadinstitute.macarthurlab.matchbox.search;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.match.MatchImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -51,7 +47,7 @@ public class MatchmakerSearchImpl implements SearchService{
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
 
-	
+	@Autowired
 	private MongoOperations operator;
 	
 	/**
@@ -72,10 +68,7 @@ public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * Default constructor
 	 */
-	public MatchmakerSearchImpl(){
-		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
-		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
-	}
+	public MatchmakerSearchImpl(){}
 	
 	
 	/**
@@ -106,7 +99,8 @@ public class MatchmakerSearchImpl implements SearchService{
 				this.getLogger().info("ignoring this result since it is the same as query patient (same ID)");
 			}
 		}
-		/**persist for logging and metrics and tracking of data sent out. Persist the 
+	   /**
+		*  persist for logging and metrics and tracking of data sent out. Persist the 
 		*  incoming query ONLY if a match is made, otherwise don't keep any of the
 		*  information that is sent in, which is only fair.
 		*/

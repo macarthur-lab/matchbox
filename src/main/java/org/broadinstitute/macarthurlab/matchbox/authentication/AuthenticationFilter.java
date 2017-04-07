@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationFilter implements Filter{
 	private static final String X_AUTH_TOKEN_HEADER="X-Auth-Token";
 	private static final String ACCEPT_HEADER="Accept";
-	private final AccessAuthorizedNode accessAuthorizedNode;
+	private AccessAuthorizedNode accessAuthorizedNode;	
 	private final List<String> authorizedTokens;
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final Map<String,String> tokenToMMECenterMapping;
@@ -47,6 +47,7 @@ public class AuthenticationFilter implements Filter{
     	ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
     	this.accessAuthorizedNode = context.getBean("accessAuthorizedNode", AccessAuthorizedNode.class);
 	
+		System.out.println(this.getAccessAuthorizedNode());
     	Map<String,String> tokenToMMECenterMapping = new HashMap<String,String>();
     	List<String> authorizedTokes=new ArrayList<String>();
     	for(AuthorizedToken authorizeNode  : this.getAccessAuthorizedNode().getAccessAuthorizedNodes()){
