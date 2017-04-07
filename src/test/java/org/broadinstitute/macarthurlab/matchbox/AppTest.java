@@ -10,10 +10,10 @@ import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
-import org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarity;
-import org.broadinstitute.macarthurlab.matchbox.match.MatchImpl;
+import org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarityServiceImpl;
+import org.broadinstitute.macarthurlab.matchbox.match.MatchServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
-import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeSimilarity;
+import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeSimilarityServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
 import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
 
@@ -27,8 +27,8 @@ import junit.framework.TestSuite;
  */
 public class AppTest extends TestCase
 {
-	private GenotypeSimilarity genotypeSimilarity = new GenotypeSimilarity();
-	private PhenotypeSimilarity phenotypeSimilarity = new PhenotypeSimilarity();
+	private GenotypeSimilarityServiceImpl genotypeSimilarity = new GenotypeSimilarityServiceImpl();
+	private PhenotypeSimilarityServiceImpl phenotypeSimilarity = new PhenotypeSimilarityServiceImpl();
 	
     /**
      * Create the test case
@@ -299,7 +299,7 @@ public class AppTest extends TestCase
      */
     public void testPerfectMatchScore()
     {
-    	MatchService match = new MatchImpl();
+    	MatchService match = new MatchServiceImpl();
     	
     	Patient testP1 =  getTestPatient(); 
  

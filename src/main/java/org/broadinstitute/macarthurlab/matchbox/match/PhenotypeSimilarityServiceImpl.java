@@ -15,12 +15,12 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class PhenotypeSimilarity {
+public class PhenotypeSimilarityServiceImpl implements PhenotypeSimilarityService{
 
 	/**
 	 * Constructor sets up everything
 	 */
-	public PhenotypeSimilarity() {}
+	public PhenotypeSimilarityServiceImpl() {}
 
 	/**
 	 * Ranks a patient list by their phenotype similarity to a query patient

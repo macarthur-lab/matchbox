@@ -18,24 +18,24 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class MatchImpl implements MatchService{
+public class MatchServiceImpl implements MatchService{
 	
 	/**
 	 * Genotype matching tools
 	 */
 	@Autowired
-	private GenotypeSimilarity genotypeMatch;
+	private GenotypeSimilarityService genotypeMatch;
 	
 	/**
 	 * Phenotype matching tools
 	 */
 	@Autowired
-	private PhenotypeSimilarity phenotypeMatch;
+	private PhenotypeSimilarityService phenotypeMatch;
 
 	/**
 	 * Does a MME match
 	 */
-	public MatchImpl() {}
+	public MatchServiceImpl() {}
 	
 	
 	/**
@@ -104,7 +104,7 @@ public class MatchImpl implements MatchService{
 	/**
 	 * @return the genotypeMatch
 	 */
-	public GenotypeSimilarity getGenotypeMatch() {
+	public GenotypeSimilarityService getGenotypeMatch() {
 		return genotypeMatch;
 	}
 
@@ -112,7 +112,7 @@ public class MatchImpl implements MatchService{
 	/**
 	 * @return the phenotypeMatch
 	 */
-	public PhenotypeSimilarity getPhenotypeMatch() {
+	public PhenotypeSimilarityService getPhenotypeMatch() {
 		return phenotypeMatch;
 	}
 	

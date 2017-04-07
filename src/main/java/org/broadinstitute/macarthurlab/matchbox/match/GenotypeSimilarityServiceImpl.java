@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 
 @Service
-public class GenotypeSimilarity {
+public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
 	private MongoOperations operator;
 	private final Map<String,String> geneSymbolToEnsemblId;
 	private final Map<String,String> ensemblIdToGeneSymbol;
@@ -41,7 +41,7 @@ public class GenotypeSimilarity {
 	/**
 	 * Constructor
 	 */
-	public GenotypeSimilarity() {
+	public GenotypeSimilarityServiceImpl() {
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 		
