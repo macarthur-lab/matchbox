@@ -54,6 +54,13 @@
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		
+		<dependency>
+		   <groupId>com.github.fakemongo</groupId>
+		   <artifactId>fongo</artifactId>
+		   <version>1.5.8</version>
+		   <scope>test</scope>
+		</dependency>
 	
         
     </dependencies>
@@ -107,6 +114,8 @@
             <url>https://repo.spring.io/libs-release</url>
         </repository>       
     </repositories>
+    
+    
     <pluginRepositories>
         <pluginRepository>
             <id>spring-releases</id>

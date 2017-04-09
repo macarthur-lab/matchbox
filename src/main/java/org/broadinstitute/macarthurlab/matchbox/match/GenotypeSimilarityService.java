@@ -6,6 +6,7 @@ package org.broadinstitute.macarthurlab.matchbox.match;
 import java.util.List;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.springframework.data.mongodb.core.MongoOperations;
 
 /**
  * @author harindra
@@ -17,4 +18,5 @@ public interface GenotypeSimilarityService {
 	public double getGenotypeSimilarity(Patient p1, Patient queryP);
 	public double getZygosityScore(Patient p1, Patient queryP,List<String> commonGenes);
 	public double getTypeScore(Patient p1, Patient queryP, List<String> p1p2Intersect);
+	public void setOperator(MongoOperations operator);
 }
