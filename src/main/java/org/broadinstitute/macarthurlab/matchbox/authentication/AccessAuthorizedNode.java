@@ -6,6 +6,7 @@ package org.broadinstitute.macarthurlab.matchbox.authentication;
 import java.util.List;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken;
+import org.springframework.stereotype.Service;
 
 /**
  * @author harindra

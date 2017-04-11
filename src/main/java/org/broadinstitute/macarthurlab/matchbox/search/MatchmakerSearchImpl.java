@@ -8,19 +8,16 @@ package org.broadinstitute.macarthurlab.matchbox.search;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.match.MatchImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +25,7 @@ import org.slf4j.LoggerFactory;
  * @author harindra
  *
  */
+@Service
 public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * A list of MatchmakeNode objs that would be all
@@ -40,7 +38,8 @@ public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * Genotype matching tools
 	 */
-	private final MatchService match;
+	@Autowired
+	private MatchService match;
 	
 	/**
 	 * A connection to MongoDB for queries
@@ -48,18 +47,20 @@ public class MatchmakerSearchImpl implements SearchService{
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
 
-	
+	@Autowired
 	private MongoOperations operator;
 	
 	/**
 	 * A set of tools to parse and store patient information
 	 */
-	private final PatientRecordUtility patientUtility;
+	@Autowired
+	private PatientRecordUtility patientUtility;
 
 	/**
 	 * A set of tools to help with make a Http call to an external node
 	 */
-	private final Communication httpCommunication;
+	@Autowired
+	private Communication httpCommunication;
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -67,13 +68,7 @@ public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * Default constructor
 	 */
-	public MatchmakerSearchImpl(){
-		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
-		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
-		this.patientUtility = new PatientRecordUtility();
-		this.httpCommunication = new Communication();
-		this.match = new MatchImpl();
-	}
+	public MatchmakerSearchImpl(){}
 	
 	
 	/**
@@ -104,7 +99,8 @@ public class MatchmakerSearchImpl implements SearchService{
 				this.getLogger().info("ignoring this result since it is the same as query patient (same ID)");
 			}
 		}
-		/**persist for logging and metrics and tracking of data sent out. Persist the 
+	   /**
+		*  persist for logging and metrics and tracking of data sent out. Persist the 
 		*  incoming query ONLY if a match is made, otherwise don't keep any of the
 		*  information that is sent in, which is only fair.
 		*/
@@ -117,6 +113,7 @@ public class MatchmakerSearchImpl implements SearchService{
 															true);
 				
 		}else{
+			//we don't persist query unless there is a match per MME rules
 			externalQueryMatch = new ExternalMatchQuery(null, 
 					   									results,
 					   									hostNameOfRequestOrigin,

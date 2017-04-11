@@ -22,6 +22,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 
 
@@ -29,21 +31,20 @@ import org.slf4j.LoggerFactory;
  * @author harindra
  *
  */
-
+@Service
 public class Communication {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * A set of tools to parse and store patient information
 	 */
-	private final PatientRecordUtility patientUtility;
+	@Autowired
+	private PatientRecordUtility patientUtility;
 
 	/**
 	 * Default constructor
 	 */
-	public Communication(){
-		this.patientUtility = new PatientRecordUtility();
-	}
+	public Communication(){}
 	
 	/**
 	 * Makes a call to an external node

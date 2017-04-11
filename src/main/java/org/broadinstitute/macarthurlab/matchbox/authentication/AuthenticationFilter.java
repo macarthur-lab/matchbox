@@ -9,7 +9,9 @@ package org.broadinstitute.macarthurlab.matchbox.authentication;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -30,9 +32,10 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationFilter implements Filter{
 	private static final String X_AUTH_TOKEN_HEADER="X-Auth-Token";
 	private static final String ACCEPT_HEADER="Accept";
-	private final AccessAuthorizedNode accessAuthorizedNode;
+	private AccessAuthorizedNode accessAuthorizedNode;	
 	private final List<String> authorizedTokens;
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Map<String,String> tokenToMMECenterMapping;
 	
 
 		
@@ -44,11 +47,15 @@ public class AuthenticationFilter implements Filter{
     	ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
     	this.accessAuthorizedNode = context.getBean("accessAuthorizedNode", AccessAuthorizedNode.class);
 	
+		System.out.println(this.getAccessAuthorizedNode());
+    	Map<String,String> tokenToMMECenterMapping = new HashMap<String,String>();
     	List<String> authorizedTokes=new ArrayList<String>();
     	for(AuthorizedToken authorizeNode  : this.getAccessAuthorizedNode().getAccessAuthorizedNodes()){
     		authorizedTokes.add(authorizeNode.getToken());
+    		tokenToMMECenterMapping.put(authorizeNode.getToken(),authorizeNode.getCenterName());
     	}
     	this.authorizedTokens = authorizedTokes;
+    	this.tokenToMMECenterMapping = tokenToMMECenterMapping;
 	}
 	
 
@@ -66,10 +73,17 @@ public class AuthenticationFilter implements Filter{
             //----extract and validate headers from request----
             
             //Unauthorized
-            if (!validateXAuthToken(request.getHeader(AuthenticationFilter.getxAuthTokenHeader()))){
+            Map<String,String> validationResult=validateXAuthToken(request.getHeader(AuthenticationFilter.getxAuthTokenHeader()));
+            if (validationResult.get("validated").equals("no")){
             	this.getLogger().warn("authentication failed for: "+req.getServerName());
             	response.sendError(401,"authentication failed");
             }
+            //if authorized append the name of the center the match request came in from
+            if (validationResult.get("validated").equals("yes")){
+            	request.setAttribute("originMatchmakerNodeName",validationResult.get("originMatchmakerNodeName"));
+            }
+            
+            
             //unsupported API version
             if (!validateAcceptHeader(request.getHeader(AuthenticationFilter.getAcceptHeader()))){
             	this.getLogger().warn("Accept header validation failed for: "+req.getServerName());
@@ -98,11 +112,17 @@ public class AuthenticationFilter implements Filter{
      * @param xAuthToken	A X-Auth-Token header from a request
      * @return	true if validated, false otherwise
      */
-    private boolean validateXAuthToken(String xAuthToken){
+    private Map<String,String> validateXAuthToken(String xAuthToken){
+    	Map<String, String> validationResult=new HashMap<String, String>();
     	if (this.getAuthorizedTokens().contains(xAuthToken)){
-    		return true;
+    		String mmeNodeName = this.getTokenToMMECenterMapping().get(xAuthToken); //how to pass this to controller??
+    		validationResult.put("validated", "yes");
+    		validationResult.put("originMatchmakerNodeName", mmeNodeName);
     	}
-    	return false;
+    	else{
+    		validationResult.put("validated", "no");
+    	}
+    	return validationResult;
     }
     
     
@@ -149,6 +169,14 @@ public class AuthenticationFilter implements Filter{
 	 */
 	public Logger getLogger() {
 		return logger;
+	}
+
+
+	/**
+	 * @return the tokenToMMECenterMapping
+	 */
+	public Map<String, String> getTokenToMMECenterMapping() {
+		return tokenToMMECenterMapping;
 	}
 	
 	

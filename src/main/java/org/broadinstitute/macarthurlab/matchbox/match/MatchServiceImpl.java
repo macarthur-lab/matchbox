@@ -10,29 +10,32 @@ import java.util.Map;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author harindra
  *
  */
-public class MatchImpl implements MatchService{
+@Service
+public class MatchServiceImpl implements MatchService{
 	
 	/**
 	 * Genotype matching tools
 	 */
-	private final GenotypeSimilarity genotypeMatch;
+	@Autowired
+	private GenotypeSimilarityService genotypeMatch;
+	
 	/**
 	 * Phenotype matching tools
 	 */
-	private final PhenotypeSimilarity phenotypeMatch;
+	@Autowired
+	private PhenotypeSimilarityService phenotypeMatch;
 
 	/**
 	 * Does a MME match
 	 */
-	public MatchImpl() {
-		this.genotypeMatch = new GenotypeSimilarity();
-		this.phenotypeMatch = new PhenotypeSimilarity();
-	}
+	public MatchServiceImpl() {}
 	
 	
 	/**
@@ -101,7 +104,7 @@ public class MatchImpl implements MatchService{
 	/**
 	 * @return the genotypeMatch
 	 */
-	public GenotypeSimilarity getGenotypeMatch() {
+	public GenotypeSimilarityService getGenotypeMatch() {
 		return genotypeMatch;
 	}
 
@@ -109,7 +112,7 @@ public class MatchImpl implements MatchService{
 	/**
 	 * @return the phenotypeMatch
 	 */
-	public PhenotypeSimilarity getPhenotypeMatch() {
+	public PhenotypeSimilarityService getPhenotypeMatch() {
 		return phenotypeMatch;
 	}
 	

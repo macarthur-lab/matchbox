@@ -6,16 +6,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
-import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
-import org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarity;
-import org.broadinstitute.macarthurlab.matchbox.match.MatchImpl;
+import org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarityServiceImpl;
+import org.broadinstitute.macarthurlab.matchbox.match.MatchServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
-import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeSimilarity;
+import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeSimilarityServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
 import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
+
+import com.github.fakemongo.Fongo;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -25,10 +29,11 @@ import junit.framework.TestSuite;
 /**
  * Unit test for simple App.
  */
+
 public class AppTest extends TestCase
 {
-	private GenotypeSimilarity genotypeSimilarity = new GenotypeSimilarity();
-	private PhenotypeSimilarity phenotypeSimilarity = new PhenotypeSimilarity();
+	private GenotypeSimilarityServiceImpl genotypeSimilarity = new GenotypeSimilarityServiceImpl();
+	private PhenotypeSimilarityServiceImpl phenotypeSimilarity = new PhenotypeSimilarityServiceImpl();
 	
     /**
      * Create the test case
@@ -299,7 +304,7 @@ public class AppTest extends TestCase
      */
     public void testPerfectMatchScore()
     {
-    	MatchService match = new MatchImpl();
+    	MatchService match = new MatchServiceImpl();
     	
     	Patient testP1 =  getTestPatient(); 
  
@@ -311,6 +316,17 @@ public class AppTest extends TestCase
     	List<Double> patientPhenotypeRankingScores = this.phenotypeSimilarity.rankByPhenotypes(matches, testP1);
     	List<Double> scores = match.generateMergedScore(patientGenotypeRankingScores,patientPhenotypeRankingScores);
     	Assert.assertEquals(1.0, scores.get(0));
+    }
+    
+    /**
+     * This test is WIP. Need to wire in test context
+     */
+    public void testFakeMongo(){
+    	Fongo fongo = new Fongo("mongo server 1");
+    	DB db = fongo.getDB("mydb");
+    	DBCollection cltcn = db.getCollection("mycollection");
+    	cltcn.insert(new BasicDBObject("name", "jon"));
+    	System.out.println(cltcn.findOne());
     }
 
 }
