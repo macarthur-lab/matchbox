@@ -9,12 +9,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
-public class MatchmakerExchange 
+public class MatchBox 
 {
     public static void main( String[] args )
     {
         System.out.println( "Starting matchbox server.." );
-        SpringApplication.run(MatchmakerExchange.class, args);
+        SpringApplication.run(MatchBox.class, args);
     }
 }
 
