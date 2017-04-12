@@ -43,7 +43,7 @@ public class AuthenticationFilter implements Filter{
 	 * Initializes class
 	 */
 	public AuthenticationFilter(){
-    	String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
+    	String configFile = "file:" + System.getProperty("user.dir") + "/config/config.xml";
     	ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
     	this.accessAuthorizedNode = context.getBean("accessAuthorizedNode", AccessAuthorizedNode.class);
 	

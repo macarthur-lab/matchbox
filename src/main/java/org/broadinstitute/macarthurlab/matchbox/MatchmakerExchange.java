@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
  *
  */
 @SpringBootApplication
-@PropertySource("file:resources/application.properties")
+@PropertySource("file:config/application.properties")
 public class MatchmakerExchange 
 {
     public static void main( String[] args )
