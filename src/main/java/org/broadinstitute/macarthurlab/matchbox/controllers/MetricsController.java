@@ -3,18 +3,17 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.controllers;
 
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.annotation.Resource;
-
+import org.broadinstitute.macarthurlab.matchbox.entities.Metric;
 import org.broadinstitute.macarthurlab.matchbox.metrics.MetricService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,8 +30,8 @@ public class MetricsController {
 	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
 	
 	@Autowired
-	@Qualifier("internalMetricServiceImpl")
-	private MetricService internalMetric;
+	@Qualifier("privilegedMetricServiceImpl")
+	private MetricService privilegedMetric;
 	
 	@Autowired
 	@Qualifier("publicMetricServiceImpl")
@@ -50,12 +49,17 @@ public class MetricsController {
 	/**
 	 * Controller for /metrics GET end-point.Returns metric of LOCAL DATABASE ONLY
 	 * and is meant for INTERNAL VIEWING ONLY
+	 * TODO: add a "privileged" phrase to URL so it looks like /metrics/privileged
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/metrics")
-	public ResponseEntity<?> internalMatch() {		
+	public Map<String,Metric> internalMatch() {		
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
-		return new ResponseEntity<>(this.getInternalMetric().getMetrics(), httpHeaders,HttpStatus.OK);
+	    Map<String,Metric> rslt = new HashMap<String,Metric>();
+	    Metric metrics=this.getPrivilegedMetric().getMetrics();
+	    rslt.put("metrics", metrics);
+	    this.getLogger().info("returned public metrics:"+metrics);
+	    return rslt;
 	}
 
 	
@@ -66,10 +70,14 @@ public class MetricsController {
 	 * Follows common metrics API spec
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/metrics/public")
-	public ResponseEntity<?> publicMatch() {		
+	public Map<String,Metric> publicMatch() {		
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
-		return new ResponseEntity<>(this.getPublicMetric().getMetrics(), httpHeaders,HttpStatus.OK);
+	    Map<String,Metric> rslt = new HashMap<String,Metric>();
+	    Metric metrics=this.getPublicMetric().getMetrics();
+	    rslt.put("metrics", metrics);
+	    this.getLogger().info("returned public metrics:"+metrics);
+	    return rslt;
 	}
 
 
@@ -85,16 +93,16 @@ public class MetricsController {
 	/**
 	 * @return the metric
 	 */
-	public MetricService getInternalMetric() {
-		return internalMetric;
+	public MetricService getPrivilegedMetric() {
+		return privilegedMetric;
 	}
 
 
 	/**
 	 * @param metric the metric to set
 	 */
-	public void setInternalMetric(MetricService metric) {
-		this.internalMetric = metric;
+	public void setPrivilegedMetric(MetricService metric) {
+		this.privilegedMetric = metric;
 	}
 
 

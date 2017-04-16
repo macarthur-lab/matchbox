@@ -4,6 +4,8 @@
 package org.broadinstitute.macarthurlab.matchbox.metrics;
 
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
+import org.broadinstitute.macarthurlab.matchbox.entities.Metric;
+import org.broadinstitute.macarthurlab.matchbox.entities.PublicMetric;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service(value="publicMetricServiceImpl")
-public class PublicMetricServiceImpl implements MetricService {
+public class PublicMetricServiceImpl extends BaseMetric implements MetricService {
 	private MongoOperations operator;
 	
 	/**
@@ -39,10 +41,8 @@ public class PublicMetricServiceImpl implements MetricService {
 	 * Returns a String representing a JSON
 	 * TODO should be an obj reprsenting the JSON
 	 */
-	public String getMetrics() {
-		StringBuilder msg = new StringBuilder();	
-		msg.append("{\"metrics\":\"\"}");
-		return msg.toString();
+	public Metric getMetrics() {
+		return new PublicMetric();
 	}
 
 
