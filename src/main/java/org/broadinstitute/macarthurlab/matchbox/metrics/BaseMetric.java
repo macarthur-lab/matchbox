@@ -19,7 +19,9 @@ import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 /**
  * @author harindra
@@ -37,13 +39,61 @@ public abstract class BaseMetric {
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 	}
-
-
+	
+	
 	/**
-	 * @return the operator
+	 * TODO
+	 * Returns the percentage of genes that have made a match
+	 * @return percentage of genes that have made a match
 	 */
-	public MongoOperations getOperator() {
-		return operator;
+	protected double getPercentageOfGenesThatMatch(){
+		return -1;
+	}
+	
+	
+	/**
+	 * TODO
+	 * Returns the mean number of genes per patient
+	 * @return mean number of genes per patient
+	 */
+	protected double getMeanNumberOfGenesPerCase(List<Patient> allPatients){
+		
+		
+		return -1;
+	}
+	
+	
+	/**
+	 * TODO
+	 * Returns the mean number of phenotypes per patient
+	 * @return mean number of phenotypes per patient
+	 */
+	protected double getMeanNumberOfPhenotypesPerCase(List<Patient> allPatients){
+		return -1d;
+	}
+	
+	
+	/**
+	 * TODO
+	 * Returns the mean number of variants per patient
+	 * @return mean number of variants per patient
+	 */
+	protected double getMeanNumberOfVariantsPerCase(List<Patient> allPatients){
+		return -1;
+	}
+	
+	
+	
+	
+	/**
+	 * Returns the number of patients with  diagnosis listed
+	 * @return number of patients with  diagnosis listed
+	 */
+	protected int getNumberOfCasesWithDiagnosis(){
+		String query = "{$where:\"this.disorders.length > 0\"}";
+		BasicQuery q = new BasicQuery(query);
+		List<Patient> patients = this.getOperator().find(q,Patient.class);
+		return patients.size();
 	}
 
 
@@ -60,20 +110,17 @@ public abstract class BaseMetric {
 	 * #TODO return count by HPO term to show diversity
 	 * @return a count
 	 */
-	public int getTotalNumOfPhenotypesInSystem(){
-		return this.countPhenotypesInSystem().size();
+	public int getTotalNumOfPhenotypesInSystem(List<Patient> allPatients){
+		return this.countPhenotypesInSystem(allPatients).size();
 	}
 	
 	/**
 	 * Counts the number of patients for a given phenotype
 	 * @return a map of phenotype name to count
 	 */
-	public Map<String,Integer> countPhenotypesInSystem(){
+	public Map<String,Integer> countPhenotypesInSystem(List<Patient> allPatients){
 		Map<String,Integer> counts = new HashMap<String,Integer>();
-		StringBuilder query = new StringBuilder("{}");
-		BasicQuery q = new BasicQuery(query.toString());
-		List<Patient> patients = this.getOperator().find(q,Patient.class);
-		for (Patient p: patients){
+		for (Patient p: allPatients){
 			for (PhenotypeFeature pf:p.getFeatures()){
 				if (counts.containsKey(pf.getId())){
 					int updatedCount=counts.get(pf.getId()) + 1;
@@ -85,6 +132,21 @@ public abstract class BaseMetric {
 			}
 		}
 		return counts;
+	}
+	
+	
+	/**
+	 * TODO: change query into using aggregation framework so the DB does the work. 
+	 * 		OK for now with the small number of patients
+	 * Returns the number of unique submitters of patients
+	 * @return number of unique submitters
+	 */
+	protected int getNumberOfSubmitters(List<Patient> allPatients){
+		Set<String> submitters=new HashSet<String>();
+		for (Patient p:allPatients){
+			submitters.add(p.getContact().get("name"));
+		}
+		return submitters.size();
 	}
 	
 	
@@ -135,11 +197,8 @@ public abstract class BaseMetric {
 	 * Counts the number of patients for a given gene
 	 * @return a count
 	 */
-	public int getNumOfPatientsInSystem(){
-		StringBuilder query = new StringBuilder("{}");
-		BasicQuery q = new BasicQuery(query.toString());
-		List<Patient> patients = this.getOperator().find(q,Patient.class);
-		return patients.size();
+	public int getNumOfPatientsInSystem(List<Patient> allPatients){
+		return allPatients.size();
 	}
 	
 	
@@ -148,13 +207,9 @@ public abstract class BaseMetric {
 	 * Counts the number of patients for a given gene
 	 * @return a map of gene name to count
 	 */
-	public Map<String,Integer> countGenesInSystem(){
-		Map<String,Integer> counts = new HashMap<String,Integer>();
-		
-		StringBuilder query = new StringBuilder("{}");
-		BasicQuery q = new BasicQuery(query.toString());
-		List<Patient> patients = this.getOperator().find(q,Patient.class);
-		for (Patient p: patients){
+	public Map<String,Integer> countGenesInSystem(List<Patient> allPatients){
+		Map<String,Integer> counts = new HashMap<String,Integer>();	
+		for (Patient p: allPatients){
 			for (GenomicFeature gf:p.getGenomicFeatures()){
 				if (counts.containsKey(gf.getGene().get("id"))){
 					int updatedCount=counts.get(gf.getGene().get("id")) + 1;
@@ -167,5 +222,14 @@ public abstract class BaseMetric {
 		}
 		return counts;
 	}
+	
+
+	/**
+	 * @return the operator
+	 */
+	public MongoOperations getOperator() {
+		return operator;
+	}
+	
 
 }

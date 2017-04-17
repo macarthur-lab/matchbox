@@ -13,10 +13,10 @@ public class PublicMetric extends Metric {
 	private int numberOfUniqueFeatures;
 	private int numberOfCasesWithDiagnosis;
 	private int numberOfCases;
-	private int percentageOfGenesThatMatch;
-	private int meanmedianNumberOfGenesPerCase;
-	private int meanNumberOfVariantsPerCase;
-	private int meanNumberOfPhenotypesPerCase;
+	private double percentageOfGenesThatMatch;
+	private double meanNumberOfGenesPerCase;
+	private double meanNumberOfVariantsPerCase;
+	private double meanNumberOfPhenotypesPerCase;
 	private int numberOfRequestsReceived;
 	private int numberOfPotentialMatchesSent;
 	
@@ -32,24 +32,31 @@ public class PublicMetric extends Metric {
 	 * @param numberOfCasesWithDiagnosis
 	 * @param numberOfCases
 	 * @param percentageOfGenesThatMatch
-	 * @param meanmedianNumberOfGenesPerCase
+	 * @param meanNumberOfGenesPerCase
 	 * @param meanNumberOfVariantsPerCase
 	 * @param meanNumberOfPhenotypesPerCase
 	 * @param numberOfRequestsReceived
 	 * @param numberOfPotentialMatchesSent
 	 */
-	public PublicMetric(int numberOfSubmitters, int numberOfUniqueGenes, int numberOfUniqueFeatures,
-			int numberOfCasesWithDiagnosis, int numberOfCases, int percentageOfGenesThatMatch,
-			int meanmedianNumberOfGenesPerCase, int meanNumberOfVariantsPerCase, int meanNumberOfPhenotypesPerCase,
-			int numberOfRequestsReceived, int numberOfPotentialMatchesSent) {
-		super();
+	public PublicMetric(int numberOfSubmitters, 
+						int numberOfUniqueGenes, 
+						int numberOfUniqueFeatures,
+						int numberOfCasesWithDiagnosis, 
+						int numberOfCases, 
+						double percentageOfGenesThatMatch,
+						double meanNumberOfGenesPerCase, 
+						double	meanNumberOfVariantsPerCase, 
+						double meanNumberOfPhenotypesPerCase,
+						int numberOfRequestsReceived, 
+						int numberOfPotentialMatchesSent) {
+		
 		this.numberOfSubmitters = numberOfSubmitters;
 		this.numberOfUniqueGenes = numberOfUniqueGenes;
 		this.numberOfUniqueFeatures = numberOfUniqueFeatures;
 		this.numberOfCasesWithDiagnosis = numberOfCasesWithDiagnosis;
 		this.numberOfCases = numberOfCases;
 		this.percentageOfGenesThatMatch = percentageOfGenesThatMatch;
-		this.meanmedianNumberOfGenesPerCase = meanmedianNumberOfGenesPerCase;
+		this.meanNumberOfGenesPerCase = meanNumberOfGenesPerCase;
 		this.meanNumberOfVariantsPerCase = meanNumberOfVariantsPerCase;
 		this.meanNumberOfPhenotypesPerCase = meanNumberOfPhenotypesPerCase;
 		this.numberOfRequestsReceived = numberOfRequestsReceived;
@@ -129,7 +136,7 @@ public class PublicMetric extends Metric {
 	/**
 	 * @return the percentageOfGenesThatMatch
 	 */
-	public int getPercentageOfGenesThatMatch() {
+	public double getPercentageOfGenesThatMatch() {
 		return percentageOfGenesThatMatch;
 	}
 
@@ -141,23 +148,23 @@ public class PublicMetric extends Metric {
 	}
 
 	/**
-	 * @return the meanmedianNumberOfGenesPerCase
+	 * @return the meanNumberOfGenesPerCase
 	 */
-	public int getMeanmedianNumberOfGenesPerCase() {
-		return meanmedianNumberOfGenesPerCase;
+	public double getMeanNumberOfGenesPerCase() {
+		return meanNumberOfGenesPerCase;
 	}
 
 	/**
-	 * @param meanmedianNumberOfGenesPerCase the meanmedianNumberOfGenesPerCase to set
+	 * @param meanNumberOfGenesPerCase the meanmedianNumberOfGenesPerCase to set
 	 */
-	public void setMeanmedianNumberOfGenesPerCase(int meanmedianNumberOfGenesPerCase) {
-		this.meanmedianNumberOfGenesPerCase = meanmedianNumberOfGenesPerCase;
+	public void setMeanNumberOfGenesPerCase(int meanmedianNumberOfGenesPerCase) {
+		this.meanNumberOfGenesPerCase = meanmedianNumberOfGenesPerCase;
 	}
 
 	/**
 	 * @return the meanNumberOfVariantsPerCase
 	 */
-	public int getMeanNumberOfVariantsPerCase() {
+	public double getMeanNumberOfVariantsPerCase() {
 		return meanNumberOfVariantsPerCase;
 	}
 
@@ -171,7 +178,7 @@ public class PublicMetric extends Metric {
 	/**
 	 * @return the meanNumberOfPhenotypesPerCase
 	 */
-	public int getMeanNumberOfPhenotypesPerCase() {
+	public double getMeanNumberOfPhenotypesPerCase() {
 		return meanNumberOfPhenotypesPerCase;
 	}
 

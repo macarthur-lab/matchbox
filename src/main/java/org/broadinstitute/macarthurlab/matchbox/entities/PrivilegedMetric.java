@@ -10,4 +10,5 @@ package org.broadinstitute.macarthurlab.matchbox.entities;
  */
 public class PrivilegedMetric extends PublicMetric{
 	
+	
 }
