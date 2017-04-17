@@ -293,8 +293,9 @@ public class AppTest extends TestCase
      * Test counting distinct genes for metrics
      */
     public void testMetricsDistinctGenes(){
-    	PrivilegedMetricServiceImpl metric = new PrivilegedMetricServiceImpl();
-    	metric.countGenesInSystem();
+    	PrivilegedMetricServiceImpl metric = new PrivilegedMetricServiceImpl();  
+    	Map<String,Integer> counts = metric.countGenesInSystem(this.getTwoTestPatients());
+    	Assert.assertEquals(2, counts.size());
     }
     
     

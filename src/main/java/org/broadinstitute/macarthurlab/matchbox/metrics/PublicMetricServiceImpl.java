@@ -56,7 +56,7 @@ public class PublicMetricServiceImpl extends BaseMetric implements MetricService
 								this.countPhenotypesInSystem(allPatients).size(),
 								this.getNumberOfCasesWithDiagnosis(), 
 								this.getNumOfPatientsInSystem(allPatients), 
-								this.getPercentageOfGenesThatMatch(),
+								this.getPercentageOfGenesThatMatch(allPatients),
 								this.getMeanNumberOfGenesPerCase(allPatients), 
 								this.getMeanNumberOfVariantsPerCase(allPatients), 
 								this.getMeanNumberOfPhenotypesPerCase(allPatients),
