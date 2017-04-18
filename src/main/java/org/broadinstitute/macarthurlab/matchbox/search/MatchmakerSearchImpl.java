@@ -144,7 +144,7 @@ public class MatchmakerSearchImpl implements SearchService{
 	 * @return the matchmakers
 	 */
 	public List<Node> getMatchmakers() {
-		return matchmakers;
+		return this.matchmakers;
 	}
 
 
