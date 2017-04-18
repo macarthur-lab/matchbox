@@ -31,7 +31,6 @@ public class Variant {
 				   Long end, 
 				   String referenceBases,
 				   String alternateBases) {
-		super();
 		this.assembly = assembly;
 		this.referenceName = referenceName;
 		this.start = start;
@@ -58,8 +57,8 @@ public class Variant {
 	public boolean isUnPopulated(){
 		if (this.assembly=="" &&
 				this.referenceName=="" &&
-				this.start==0L || this.start==-1 &&
-				this.end==0L || this.end==-1   &&
+				this.start==-1 &&
+				this.end==-1   &&
 				this.referenceBases=="" &&
 				this.alternateBases==""){
 			return true;

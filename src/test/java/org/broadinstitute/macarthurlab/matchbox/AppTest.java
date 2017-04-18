@@ -13,7 +13,7 @@ import org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarityServiceI
 import org.broadinstitute.macarthurlab.matchbox.match.MatchServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeSimilarityServiceImpl;
-import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
+import org.broadinstitute.macarthurlab.matchbox.metrics.PrivilegedMetricServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
 
 import com.github.fakemongo.Fongo;
@@ -293,8 +293,9 @@ public class AppTest extends TestCase
      * Test counting distinct genes for metrics
      */
     public void testMetricsDistinctGenes(){
-    	Metric metric = new Metric();
-    	metric.countGenesInSystem();
+    	PrivilegedMetricServiceImpl metric = new PrivilegedMetricServiceImpl();  
+    	Map<String,Integer> counts = metric.countGenesInSystem(this.getTwoTestPatients());
+    	Assert.assertEquals(2, counts.size());
     }
     
     
