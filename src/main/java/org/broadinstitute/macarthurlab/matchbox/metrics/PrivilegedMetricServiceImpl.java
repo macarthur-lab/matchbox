@@ -51,20 +51,19 @@ public class PrivilegedMetricServiceImpl extends BaseMetric implements MetricSer
 		StringBuilder query = new StringBuilder("{}");
 		BasicQuery q = new BasicQuery(query.toString());
 		List<Patient> allPatients = this.getOperator().find(q,Patient.class);
-		
-		Map<String,Integer> geneCounts = this.countGenesInSystem(allPatients);
-		Map<String,Integer> phenotypeCounts  = this.countPhenotypesInSystem(allPatients);
-		
-		int totalNumberOfGenes = geneCounts.size();
-		int totalNumberOfPhenotypes = getTotalNumOfPhenotypesInSystem(allPatients);
-		int totalNumberOfPatients = getNumOfPatientsInSystem(allPatients);
-		int numberOfMatchesMade =this.getNumOfMatches();
-		int numberOfIncomingMatchRequests = this.getNumOfIncomingMatchRequests();
-		double matchRatio = (double)numberOfMatchesMade / (double)numberOfIncomingMatchRequests;
-		if (Double.isNaN(matchRatio)){
-			matchRatio=0.0d;
-		}
-		return new PrivilegedMetric();
+
+		return new PrivilegedMetric(
+								this.getNumberOfSubmitters(allPatients), 
+								this.countGenesInSystem(allPatients).size(), 
+								this.countPhenotypesInSystem(allPatients).size(),
+								this.getNumberOfCasesWithDiagnosis(), 
+								this.getNumOfPatientsInSystem(allPatients), 
+								this.getPercentageOfGenesThatMatch(allPatients),
+								this.getMeanNumberOfGenesPerCase(allPatients), 
+								this.getMeanNumberOfVariantsPerCase(allPatients), 
+								this.getMeanNumberOfPhenotypesPerCase(allPatients),
+								this.getNumOfIncomingMatchRequests(), 
+								this.getNumOfMatches());
 	}
 
 
