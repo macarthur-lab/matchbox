@@ -25,6 +25,7 @@
       </property>
   </bean>
   
+  
   <bean id="defaultAccessToken"
       class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
       <constructor-arg type="java.lang.String" value="Default Access Token" />

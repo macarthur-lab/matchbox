@@ -5,19 +5,30 @@ package org.broadinstitute.macarthurlab.matchbox.search;
 
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Service;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +40,9 @@ import org.slf4j.LoggerFactory;
 public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * A list of MatchmakeNode objs that would be all
-	 * available nodes in system to look for. 
-	 * 
-	 * This is populated via config.xml file via Spring IoC
+	 * available nodes in system to look for. Contained 
+	 * in nodes.json file contained in the config directory
+	 * where JAR file lives
 	 */
 	private List<Node> matchmakers;
 	
@@ -67,8 +78,42 @@ public class MatchmakerSearchImpl implements SearchService{
 	
 	/**
 	 * Default constructor
+	 * @throws IOException 
+	 * @throws ParseException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public MatchmakerSearchImpl(){}
+	public MatchmakerSearchImpl() throws IOException, ParseException{
+		String nodeFile = System.getProperty("user.dir") + "/config/nodes.json";
+		BufferedReader r = new BufferedReader(new FileReader(new File(nodeFile)));
+		String line;
+		StringBuilder nodeJson=new StringBuilder();
+		try{
+			while ((line = r.readLine()) != null) {
+				nodeJson.append(line);
+			}
+		}
+		catch(Exception e){
+			this.getLogger().error("error reading node config file:"+ nodeFile + " : "+e);
+		}
+		
+		List<Node> mmeNodesConntedTo = new ArrayList<Node>();
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObject = (JSONObject) parser.parse(nodeJson.toString());
+		JSONArray nodes = (JSONArray)jsonObject.get("nodes");
+		
+		for (int i=0; i<nodes.size(); i++){
+			JSONObject node = (JSONObject)nodes.get(i);
+			mmeNodesConntedTo.add(new MatchmakerNode((String)node.get("name"),
+														 (String)node.get("token"),
+														 (String)node.get("url"),
+														 (String)node.get("acceptHeader"),
+														 (String)node.get("contentTypeHeader"),
+														 (String)node.get("contentLanguage"),
+														 (boolean)node.get("selfSignedCertificate")));
+		}
+		this.setMatchmakers(mmeNodesConntedTo);
+	}
 	
 	
 	/**
