@@ -63,7 +63,9 @@ public class PrivilegedMetricServiceImpl extends BaseMetric implements MetricSer
 								this.getMeanNumberOfVariantsPerCase(allPatients), 
 								this.getMeanNumberOfPhenotypesPerCase(allPatients),
 								this.getNumOfIncomingMatchRequests(), 
-								this.getNumOfMatches());
+								this.getNumOfMatches(),
+								this.countGenesInSystem(allPatients),
+								this.countPhenotypesInSystem(allPatients));
 	}
 
 

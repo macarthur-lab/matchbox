@@ -53,13 +53,16 @@ public class MatchmakerNode implements Node{
 	}
 
 
+
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "MatchmakerNode [name=" + name + ", token=" + token + ", url=" + url + ", acceptHeader=" + acceptHeader
-				+ ", contentHeader=" + contentTypeHeader + ", contentLanguage=" + contentLanguage + "]";
+				+ ", contentTypeHeader=" + contentTypeHeader + ", contentLanguage=" + contentLanguage
+				+ ", selfSignedCertificate=" + selfSignedCertificate + "]";
 	}
 
 

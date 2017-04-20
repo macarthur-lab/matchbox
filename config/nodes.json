@@ -4,8 +4,8 @@
 		"token" : "abcd",
 		"url" : "https://localhost:8443/match",
 		"contentTypeHeader" : "application/vnd.ga4gh.matchmaker.v1.0+json",
-		"contentLanguage" : "application/vnd.ga4gh.matchmaker.v1.0+json",
-		"acceptHeader" : "en-US",
+		"contentLanguage" : "en-US",
+		"acceptHeader" : "application/vnd.ga4gh.matchmaker.v1.0+json",
 		"selfSignedCertificate": true
 		}]
 }

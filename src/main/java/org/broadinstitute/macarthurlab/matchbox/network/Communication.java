@@ -71,8 +71,8 @@ public class Communication {
 		    connection.setRequestProperty("X-Auth-Token",matchmakerNode.getToken());
 		    connection.setRequestProperty("Content-Type",matchmakerNode.getContentTypeHeader());
 		    connection.setRequestProperty("Accept",matchmakerNode.getAcceptHeader());
-		    connection.setRequestProperty("Content-Language",matchmakerNode.getContentLanguage());  	    
-		    
+		    connection.setRequestProperty("Content-Language",matchmakerNode.getContentLanguage());  	 
+		    		    
 		    connection.setUseCaches(false);
 		    connection.setDoOutput(true);	    
 
@@ -114,7 +114,6 @@ public class Communication {
 				
 		    }		 
 		  } catch (Exception e) {
-			  e.printStackTrace();
 			  this.getLogger().error("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e.getMessage());    
 		  } finally {
 		    if(connection != null) {

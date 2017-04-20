@@ -179,7 +179,7 @@ public class MatchmakerSearchImpl implements SearchService{
 	 */
 	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient queryPatient) {
 		this.getLogger().info("searching in external node: "+matchmakerNode.getName());
-			return this.getHttpCommunication().callNode(matchmakerNode, queryPatient);	
+		return this.getHttpCommunication().callNode(matchmakerNode, queryPatient);	
 	}
 
 	
