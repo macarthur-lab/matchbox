@@ -84,18 +84,6 @@ public class MatchmakerResult {
 		return asJson.toString();
 	}
 	
-	
-	/**
-	 * Returns the matchmaker disclaimer
-	 * #TODO: email out to legal ream with draft (Oct 13, 2016)
-	 * @return a disclaimer
-	 */
-	private String getDisclaimer(){
-		StringBuilder disclaimer=new StringBuilder();
-		
-		
-		return disclaimer.toString();
-	}
 
 	
 	/* (non-Javadoc)
