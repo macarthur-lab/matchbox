@@ -120,12 +120,17 @@ public class MatchmakerSearchImpl implements SearchService{
 	 * Search in matchmaker node network only (not in Beamr data model)
 	 * @param	A Patient object
 	 */
-	public List<MatchmakerResult> searchInExternalMatchmakerNodesOnly(Patient patient){
+	public List<String> searchInExternalMatchmakerNodesOnly(Patient patient){
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
+		List<String> scrubbedResults=new ArrayList<String>();
 		for (Node n:this.getMatchmakers()){
 			allResults.addAll(this.searchNode(n, patient));
 		}
-		return allResults;
+		for (MatchmakerResult r: allResults){
+			scrubbedResults.add(r.getEmptyFieldsRemovedJson());
+			this.getLogger().info("found and scrubbed empty results off external match result: " + r.getPatient().getId());
+		}
+		return scrubbedResults;
 	}
 	
 	/**

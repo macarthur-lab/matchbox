@@ -91,10 +91,18 @@ public class MatchController {
 			this.getLogger().error("error parsing patient in /match :" + e.toString() + " : " + e.getMessage());
 		}
 		String matches = this.getSearcher().searchInLocalDatabaseOnly(queryPatient,originMatchmakerNodeName).toString();
-		String results = "{" + "\"results\":" + matches + "}";
+		StringBuilder resultsBuilder = new StringBuilder();
+		resultsBuilder.append("{");
+		resultsBuilder.append("\"results\":");
+		resultsBuilder.append(matches);
+		resultsBuilder.append(",");
+		resultsBuilder.append("\"_disclaimer\":");
+		resultsBuilder.append("\"" + this.getPatientUtility().getDisclaimer() + "\"");
+		resultsBuilder.append("}");
+		
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
-		return new ResponseEntity<>(results, httpHeaders,HttpStatus.OK);
+		return new ResponseEntity<>(resultsBuilder.toString(), httpHeaders,HttpStatus.OK);
 	}
 	
 	
@@ -104,13 +112,13 @@ public class MatchController {
 	 * Controller for individual/match POST end-point (as per Matchmaker spec)
 	 * ONLY SEARCHES IN EXTERNAL NODES and NOT in local node
 	 * @param patient	A patient structure sent as JSON through the API
-	 * @return	A list of result patients found in the network that match input patient
+	 * @return	A list of result patients found in the other MME nodes in the 
+	 * 			network that match input patient
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/match/external")
     public ResponseEntity<?> individualMatch(@RequestBody String requestString) {
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
-		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
 		Patient patient=null;
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
@@ -126,15 +134,23 @@ public class MatchController {
 			else{
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
-			List<MatchmakerResult> matchmakerResults = this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
-			results.put("results", matchmakerResults);
+			List<String> matchmakerResults = this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);			
+			StringBuilder resultsBuilder = new StringBuilder();
+			resultsBuilder.append("{");
+			resultsBuilder.append("\"results\":");
+			resultsBuilder.append(matchmakerResults);
+			resultsBuilder.append(",");
+			resultsBuilder.append("\"_disclaimer\":");
+			resultsBuilder.append("\"" + this.getPatientUtility().getDisclaimer() + "\"");
+			resultsBuilder.append("}");
+			return new ResponseEntity<>(resultsBuilder.toString(), httpHeaders, HttpStatus.OK);
 		}
 		catch(Exception e){
 			e.printStackTrace();
 			this.getLogger().error("error occurred in match controller :"+e.toString() + " : " + e.toString());
-			return new ResponseEntity<>(results, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>("{\"message\":\"error occurred searching external nodes\"}", httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-    	return new ResponseEntity<>(results, httpHeaders, HttpStatus.OK);
+    	
     }
 	
 	

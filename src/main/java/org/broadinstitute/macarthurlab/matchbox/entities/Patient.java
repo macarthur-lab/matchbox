@@ -325,17 +325,12 @@ public class Patient{
 			asJson.append("]");
 		}
 		
-		//add disclaimer
-		asJson.append(",");
-		asJson.append("\"_disclaimer\":");
-		asJson.append("\"" + this.getDisclaimer() + "\"");
-		
 		//close the patient data structure
 		asJson.append("}");
 		return asJson.toString();
 	}
 	
-	
+	/**
 	private String getDisclaimer(){
 		StringBuilder disclaimer=new StringBuilder();
 		disclaimer.append("The data in Matchmaker Exchange is provided for research use only. ");
@@ -345,5 +340,6 @@ public class Patient{
 		disclaimer.append("User will not attempt to use the data or Matchmaker Exchange to establish the individual identities of any of the subjects from whom the data were obtained. This applies to matches made within Broad Institute or with any other database included in the Matchmaker Exchange. ");
 		return disclaimer.toString();
 	}
+	*/
 	
 }
