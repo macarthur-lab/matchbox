@@ -14,7 +14,6 @@ MME has gained international support via the GA4GH and currently has many member
 
 A significant amount of development is typically required to join the MME; this has a detrimental effect on network growth. To address this and facilitate growth, we developed <i>matchbox</i> to be completely portable and easily usable in any center wishing to join the MME.
 
-
 ## To use <i>matchbox</i>, you will need:
 
 * Java 1.8

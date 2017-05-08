@@ -48,7 +48,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
 		this.geneSymbolToEnsemblId = new HashMap<String,String>();	
 		this.ensemblIdToGeneSymbol = new HashMap<String,String>();	
 		try{
-			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/resources/gene_symbol_to_ensembl_id_map.txt";
+			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/config/gene_symbol_to_ensembl_id_map.txt";
 			
 			File geneSymbolToEnsemnlIdFile = new File(geneSymbolToEnsemnlId);
 			BufferedReader reader = new BufferedReader(new FileReader(geneSymbolToEnsemnlIdFile));

@@ -71,16 +71,23 @@ public class Communication {
 		    connection.setRequestProperty("X-Auth-Token",matchmakerNode.getToken());
 		    connection.setRequestProperty("Content-Type",matchmakerNode.getContentTypeHeader());
 		    connection.setRequestProperty("Accept",matchmakerNode.getAcceptHeader());
-		    connection.setRequestProperty("Content-Language",matchmakerNode.getContentLanguage());  	    
-		    
+		    connection.setRequestProperty("Content-Language",matchmakerNode.getContentLanguage());  	 
+		    		    
 		    connection.setUseCaches(false);
 		    connection.setDoOutput(true);	    
-
-		    //construct payload and send request
-		    String payload = "{\"patient\":" + queryPatient.getEmptyFieldsRemovedJson() + "}";
-		    this.getLogger().info("patient being sent out to external MME node: "+payload);
+		    
+		    StringBuilder payloadBuilder = new StringBuilder();
+		    payloadBuilder.append("{\"patient\":");
+		    payloadBuilder.append(queryPatient.getEmptyFieldsRemovedJson());
+		    payloadBuilder.append(",");
+		    payloadBuilder.append("\"_disclaimer\":");
+		    payloadBuilder.append("\"" + this.getPatientUtility().getDisclaimer() + "\"");
+		    payloadBuilder.append("}");
+		    
+		    //this.getLogger().info("patient being sent out to external MME node: "+payloadBuilder.toString());
+		    this.getLogger().info("patient being sent out to external MME node: "+matchmakerNode.getName());
 		    DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
-		    wr.writeBytes(payload);
+		    wr.writeBytes(payloadBuilder.toString());
 		    wr.close();
 
 		    //Get Response  
@@ -96,17 +103,24 @@ public class Communication {
 		    JSONParser parser = new JSONParser();
 		    this.getLogger().info("response back from external node: "+response.toString());
 		    JSONObject resultJsonObject = (JSONObject) parser.parse(response.toString());
+
 		    JSONArray  results = (JSONArray)resultJsonObject.get("results");
-		    
+		    this.getLogger().info("number of results from to external MME node "+matchmakerNode.getName() + " is: " + Integer.toString(results.size()));
 		    for (int i=0; i<results.size(); i++){
 				JSONObject result = (JSONObject)results.get(i);
+				
+				
 				boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(result.toString());
 				if (inputDataValid) {
+					//parse out patient data
 					Patient parsedPatient = this.getPatientUtility().parsePatientInformation(result.toString());
-					allResults.add(new MatchmakerResult(
-							new HashMap<String, Double>(),
-							parsedPatient
-							));
+					
+					//parse out score data
+					HashMap<String, Double> extMathscore = new HashMap<String, Double>();
+					JSONObject score = (JSONObject)result.get("score");
+					extMathscore.put("patient", ((Number)score.get("patient")).doubleValue());
+					
+					allResults.add(new MatchmakerResult(extMathscore,parsedPatient));
 				} else {
 					this.getLogger().error("error parsing patient from external source (required fields missing):"+
 													matchmakerNode.getName() + " : " + result.toString());
@@ -114,7 +128,6 @@ public class Communication {
 				
 		    }		 
 		  } catch (Exception e) {
-			  e.printStackTrace();
 			  this.getLogger().error("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e.getMessage());    
 		  } finally {
 		    if(connection != null) {

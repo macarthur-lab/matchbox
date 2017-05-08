@@ -43,11 +43,10 @@ public class AuthenticationFilter implements Filter{
 	 * Initializes class
 	 */
 	public AuthenticationFilter(){
-    	String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
+    	String configFile = "file:" + System.getProperty("user.dir") + "/config/config.xml";
     	ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
     	this.accessAuthorizedNode = context.getBean("accessAuthorizedNode", AccessAuthorizedNode.class);
-	
-		System.out.println(this.getAccessAuthorizedNode());
+
     	Map<String,String> tokenToMMECenterMapping = new HashMap<String,String>();
     	List<String> authorizedTokes=new ArrayList<String>();
     	for(AuthorizedToken authorizeNode  : this.getAccessAuthorizedNode().getAccessAuthorizedNodes()){
@@ -71,25 +70,28 @@ public class AuthenticationFilter implements Filter{
             HttpServletResponse response = (HttpServletResponse) res;
             
             //----extract and validate headers from request----
-            
-            //Unauthorized
+           
+            //if Unauthorized, kick back immediately
             Map<String,String> validationResult=validateXAuthToken(request.getHeader(AuthenticationFilter.getxAuthTokenHeader()));
             if (validationResult.get("validated").equals("no")){
-            	this.getLogger().warn("authentication failed for: "+req.getServerName());
+            	this.getLogger().warn("authentication failed for: "+req.getServerName() + ": from node: " + validationResult.get("originMatchmakerNodeName"));
             	response.sendError(401,"authentication failed");
             }
             //if authorized append the name of the center the match request came in from
             if (validationResult.get("validated").equals("yes")){
-            	request.setAttribute("originMatchmakerNodeName",validationResult.get("originMatchmakerNodeName"));
+            	request.setAttribute("originMatchmakerNodeName",validationResult.get("originMatchmakerNodeName"));        	
+                //then check if API version is supported
+                if (!validateAcceptHeader(request.getHeader(AuthenticationFilter.getAcceptHeader()))){
+                	this.getLogger().warn("Accept header validation failed for: "+req.getServerName());
+                	this.getLogger().warn("This accept header provided is wrong: "+ request.getHeader(AuthenticationFilter.getAcceptHeader()));
+                	response.sendError(406,"unsupported API version, supported versions=[1.0]");
+                }
+                //OK everything looks good, move forward with this request
+                else{
+                	this.getLogger().info("request passes access criteria, processing: " + validationResult.get("originMatchmakerNodeName"));
+                	chain.doFilter(request, response);
+                }
             }
-            
-            
-            //unsupported API version
-            if (!validateAcceptHeader(request.getHeader(AuthenticationFilter.getAcceptHeader()))){
-            	this.getLogger().warn("Accept header validation failed for: "+req.getServerName());
-            	response.sendError(406,"unsupported API version, supported versions=[1.0]");
-            }
-            chain.doFilter(request, response);
     }
 
     

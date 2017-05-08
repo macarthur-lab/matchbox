@@ -18,7 +18,7 @@ import com.mongodb.MongoClient;
 
 @Component
 @EnableMongoRepositories
-@PropertySource("file:resources/application.properties")
+@PropertySource("file:config/application.properties")
 public class MongoDBConfiguration extends AbstractMongoConfiguration{
 
 	
