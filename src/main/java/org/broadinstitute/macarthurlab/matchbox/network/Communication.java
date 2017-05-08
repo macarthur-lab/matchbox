@@ -1,14 +1,11 @@
 /**
- * Simple class to handle Http communicstions
+ * Simple class to handle HTTP communications
  */
 package org.broadinstitute.macarthurlab.matchbox.network;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,38 +15,44 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.matchbox.entities.Node;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 
 
 /**
  * @author harindra
  *
  */
+@Service
 public class Communication {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * A set of tools to parse and store patient information
 	 */
-	private final PatientRecordUtility patientUtility;
+	@Autowired
+	private PatientRecordUtility patientUtility;
 
 	/**
 	 * Default constructor
 	 */
-	public Communication(){
-		this.patientUtility = new PatientRecordUtility();
-	}
+	public Communication(){}
 	
-	
-	
+	/**
+	 * Makes a call to an external node
+	 * @param matchmakerNode	An external MME node
+	 * @param queryPatient	A patient to query with
+	 * @return	results found
+	 */
 	public List<MatchmakerResult> callNode(Node matchmakerNode, Patient queryPatient) {
-		System.setProperty("javax.net.ssl.trustStore","/local/mme/config/java/jdk1.8.0_101/keystore");
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		HttpsURLConnection connection = null;  
 		try {
@@ -68,23 +71,29 @@ public class Communication {
 		    connection.setRequestProperty("X-Auth-Token",matchmakerNode.getToken());
 		    connection.setRequestProperty("Content-Type",matchmakerNode.getContentTypeHeader());
 		    connection.setRequestProperty("Accept",matchmakerNode.getAcceptHeader());
-		    connection.setRequestProperty("Content-Language",matchmakerNode.getContentLanguage());  	    
-		    
+		    connection.setRequestProperty("Content-Language",matchmakerNode.getContentLanguage());  	 
+		    		    
 		    connection.setUseCaches(false);
 		    connection.setDoOutput(true);	    
-
-		    //Send request
-		    //String payload="{\"patient\":{\"id\":\"1\",\"contact\": {\"name\":\"Jane Doe\", \"href\":\"mailto:jdoe@example.edu\"},\"features\":[{\"id\":\"HP:0000522\"}],\"genomicFeatures\":[{\"gene\":{\"id\":\"NGLY1\"}}]}}";
-		    String payload = "{\"patient\":" + queryPatient.getEmptyFieldsRemovedJson() + "}";
-		    this.getLogger().info("patient being sent out to external MME node: "+payload);
+		    
+		    StringBuilder payloadBuilder = new StringBuilder();
+		    payloadBuilder.append("{\"patient\":");
+		    payloadBuilder.append(queryPatient.getEmptyFieldsRemovedJson());
+		    payloadBuilder.append(",");
+		    payloadBuilder.append("\"_disclaimer\":");
+		    payloadBuilder.append("\"" + this.getPatientUtility().getDisclaimer() + "\"");
+		    payloadBuilder.append("}");
+		    
+		    //this.getLogger().info("patient being sent out to external MME node: "+payloadBuilder.toString());
+		    this.getLogger().info("patient being sent out to external MME node: "+matchmakerNode.getName());
 		    DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
-		    wr.writeBytes(payload);
+		    wr.writeBytes(payloadBuilder.toString());
 		    wr.close();
 
 		    //Get Response  
 		    java.io.InputStream is = connection.getInputStream();
 		    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-		    StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+ 
+		    StringBuilder response = new StringBuilder(); 
 		    String line;
 		    while((line = rd.readLine()) != null) {
 		      response.append(line);
@@ -94,17 +103,24 @@ public class Communication {
 		    JSONParser parser = new JSONParser();
 		    this.getLogger().info("response back from external node: "+response.toString());
 		    JSONObject resultJsonObject = (JSONObject) parser.parse(response.toString());
+
 		    JSONArray  results = (JSONArray)resultJsonObject.get("results");
-		    
+		    this.getLogger().info("number of results from to external MME node "+matchmakerNode.getName() + " is: " + Integer.toString(results.size()));
 		    for (int i=0; i<results.size(); i++){
 				JSONObject result = (JSONObject)results.get(i);
+				
+				
 				boolean inputDataValid=this.getPatientUtility().areAllRequiredFieldsPresent(result.toString());
 				if (inputDataValid) {
+					//parse out patient data
 					Patient parsedPatient = this.getPatientUtility().parsePatientInformation(result.toString());
-					allResults.add(new MatchmakerResult(
-							new HashMap<String, Double>(),
-							parsedPatient
-							));
+					
+					//parse out score data
+					HashMap<String, Double> extMathscore = new HashMap<String, Double>();
+					JSONObject score = (JSONObject)result.get("score");
+					extMathscore.put("patient", ((Number)score.get("patient")).doubleValue());
+					
+					allResults.add(new MatchmakerResult(extMathscore,parsedPatient));
 				} else {
 					this.getLogger().error("error parsing patient from external source (required fields missing):"+
 													matchmakerNode.getName() + " : " + result.toString());
@@ -112,7 +128,6 @@ public class Communication {
 				
 		    }		 
 		  } catch (Exception e) {
-			  e.printStackTrace();
 			  this.getLogger().error("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e.getMessage());    
 		  } finally {
 		    if(connection != null) {
@@ -137,5 +152,4 @@ public class Communication {
 	public Logger getLogger() {
 		return logger;
 	}
-
 }

@@ -1,26 +1,34 @@
 /**
  * Intiates a call to all match maker nodes recorded
  */
-package org.broadinstitute.macarthurlab.matchbox.matchmakers;
+package org.broadinstitute.macarthurlab.matchbox.search;
 
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Node;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.match.Match;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.stereotype.Service;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,19 +36,21 @@ import org.slf4j.LoggerFactory;
  * @author harindra
  *
  */
-public class MatchmakerSearch implements Search{
+@Service
+public class MatchmakerSearchImpl implements SearchService{
 	/**
 	 * A list of MatchmakeNode objs that would be all
-	 * available nodes in system to look for. 
-	 * 
-	 * This is populated via config.xml file via Spring IoC
+	 * available nodes in system to look for. Contained 
+	 * in nodes.json file contained in the config directory
+	 * where JAR file lives
 	 */
 	private List<Node> matchmakers;
 	
 	/**
 	 * Genotype matching tools
 	 */
-	private final MatchService match;
+	@Autowired
+	private MatchService match;
 	
 	/**
 	 * A connection to MongoDB for queries
@@ -48,31 +58,61 @@ public class MatchmakerSearch implements Search{
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
 
-	
+	@Autowired
 	private MongoOperations operator;
 	
 	/**
 	 * A set of tools to parse and store patient information
 	 */
-	private final PatientRecordUtility patientUtility;
+	@Autowired
+	private PatientRecordUtility patientUtility;
 
 	/**
 	 * A set of tools to help with make a Http call to an external node
 	 */
-	private final Communication httpCommunication;
+	@Autowired
+	private Communication httpCommunication;
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	
 	/**
 	 * Default constructor
+	 * @throws IOException 
+	 * @throws ParseException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public MatchmakerSearch(){
-		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
-		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
-		this.patientUtility = new PatientRecordUtility();
-		this.httpCommunication = new Communication();
-		this.match = new Match();
+	public MatchmakerSearchImpl() throws IOException, ParseException{
+		String nodeFile = System.getProperty("user.dir") + "/config/nodes.json";
+		BufferedReader r = new BufferedReader(new FileReader(new File(nodeFile)));
+		String line;
+		StringBuilder nodeJson=new StringBuilder();
+		try{
+			while ((line = r.readLine()) != null) {
+				nodeJson.append(line);
+			}
+		}
+		catch(Exception e){
+			this.getLogger().error("error reading node config file:"+ nodeFile + " : "+e);
+		}
+		
+		List<Node> mmeNodesConntedTo = new ArrayList<Node>();
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObject = (JSONObject) parser.parse(nodeJson.toString());
+		JSONArray nodes = (JSONArray)jsonObject.get("nodes");
+		
+		for (int i=0; i<nodes.size(); i++){
+			JSONObject node = (JSONObject)nodes.get(i);
+			mmeNodesConntedTo.add(new MatchmakerNode((String)node.get("name"),
+														 (String)node.get("token"),
+														 (String)node.get("url"),
+														 (String)node.get("acceptHeader"),
+														 (String)node.get("contentTypeHeader"),
+														 (String)node.get("contentLanguage"),
+														 (boolean)node.get("selfSignedCertificate")));
+		}
+		this.setMatchmakers(mmeNodesConntedTo);
 	}
 	
 	
@@ -80,12 +120,17 @@ public class MatchmakerSearch implements Search{
 	 * Search in matchmaker node network only (not in Beamr data model)
 	 * @param	A Patient object
 	 */
-	public List<MatchmakerResult> searchInExternalMatchmakerNodesOnly(Patient patient){
+	public List<String> searchInExternalMatchmakerNodesOnly(Patient patient){
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
+		List<String> scrubbedResults=new ArrayList<String>();
 		for (Node n:this.getMatchmakers()){
 			allResults.addAll(this.searchNode(n, patient));
 		}
-		return allResults;
+		for (MatchmakerResult r: allResults){
+			scrubbedResults.add(r.getEmptyFieldsRemovedJson());
+			this.getLogger().info("found and scrubbed empty results off external match result: " + r.getPatient().getId());
+		}
+		return scrubbedResults;
 	}
 	
 	/**
@@ -100,8 +145,12 @@ public class MatchmakerSearch implements Search{
 			if (!r.getPatient().getId().equals(queryPatient.getId())){
 				scrubbedResults.add(r.getEmptyFieldsRemovedJson());
 			}
+			else{
+				this.getLogger().info("ignoring this result since it is the same as query patient (same ID)");
+			}
 		}
-		/**persist for logging and metrics and tracking of data sent out. Persist the 
+	   /**
+		*  persist for logging and metrics and tracking of data sent out. Persist the 
 		*  incoming query ONLY if a match is made, otherwise don't keep any of the
 		*  information that is sent in, which is only fair.
 		*/
@@ -114,6 +163,7 @@ public class MatchmakerSearch implements Search{
 															true);
 				
 		}else{
+			//we don't persist query unless there is a match per MME rules
 			externalQueryMatch = new ExternalMatchQuery(null, 
 					   									results,
 					   									hostNameOfRequestOrigin,
@@ -134,7 +184,7 @@ public class MatchmakerSearch implements Search{
 	 */
 	private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient queryPatient) {
 		this.getLogger().info("searching in external node: "+matchmakerNode.getName());
-			return this.getHttpCommunication().callNode(matchmakerNode, queryPatient);	
+		return this.getHttpCommunication().callNode(matchmakerNode, queryPatient);	
 	}
 
 	
@@ -144,7 +194,7 @@ public class MatchmakerSearch implements Search{
 	 * @return the matchmakers
 	 */
 	public List<Node> getMatchmakers() {
-		return matchmakers;
+		return this.matchmakers;
 	}
 
 

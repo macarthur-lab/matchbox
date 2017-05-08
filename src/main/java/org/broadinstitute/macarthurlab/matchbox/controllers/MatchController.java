@@ -13,11 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.matchbox.search.SearchService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,7 +37,10 @@ import org.slf4j.LoggerFactory;
 @RestController
 @CrossOrigin(origins = "*")
 public class MatchController {
-	private final Search searcher;
+	
+	@Autowired
+	private SearchService searcher;
+	
 	private final PatientRecordUtility patientUtility;
 	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -48,25 +49,24 @@ public class MatchController {
 	 * Constructor populates search functionality
 	 */
 	public MatchController(){
-        String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
-        ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
-        this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
         this.patientUtility = new PatientRecordUtility();
 	}
 	
 
 	/**
-	 * Controller for /match POST end-point.ONLY SEARCHES INSIDE LOCAL DATABASE
+	 * Controller for /match POST end-point. ONLY SEARCHES INSIDE LOCAL DATABASE
 	 * 
 	 * @param patient
 	 *            A patient structure sent as JSON through the API
-	 * @return A list of result patients found in the network that match input
+	 * @return A list of result patients found in the local database that match input
 	 *         patient
 	 * @throws IOException
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/match")
 	public ResponseEntity<?> match(@RequestBody String requestString, HttpServletRequest request) {
+		String originMatchmakerNodeName = request.getAttribute("originMatchmakerNodeName").toString();
 		Patient queryPatient = null;
+		
 		try {
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
 			// TODO figure out why there is a = at the end of JSON string
@@ -80,6 +80,8 @@ public class MatchController {
 				StringBuilder msg = new StringBuilder();
 				msg.append("matchmaker request from:");
 				msg.append(queryPatient.getContact().toString());
+				msg.append(", orignating from matchmaker node:");
+				msg.append(originMatchmakerNodeName);
 				this.getLogger().warn(msg.toString());
 			} else {
 				this.getLogger().warn("input data invalid:" + inputData.toString());
@@ -88,11 +90,19 @@ public class MatchController {
 		} catch (Exception e) {
 			this.getLogger().error("error parsing patient in /match :" + e.toString() + " : " + e.getMessage());
 		}
-		String matches = this.getSearcher().searchInLocalDatabaseOnly(queryPatient,request.getRemoteHost()).toString();
-		String results = "{" + "\"results\":" + matches + "}";
+		String matches = this.getSearcher().searchInLocalDatabaseOnly(queryPatient,originMatchmakerNodeName).toString();
+		StringBuilder resultsBuilder = new StringBuilder();
+		resultsBuilder.append("{");
+		resultsBuilder.append("\"results\":");
+		resultsBuilder.append(matches);
+		resultsBuilder.append(",");
+		resultsBuilder.append("\"_disclaimer\":");
+		resultsBuilder.append("\"" + this.getPatientUtility().getDisclaimer() + "\"");
+		resultsBuilder.append("}");
+		
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
-		return new ResponseEntity<>(results, httpHeaders,HttpStatus.OK);
+		return new ResponseEntity<>(resultsBuilder.toString(), httpHeaders,HttpStatus.OK);
 	}
 	
 	
@@ -102,11 +112,13 @@ public class MatchController {
 	 * Controller for individual/match POST end-point (as per Matchmaker spec)
 	 * ONLY SEARCHES IN EXTERNAL NODES and NOT in local node
 	 * @param patient	A patient structure sent as JSON through the API
-	 * @return	A list of result patients found in the network that match input patient
+	 * @return	A list of result patients found in the other MME nodes in the 
+	 * 			network that match input patient
 	 */
 	@RequestMapping(method = RequestMethod.POST, value="/match/external")
     public ResponseEntity<?> individualMatch(@RequestBody String requestString) {
-		Map<String,List<MatchmakerResult>> results = new HashMap<String,List<MatchmakerResult>>();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
 		Patient patient=null;
 		try{
 			String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
@@ -122,16 +134,23 @@ public class MatchController {
 			else{
 				return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
-			List<MatchmakerResult> matchmakerResults = this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);
-			results.put("results", matchmakerResults);
+			List<String> matchmakerResults = this.getSearcher().searchInExternalMatchmakerNodesOnly(patient);			
+			StringBuilder resultsBuilder = new StringBuilder();
+			resultsBuilder.append("{");
+			resultsBuilder.append("\"results\":");
+			resultsBuilder.append(matchmakerResults);
+			resultsBuilder.append(",");
+			resultsBuilder.append("\"_disclaimer\":");
+			resultsBuilder.append("\"" + this.getPatientUtility().getDisclaimer() + "\"");
+			resultsBuilder.append("}");
+			return new ResponseEntity<>(resultsBuilder.toString(), httpHeaders, HttpStatus.OK);
 		}
 		catch(Exception e){
-			this.getLogger().error("error occurred in match controller:"+e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			this.getLogger().error("error occurred in match controller :"+e.toString() + " : " + e.toString());
+			return new ResponseEntity<>("{\"message\":\"error occurred searching external nodes\"}", httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
-    	return new ResponseEntity<>(results, httpHeaders, HttpStatus.OK);
+    	
     }
 	
 	
@@ -139,8 +158,16 @@ public class MatchController {
     /**
 	 * @return the searcher
 	 */
-	public Search getSearcher() {
+	public SearchService getSearcher() {
 		return this.searcher;
+	}
+	
+
+	/**
+	 * @param searcher the searcher to set
+	 */
+	public void setSearcher(SearchService searcher) {
+		this.searcher = searcher;
 	}
 
 

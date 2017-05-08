@@ -10,12 +10,9 @@ import java.util.List;
 import java.util.Map;
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
-import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
+import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
+import org.broadinstitute.macarthurlab.matchbox.search.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,7 +29,10 @@ public class PatientController {
 	private final PatientRecordUtility patientUtility;
 	@Autowired
 	private PatientMongoRepository patientMongoRepository;
-	private final Search searcher;
+	
+	@Autowired
+	private SearchService searcher;
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	
@@ -41,9 +41,6 @@ public class PatientController {
 	 */
 	public PatientController(){
         this.patientUtility = new PatientRecordUtility();
-        String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
-        ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
-        this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
 	}
 	
 	
@@ -154,7 +151,7 @@ public class PatientController {
     /**
 	 * @return the searcher
 	 */
-	public Search getSearcher() {
+	public SearchService getSearcher() {
 		return this.searcher;
 	}
 
@@ -165,5 +162,31 @@ public class PatientController {
 	public Logger getLogger() {
 		return logger;
 	}
+
+
+	/**
+	 * @return the patientMongoRepository
+	 */
+	public PatientMongoRepository getPatientMongoRepository() {
+		return patientMongoRepository;
+	}
+
+
+	/**
+	 * @param patientMongoRepository the patientMongoRepository to set
+	 */
+	public void setPatientMongoRepository(PatientMongoRepository patientMongoRepository) {
+		this.patientMongoRepository = patientMongoRepository;
+	}
+
+
+	/**
+	 * @param searcher the searcher to set
+	 */
+	public void setSearcher(SearchService searcher) {
+		this.searcher = searcher;
+	}
+	
+	
 
 }

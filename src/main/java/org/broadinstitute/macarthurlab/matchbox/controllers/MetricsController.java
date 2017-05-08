@@ -3,15 +3,17 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.controllers;
 
-
+import java.util.HashMap;
 import java.util.Map;
-import org.broadinstitute.macarthurlab.matchbox.metrics.Metric;
+
+import org.broadinstitute.macarthurlab.matchbox.entities.Metric;
+import org.broadinstitute.macarthurlab.matchbox.metrics.MetricService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,115 +28,57 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*")
 public class MetricsController {
 	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
-	private final Metric metric;
+	
+	@Autowired
+	@Qualifier("privilegedMetricServiceImpl")
+	private MetricService privilegedMetric;
+	
+	@Autowired
+	@Qualifier("publicMetricServiceImpl")
+	private MetricService publicMetric;
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Constructor for testing
 	 */
-	public MetricsController() {
-    	this.metric = new Metric();
-	}
+	public MetricsController() {}
 	
 	
 	
 	/**
 	 * Controller for /metrics GET end-point.Returns metric of LOCAL DATABASE ONLY
+	 * and is meant for INTERNAL VIEWING ONLY
+	 * TODO: add a "privileged" phrase to URL so it looks like /metrics/privileged
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/metrics")
-	public ResponseEntity<?> match() {
-		Map<String,Integer> geneCounts = this.getMetric().countGenesInSystem();
-		Map<String,Integer> phenotypeCounts = this.getMetric().countPhenotypesInSystem();
-		StringBuilder msg = new StringBuilder();	
-		
-		
-		msg.append("{\"metrics\":");
-		msg.append("{");
-
-		//----
-		msg.append("\"totalNumberOfGenes\":");
-		int totalNumGenes=0;
-		for (String k:geneCounts.keySet()){
-			totalNumGenes += geneCounts.get(k);
-		}
-		msg.append(totalNumGenes);
-		msg.append(",");
-		
-		//----
-		msg.append("\"totalNumberOfPhenotypes\":");
-		msg.append(this.getMetric().getTotalNumOfPhenotypesInSystem());
-		msg.append(",");
-		
-		//----
-		msg.append("\"totalNumberOfPatients\":");
-		msg.append(this.getMetric().getNumOfPatientsInSystem());
-		msg.append(",");
-		
-		//----
-		msg.append("\"geneCounts\":{");
-		int i=0;
-		for (String k:geneCounts.keySet()){
-			msg.append("\"");
-			msg.append(k);
-			msg.append("\"");
-			msg.append(":");
-			msg.append(geneCounts.get(k));
-			if (i<geneCounts.size()-1){
-				msg.append(",");
-			}
-			i+=1;
-		}
-		msg.append("},");
-		
-		
-		//----
-		msg.append("\"phenotypeCounts\":{");
-		int j=0;
-		for (String k:phenotypeCounts.keySet()){
-			msg.append("\"");
-			msg.append(k);
-			msg.append("\"");
-			msg.append(":");
-			msg.append(phenotypeCounts.get(k));
-			if (j<phenotypeCounts.size()-1){
-				msg.append(",");
-			}
-			j+=1;
-		}
-		msg.append("},");
-		
-		
-		//----
-		msg.append("\"matches\":{");
-				
-		int numMatches=this.getMetric().getNumOfMatches();
-		int numIncomingReqs=this.getMetric().getNumOfIncomingMatchRequests();
-		//----
-		msg.append("\"numberOfIncomingMatchRequests\":");
-		msg.append(numIncomingReqs);
-		msg.append(",");
-		
-		//----
-		msg.append("\"numberOfMatchesMade\":");
-		msg.append(numMatches);
-		msg.append(",");
-		
-		//----
-		msg.append("\"matchRatio\":");
-		double ratio=(double)numMatches / (double)numIncomingReqs;
-		if (Double.isNaN(ratio)){
-			ratio=0.0d;
-		}
-		msg.append(ratio);
-		
-		msg.append("}");
-		msg.append("}}");
-		
+	public Map<String,Metric> internalMatch() {		
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
-		return new ResponseEntity<>(msg.toString(), httpHeaders,HttpStatus.OK);
+	    Map<String,Metric> rslt = new HashMap<String,Metric>();
+	    Metric metrics=this.getPrivilegedMetric().getMetrics();
+	    rslt.put("metrics", metrics);
+	    this.getLogger().info("returned public metrics:"+metrics);
+	    return rslt;
 	}
 
+	
+	/**
+	 * Controller for /metrics/public GET end-point.Returns metric of LOCAL DATABASE ONLY
+	 * and is meant for EXTERNAL VIEWING, so won't have gene level information
+	 * but only counts.
+	 * Follows common metrics API spec
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/metrics/public")
+	public Map<String,Metric> publicMatch() {		
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.valueOf(this.CONTENT_TYPE_HEADER));
+	    Map<String,Metric> rslt = new HashMap<String,Metric>();
+	    Metric metrics=this.getPublicMetric().getMetrics();
+	    rslt.put("metrics", metrics);
+	    this.getLogger().info("returned public metrics:"+metrics);
+	    return rslt;
+	}
 
 
 	/**
@@ -149,8 +93,16 @@ public class MetricsController {
 	/**
 	 * @return the metric
 	 */
-	public Metric getMetric() {
-		return metric;
+	public MetricService getPrivilegedMetric() {
+		return privilegedMetric;
+	}
+
+
+	/**
+	 * @param metric the metric to set
+	 */
+	public void setPrivilegedMetric(MetricService metric) {
+		this.privilegedMetric = metric;
 	}
 
 
@@ -161,7 +113,24 @@ public class MetricsController {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
+
+
+	/**
+	 * @return the publicMetric
+	 */
+	public MetricService getPublicMetric() {
+		return publicMetric;
+	}
+
+
+
+	/**
+	 * @param publicMetric the publicMetric to set
+	 */
+	public void setPublicMetric(MetricService publicMetric) {
+		this.publicMetric = publicMetric;
+	}
 	
 	
 }

@@ -4,10 +4,8 @@
 package org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb;
 
 
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
@@ -17,11 +15,10 @@ import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
-@Configurable
+
 @Component
 @EnableMongoRepositories
-@Configuration
-@PropertySource("file:resources/application.properties")
+@PropertySource("file:config/application.properties")
 public class MongoDBConfiguration extends AbstractMongoConfiguration{
 
 	
@@ -40,6 +37,9 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration{
 	@Value("${mongoDatabaseMappingBasePackage}")
 	private String mappingBasePackage;
 	
+	@Value("${keyTrustStore}")
+	private String keyTrustStore;
+	
  
     @Override
     /**
@@ -57,6 +57,9 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration{
      * TODO: take out password from here
      */
     public Mongo mongo() throws Exception {	
+    	//set the trust store java path (required for Communication class as well
+    	System.setProperty("javax.net.ssl.trustStore",this.getKeyTrustStore());
+    	
     	MongoClient mongoClient = new MongoClient(this.getDatabaseHostName(), 27017);
     	DB db = mongoClient.getDB(this.getDatabaseName());
     	boolean auth = db.authenticate(this.getUsername(), this.getPassword().toCharArray());
@@ -129,5 +132,18 @@ public class MongoDBConfiguration extends AbstractMongoConfiguration{
 		return new PropertySourcesPlaceholderConfigurer();
 	}
 
+	/**
+	 * @return the keyTrustStore
+	*/
+	public String getKeyTrustStore() {
+		return this.keyTrustStore;
+	}
+
+	/**
+	 * @param keyTrustStore the keyTrustStore to set
+	*/
+	public void setKeyTrustStore(String keyTrustStore) {
+		this.keyTrustStore = keyTrustStore;
+	}
 
 }

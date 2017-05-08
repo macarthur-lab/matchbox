@@ -18,8 +18,8 @@ __version__ = 0.1
 #set this value to 1 for profiling tool performance
 PROFILE=0
 
-ACCESS_TOKEN=""
-MME_NODE_ACCEPT_HEADER='application/vnd.ga4gh.matchmaker.v0.1+json'
+ACCESS_TOKEN="abcd"
+MME_NODE_ACCEPT_HEADER='application/vnd.ga4gh.matchmaker.v1.0+json'
 MME_CONTENT_TYPE_HEADER='application/x-www-form-urlencoded'
 MME_SERVER_HOST='http://localhost:8080'
 MME_ADD_INDIVIDUAL_URL = MME_SERVER_HOST + '/patient/add'

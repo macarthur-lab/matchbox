@@ -1,6 +1,9 @@
 /**
+ * IMPORTANT NOTE: TO BE ONLY USED WITH TRUSTED STAGING SERVERS AND NOT IN PRODUCTION
  * Adjusting for certificate issues
- * - This was needed for GeneMatcher node certificate issues
+ * 
+ * This feature is only needed for connecting to staging servers with
+ * self signed certificates. Production systems will not need this
  */
 package org.broadinstitute.macarthurlab.matchbox.network;
 
@@ -14,7 +17,8 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.*;
 
 /**
- * A {@link X509TrustManager} and {@link HostnameVerifier} which trust everything.
+ * IMPORTANT NOTE: TO BE ONLY USED WITH TRUSTED STAGING SERVERS AND NOT IN PRODUCTION
+ * Thank you to Torleif Berger who was listed as author from where this was borrowed from as license allows
  * 
  * @author    Torleif Berger
  * @license   http://creativecommons.org/licenses/by/3.0/

@@ -9,13 +9,13 @@ package org.broadinstitute.macarthurlab.matchbox.entities;
  *
  */
 public class MatchmakerNode implements Node{
-	private final String name;
-	private final String token;
-	private final String url;
-	private final String acceptHeader;
-	private final String contentTypeHeader;
-	private final String contentLanguage;
-	private final boolean selfSignedCertificate;
+	private String name;
+	private String token;
+	private String url;
+	private String acceptHeader;
+	private String contentTypeHeader;
+	private String contentLanguage;
+	private boolean selfSignedCertificate;
 
 	/**
 	 * Constructor
@@ -53,13 +53,16 @@ public class MatchmakerNode implements Node{
 	}
 
 
+
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "MatchmakerNode [name=" + name + ", token=" + token + ", url=" + url + ", acceptHeader=" + acceptHeader
-				+ ", contentHeader=" + contentTypeHeader + ", contentLanguage=" + contentLanguage + "]";
+				+ ", contentTypeHeader=" + contentTypeHeader + ", contentLanguage=" + contentLanguage
+				+ ", selfSignedCertificate=" + selfSignedCertificate + "]";
 	}
 
 
@@ -92,6 +95,62 @@ public class MatchmakerNode implements Node{
 	 */
 	public boolean isSelfSignedCertificate() {
 		return selfSignedCertificate;
+	}
+
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	/**
+	 * @param token the token to set
+	 */
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+
+	/**
+	 * @param url the url to set
+	 */
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+
+	/**
+	 * @param acceptHeader the acceptHeader to set
+	 */
+	public void setAcceptHeader(String acceptHeader) {
+		this.acceptHeader = acceptHeader;
+	}
+
+
+	/**
+	 * @param contentTypeHeader the contentTypeHeader to set
+	 */
+	public void setContentTypeHeader(String contentTypeHeader) {
+		this.contentTypeHeader = contentTypeHeader;
+	}
+
+
+	/**
+	 * @param contentLanguage the contentLanguage to set
+	 */
+	public void setContentLanguage(String contentLanguage) {
+		this.contentLanguage = contentLanguage;
+	}
+
+
+	/**
+	 * @param selfSignedCertificate the selfSignedCertificate to set
+	 */
+	public void setSelfSignedCertificate(boolean selfSignedCertificate) {
+		this.selfSignedCertificate = selfSignedCertificate;
 	}
 	
 	

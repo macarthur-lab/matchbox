@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +31,8 @@ import org.slf4j.LoggerFactory;
  */
 
 
-
-public class GenotypeMatch {
+@Service
+public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
 	private MongoOperations operator;
 	private final Map<String,String> geneSymbolToEnsemblId;
 	private final Map<String,String> ensemblIdToGeneSymbol;
@@ -40,14 +41,14 @@ public class GenotypeMatch {
 	/**
 	 * Constructor
 	 */
-	public GenotypeMatch() {
+	public GenotypeSimilarityServiceImpl() {
 		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
 		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
 		
 		this.geneSymbolToEnsemblId = new HashMap<String,String>();	
 		this.ensemblIdToGeneSymbol = new HashMap<String,String>();	
 		try{
-			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/resources/gene_symbol_to_ensembl_id_map.txt";
+			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/config/gene_symbol_to_ensembl_id_map.txt";
 			
 			File geneSymbolToEnsemnlIdFile = new File(geneSymbolToEnsemnlId);
 			BufferedReader reader = new BufferedReader(new FileReader(geneSymbolToEnsemnlIdFile));
@@ -100,22 +101,27 @@ public class GenotypeMatch {
 				geneId=this.getEnsemblIdToGeneSymbol().get(id);
 			}
 			
-
 			geneSymbolQuery.append("'"+geneId+"'"); 
 			if (i<patient.getGenomicFeatures().size()-1){
 				geneSymbolQuery.append(",");
 			}
-			
 
 			ensemblIdQuery.append("'"+ensemblId+"'"); 
 			if (i<patient.getGenomicFeatures().size()-1){
 				ensemblIdQuery.append(",");
 			}
-								
+			if(!this.getGeneSymbolToEnsemblId().containsKey(id) &&
+					!this.getEnsemblIdToGeneSymbol().containsKey(id)){
+				String mesg="could not identify provided gene ID as ensmbl or hgnc:"+id;
+				this.getLogger().error(mesg);
+			}
 			i++;
 		}
 		geneSymbolQuery.append("]}}");
 		ensemblIdQuery.append("]}}");
+		
+		this.logger.info(geneSymbolQuery.toString());
+		this.logger.info(ensemblIdQuery.toString());
 		
 		BasicQuery qGeneId = new BasicQuery(geneSymbolQuery.toString());
 		List<Patient> psGeneId = this.getOperator().find(qGeneId,Patient.class);
@@ -131,6 +137,7 @@ public class GenotypeMatch {
 				results.add(p);
 			}
 		}		
+		this.logger.info(results.toString());
 		return results;
 	}
 	
@@ -173,7 +180,8 @@ public class GenotypeMatch {
 	
 	
 	/**
-	 * Access zygosity's affect on the score. If zygosity is the same 0.25 is returned.
+	 * Access zygosity's affect on the score. If zygosity is the same in at least
+	 * one of the common genes, 0.25 is returned.
 	 * @param p1	The patient in question
 	 * @param queryP	The query patient
 	 * @return A score (0.25 is returned if there is a match in zygositys)
