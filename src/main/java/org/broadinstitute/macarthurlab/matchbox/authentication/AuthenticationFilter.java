@@ -7,24 +7,17 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.authentication;
 
+import org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component
 public class AuthenticationFilter implements Filter{
@@ -33,24 +26,19 @@ public class AuthenticationFilter implements Filter{
 	private final AccessAuthorizedNode accessAuthorizedNode;
 	private final List<String> authorizedTokens;
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
 
-		
 	/**
 	 * Initializes class
 	 */
-	public AuthenticationFilter(){
-    	String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
-    	ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
-    	this.accessAuthorizedNode = context.getBean("accessAuthorizedNode", AccessAuthorizedNode.class);
-	
-    	List<String> authorizedTokes=new ArrayList<String>();
-    	for(AuthorizedToken authorizeNode  : this.getAccessAuthorizedNode().getAccessAuthorizedNodes()){
-    		authorizedTokes.add(authorizeNode.getToken());
+	public AuthenticationFilter(AccessAuthorizedNode accessAuthorizedNode){
+		this.accessAuthorizedNode = accessAuthorizedNode;
+		//TODO: This is a very roundabout way of loading a list of token strings
+    	List<String> authorizedTokens = new ArrayList<>();
+    	for(AuthorizedToken authorizeNode  : accessAuthorizedNode.getAccessAuthorizedNodes()){
+    		authorizedTokens.add(authorizeNode.getToken());
     	}
-    	this.authorizedTokens = authorizedTokes;
+    	this.authorizedTokens = authorizedTokens;
 	}
-	
 
 	@Override
     public void destroy() {
@@ -67,12 +55,12 @@ public class AuthenticationFilter implements Filter{
             
             //Unauthorized
             if (!validateXAuthToken(request.getHeader(AuthenticationFilter.getxAuthTokenHeader()))){
-            	this.getLogger().warn("authentication failed for: "+req.getServerName());
+            	logger.warn("authentication failed for: "+req.getServerName());
             	response.sendError(401,"authentication failed");
             }
             //unsupported API version
             if (!validateAcceptHeader(request.getHeader(AuthenticationFilter.getAcceptHeader()))){
-            	this.getLogger().warn("Accept header validation failed for: "+req.getServerName());
+            	logger.warn("Accept header validation failed for: "+req.getServerName());
             	response.sendError(406,"unsupported API version, supported versions=[1.0]");
             }
             chain.doFilter(request, response);
@@ -99,7 +87,7 @@ public class AuthenticationFilter implements Filter{
      * @return	true if validated, false otherwise
      */
     private boolean validateXAuthToken(String xAuthToken){
-    	if (this.getAuthorizedTokens().contains(xAuthToken)){
+    	if (authorizedTokens.contains(xAuthToken)){
     		return true;
     	}
     	return false;
@@ -126,33 +114,5 @@ public class AuthenticationFilter implements Filter{
 	 */
     public void init(FilterConfig arg0) throws ServletException {
     }
-
-
-	/**
-	 * @return the accessAuthorizedNode
-	 */
-	public AccessAuthorizedNode getAccessAuthorizedNode() {
-		return accessAuthorizedNode;
-	}
-
-
-	/**
-	 * @return the authorizedTokens
-	 */
-	public List<String> getAuthorizedTokens() {
-		return authorizedTokens;
-	}
-
-
-	/**
-	 * @return the logger
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-	
-	
-	
-	
 
 }

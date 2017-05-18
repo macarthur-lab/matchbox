@@ -3,18 +3,20 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-
 /**
  * @author harindra
  *
  */
+@Component
 public class Match implements MatchService{
 	
 	/**
@@ -29,9 +31,9 @@ public class Match implements MatchService{
 	/**
 	 * Does a MME match
 	 */
-	public Match() {
-		this.genotypeMatch = new GenotypeMatch();
-		this.phenotypeMatch = new PhenotypeMatch();
+	public Match(GenotypeMatch genotypeMatch, PhenotypeMatch phenotypeMatch) {
+		this.genotypeMatch = genotypeMatch;
+		this.phenotypeMatch = phenotypeMatch;
 	}
 	
 	
@@ -45,21 +47,18 @@ public class Match implements MatchService{
 	 * @param patient a patient to match on
 	 */
 	public List<MatchmakerResult> match(Patient patient){
-		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
-		List<Patient> genomicFeatMatches = this.getGenotypeMatch().searchByGenomicFeatures(patient);
+		List<MatchmakerResult> allResults = new ArrayList<>();
+		List<Patient> genomicFeatMatches = genotypeMatch.searchByGenomicFeatures(patient);
 		
-		List<Double> patientGenotypeRankingScores = this.getGenotypeMatch().rankByGenotypes(genomicFeatMatches, patient);
-		List<Double> patientPhenotypeRankingScores = this.getPhenotypeMatch().rankByPhenotypes(genomicFeatMatches, patient);
+		List<Double> patientGenotypeRankingScores = genotypeMatch.rankByGenotypes(genomicFeatMatches, patient);
+		List<Double> patientPhenotypeRankingScores = phenotypeMatch.rankByPhenotypes(genomicFeatMatches, patient);
 		List<Double> scores = generateMergedScore(patientGenotypeRankingScores,patientPhenotypeRankingScores);
 		
 		int i=0;
 		for (Patient p: genomicFeatMatches){
-			Map<String, Double> score = new HashMap<String, Double>();
+			Map<String, Double> score = new HashMap<>();
 			score.put("patient", scores.get(i));
-			allResults.add(new MatchmakerResult(
-												score,
-												p
-												));
+			allResults.add(new MatchmakerResult(score, p));
 			i++;
 		}
 		return allResults;
@@ -76,7 +75,7 @@ public class Match implements MatchService{
 	 * @return	A merged score
 	 */
 	private List<Double> generateMergedScore(List<Double> patientGenotypeRankingScores,List<Double> patientPhenotypeRankingScores){
-		List<Double> merged = new ArrayList<Double>();
+		List<Double> merged = new ArrayList<>();
 		//let's give them equal weight for now
 		double genotypeWeight=1;
 		double phenotypeWeight=1;
@@ -93,26 +92,5 @@ public class Match implements MatchService{
 		}
 		return merged;
 	}
-	
-	
-	
-	/**
-	 * @return the genotypeMatch
-	 */
-	public GenotypeMatch getGenotypeMatch() {
-		return genotypeMatch;
-	}
-
-
-	/**
-	 * @return the phenotypeMatch
-	 */
-	public PhenotypeMatch getPhenotypeMatch() {
-		return phenotypeMatch;
-	}
-	
-	
-	
-	
 
 }

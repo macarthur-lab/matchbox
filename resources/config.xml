@@ -4,43 +4,42 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-  <bean id="testRefSvrNode"
-      class="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
-      <constructor-arg type="java.lang.String" value="Test Reference Server" />
-      <constructor-arg type="java.lang.String" value="none" />
-      <constructor-arg type="java.lang.String" value="http://localhost:8090/match" />
-      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
-      <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
-      <constructor-arg type="java.lang.String" value="en-US"/>
-      <constructor-arg type="boolean" value="false"/>
-  </bean>
+    <bean id="testRefSvrNode"
+          class="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
+        <constructor-arg type="java.lang.String" value="Test Reference Server"/>
+        <constructor-arg type="java.lang.String" value="none"/>
+        <constructor-arg type="java.lang.String" value="http://localhost:8090/match"/>
+        <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
+        <constructor-arg type="java.lang.String" value="application/vnd.ga4gh.matchmaker.v1.0+json"/>
+        <constructor-arg type="java.lang.String" value="en-US"/>
+        <constructor-arg type="boolean" value="false"/>
+    </bean>
 
+    <bean id="matchmakerNodes" class="java.util.ArrayList">
+        <constructor-arg>
+            <list value-type="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
+                <!--add your other matchmaker nodes here-->
+                <ref bean="testRefSvrNode"/>
+            </list>
+        </constructor-arg>
+    </bean>
 
-  <bean id="matchmakerSearch"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch">
-      <property name="matchmakers">
-         <list>
-         	<ref bean="testRefSvrNode"/> 
-         </list>
-      </property>
-  </bean>
-  
-  <bean id="defaultAccessToken"
-      class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
-      <constructor-arg type="java.lang.String" value="Default Access Token" />
-      <constructor-arg type="java.lang.String" value="" />
-      <constructor-arg type="java.lang.String" value="Broad Institute JCMG" />
-      <constructor-arg type="java.lang.String" value="harindra@broadinstitute.org" />
-  </bean>
-   
-  <bean id="accessAuthorizedNode"
-      class="org.broadinstitute.macarthurlab.matchbox.authentication.AccessAuthorizedNode">
-      <property name="accessAuthorizedNodes">
-         <list>
-            <ref bean="defaultAccessToken"/>            
-         </list>
-      </property>
-  </bean>
-  
+    <bean id="defaultAccessToken"
+          class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
+        <constructor-arg type="java.lang.String" value="Default Access Token"/>
+        <constructor-arg type="java.lang.String" value="854a439d278df4283bf5498ab020336cdc416a7d"/>
+        <constructor-arg type="java.lang.String" value="Broad Institute JCMG"/>
+        <constructor-arg type="java.lang.String" value="harindra@broadinstitute.org"/>
+    </bean>
+
+    <bean id="accessAuthorizedNode"
+          class="org.broadinstitute.macarthurlab.matchbox.authentication.AccessAuthorizedNode">
+        <property name="accessAuthorizedNodes">
+            <list>
+                <ref bean="defaultAccessToken"/>
+            </list>
+        </property>
+    </bean>
+
 
 </beans>

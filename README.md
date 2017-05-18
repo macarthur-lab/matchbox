@@ -17,12 +17,13 @@ In the future, you would be able to either,
 
 * Download the JAR file and simply start the server via [distribution process for this method is not ready yet],
 
-java -jar matchbox-0.1.0.jar
+    ```java -jar matchbox-0.1.0.jar```
 
 NOTE: if you would like to change the default port the server listens on (8080), please set/use the environment variable SERVER_PORT
+or add the argument ```--server.port``` after the 
 
 for example,
-export SERVER_PORT=9020
+    ```export SERVER_PORT=9020``` or ```java -jar matchbox-0.1.0.jar --server.port=9020```
 
 * Or download the source code and simply build on your system. You will require maven (https://maven.apache.org) for this. This process is quite easy as well, and is described below and supported as of now.
 
@@ -31,33 +32,31 @@ export SERVER_PORT=9020
 
 * Clone the repository
 
-git clone https://username@github.com/macarthur-lab/beamr.git
+    ```git clone https://username@github.com/macarthur-lab/beamr.git```
 
 * Build source files (maven is required to be on your system)
 
-mvn clean package
+    ```mvn clean package```
 
 * That should create a directory called "target" with an executable JAR file
 
 * Start server
 
-java -jar target/matchbox-0.1.0.jar
+    ```java -jar target/matchbox-0.1.0.jar```
 
 
 ## Test run
 
 * Use the the following path
 
-http://localhost:8080/match
+    ```http://localhost:8080/match```
 
 * with the following headers:
-
-X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d
-
-Accept: application/vnd.ga4gh.matchmaker.v0.1+json
-
-Content-Type: application/x-www-form-urlencoded
-
+    ```
+    X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d
+    Accept: application/vnd.ga4gh.matchmaker.v0.1+json
+    Content-Type: application/x-www-form-urlencoded
+    ```
 ## Execution process map
 
 The following describes the typical sequence of events in execution. An addition
@@ -114,15 +113,15 @@ org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration
 then add it to this list,
 ```
 
-  <bean id="matchmakerSearch"
-      class="org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch">
-      <property name="matchmakers">
-         <list>
-            <ref bean="phenomeCentralMatchmakerNode"/>
-            <ref bean="testRefSvrNode"/>
-         </list>
-      </property>
-  </bean>
+    <bean id="matchmakerNodes" class="java.util.ArrayList">
+        <constructor-arg>
+            <list value-type="org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerNode">
+                <!--add your other matchmaker nodes here-->
+                <ref bean="testRefSvrNode"/>
+                <ref bean="phenomeCentralMatchmakerNode"/>
+            </list>
+        </constructor-arg>
+    </bean>
 
 ```
 
@@ -140,28 +139,26 @@ then add it to this list,
 *  **View all individuals in matchbox**(eventually this will be a privileged branch with limited access)
 
 API endpoint (GET):  individual/view
-
+```
 curl -X GET -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/individual/view
-
+```
 Result would look something like:
 
-
+```json
 [{"id":"id_ttn-2","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}]
-
-
+```
 
 *  **Add a patient to matchbox** (eventually this will be a privileged branch with limited access)
 
 
 API endpoint (POST):  individual/add
-
+```
 curl -X POST -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/individual/add -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
-
+```
 Result would look something like:
-
+```json
 {"message":"insertion OK"}
-
-
+```
 *  **Find a match for a patient in other Matchmaker nodes**  (not privileged, accessible to everybody with a token)
 
 API endpoint (POST):  individual/match
@@ -173,10 +170,11 @@ API endpoint (POST):  individual/match
 
 API endpoint (as per matchmaker specification and this would be the target endpoint for external matchmakers looking for matches at Broad (POST):  /match
 
-
+```
 curl -X POST -H "X-Auth-Token: 854a439d278df4283bf5498ab020336cdc416a7d" -H "Accept: application/vnd.ga4gh.matchmaker.v0.1+json" -H "Content-Type: application/x-www-form-urlencoded" http://maclab-utils:8080/match -d '{"patient" : {"id" : "id_ttn-8","label" : "identifier","contact" : {"name" : "Full Name","institution" : "Contact Institution","href" : "URL"},"species" : "NCBI_taxon_identifier","sex" : "FEMALE","ageOfOnset" : "HPOcode","inheritanceMode" : "HPOcode","disorders" : [{"id" : "Orphanet:#####"}],"features" : [{"id" : "HPOcode","observed" : "yes","ageOfOnset" : "HPOcode"},{"id" : "HPOcode2","observed" : "yes2","ageOfOnset" : "HPOcode2"}],"genomicFeatures" : [{"gene" : {"id" : "TTN"},"variant" : {"assembly" : "NCBI36","referenceName" : "1","start" : 12,"end" : 24,"referenceBases" : "A","alternateBases" : "A"},"zygosity" : 1,"type" : {"id" : "SOcode","label" : "STOPGAIN"}}]}}'
-
+```
 
 Result would look something like:
-
+```json
 {"results":[{"score":{},"patient":{"id":"id_ttn-2","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}},{"score":{},"patient":{"id":"id_ttn-4","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}},{"score":{},"patient":{"id":"id_ttn-8","label":"identifier","contact":{"institution":"Contact Institution","name":"Full Name","href":"URL"},"species":"NCBI_taxon_identifier","sex":"FEMALE","ageOfOnset":"HPOcode","inheritanceMode":"HPOcode","disorders":[{"id":"Orphanet:#####"}],"features":[{"id":"HPOcode","observed":"yes","ageOfOnset":"HPOcode"},{"id":"HPOcode2","observed":"yes2","ageOfOnset":"HPOcode2"}],"genomicFeatures":[{"gene":{"id":"TTN"},"variant":{"assembly":"NCBI36","referenceName":"1","start":12,"end":24,"referenceBases":"A","alternateBases":"A"},"zygosity":1,"type":{"id":"SOcode","label":"STOPGAIN"}}]}}]}
+```

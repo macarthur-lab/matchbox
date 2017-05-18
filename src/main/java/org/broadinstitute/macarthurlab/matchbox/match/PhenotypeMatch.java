@@ -3,24 +3,19 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 
 /**
  * @author harindra
  *
  */
+@Component
 public class PhenotypeMatch {
-
-	/**
-	 * Constructor sets up everything
-	 */
-	public PhenotypeMatch() {
-
-	}
 
 	
 	

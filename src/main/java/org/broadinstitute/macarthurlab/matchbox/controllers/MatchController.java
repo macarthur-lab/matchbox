@@ -4,31 +4,24 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.controllers;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.MatchmakerSearch;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.PatientRecordUtility;
 import org.broadinstitute.macarthurlab.matchbox.matchmakers.Search;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -39,7 +32,7 @@ import org.slf4j.LoggerFactory;
 @RestController
 @CrossOrigin(origins = "*")
 public class MatchController {
-	private final Search searcher;
+	private final MatchmakerSearch matchmakerSearch;
 	private final PatientRecordUtility patientUtility;
 	private final String CONTENT_TYPE_HEADER="application/vnd.ga4gh.matchmaker.v1.0+json ";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -47,10 +40,8 @@ public class MatchController {
 	/**
 	 * Constructor populates search functionality
 	 */
-	public MatchController(){
-        String configFile = "file:" + System.getProperty("user.dir") + "/resources/config.xml";
-        ApplicationContext context = new ClassPathXmlApplicationContext(configFile);
-        this.searcher = context.getBean("matchmakerSearch", MatchmakerSearch.class);
+	public MatchController(MatchmakerSearch matchmakerSearch){
+		this.matchmakerSearch = matchmakerSearch;
         this.patientUtility = new PatientRecordUtility();
 	}
 	
@@ -140,7 +131,7 @@ public class MatchController {
 	 * @return the searcher
 	 */
 	public Search getSearcher() {
-		return this.searcher;
+		return this.matchmakerSearch;
 	}
 
 
