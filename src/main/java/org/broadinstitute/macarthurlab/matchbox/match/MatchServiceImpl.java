@@ -3,15 +3,15 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author harindra
@@ -51,10 +51,10 @@ public class MatchServiceImpl implements MatchService{
 		List<MatchmakerResult> allResults = new ArrayList<MatchmakerResult>();
 		
 		//#TODO must add code here to search by phenotypes if genotypes are not given
-		List<Patient> genomicFeatMatches = this.getGenotypeMatch().searchByGenomicFeatures(patient);
+		List<Patient> genomicFeatMatches = genotypeMatch.searchByGenomicFeatures(patient);
 
-		List<Double> patientGenotypeRankingScores = this.getGenotypeMatch().rankByGenotypes(genomicFeatMatches, patient);
-		List<Double> patientPhenotypeRankingScores = this.getPhenotypeMatch().rankByPhenotypes(genomicFeatMatches, patient);
+		List<Double> patientGenotypeRankingScores = genotypeMatch.rankByGenotypes(genomicFeatMatches, patient);
+		List<Double> patientPhenotypeRankingScores = phenotypeMatch.rankByPhenotypes(genomicFeatMatches, patient);
 		List<Double> scores = generateMergedScore(patientGenotypeRankingScores,patientPhenotypeRankingScores);
 		
 		int i=0;
@@ -98,26 +98,6 @@ public class MatchServiceImpl implements MatchService{
 		}
 		return merged;
 	}
-	
-	
-	
-	/**
-	 * @return the genotypeMatch
-	 */
-	public GenotypeSimilarityService getGenotypeMatch() {
-		return genotypeMatch;
-	}
 
-
-	/**
-	 * @return the phenotypeMatch
-	 */
-	public PhenotypeSimilarityService getPhenotypeMatch() {
-		return phenotypeMatch;
-	}
-	
-	
-	
-	
 
 }

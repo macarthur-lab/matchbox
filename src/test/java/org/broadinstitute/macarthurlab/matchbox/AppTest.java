@@ -1,30 +1,29 @@
 package org.broadinstitute.macarthurlab.matchbox;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.github.fakemongo.Fongo;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import junit.framework.Assert;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.broadinstitute.macarthurlab.matchbox.match.GenotypeSimilarityServiceImpl;
-import org.broadinstitute.macarthurlab.matchbox.match.MatchServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.MatchService;
+import org.broadinstitute.macarthurlab.matchbox.match.MatchServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.match.PhenotypeSimilarityServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.metrics.PrivilegedMetricServiceImpl;
 import org.broadinstitute.macarthurlab.matchbox.search.PatientRecordUtility;
 
-import com.github.fakemongo.Fongo;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Unit test for simple App.
@@ -32,8 +31,8 @@ import junit.framework.TestSuite;
 
 public class AppTest extends TestCase
 {
-	private GenotypeSimilarityServiceImpl genotypeSimilarity = new GenotypeSimilarityServiceImpl();
-	private PhenotypeSimilarityServiceImpl phenotypeSimilarity = new PhenotypeSimilarityServiceImpl();
+	private GenotypeSimilarityServiceImpl genotypeSimilarity;// = new GenotypeSimilarityServiceImpl();
+	private PhenotypeSimilarityServiceImpl phenotypeSimilarity;// = new PhenotypeSimilarityServiceImpl();
 	
     /**
      * Create the test case

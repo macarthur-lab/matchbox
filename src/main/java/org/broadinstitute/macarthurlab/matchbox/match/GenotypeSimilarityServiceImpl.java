@@ -3,77 +3,45 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author harindra
  *
  */
-
-
 @Service
 public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
-	private MongoOperations operator;
+
+	private final MongoOperations operator;
 	private final Map<String,String> geneSymbolToEnsemblId;
 	private final Map<String,String> ensemblIdToGeneSymbol;
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	/**
 	 * Constructor
 	 */
-	public GenotypeSimilarityServiceImpl() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
-		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
-		
-		this.geneSymbolToEnsemblId = new HashMap<String,String>();	
-		this.ensemblIdToGeneSymbol = new HashMap<String,String>();	
-		try{
-			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/config/gene_symbol_to_ensembl_id_map.txt";
-			
-			File geneSymbolToEnsemnlIdFile = new File(geneSymbolToEnsemnlId);
-			BufferedReader reader = new BufferedReader(new FileReader(geneSymbolToEnsemnlIdFile));
-			while (true) {
-				String line = reader.readLine();
-				if (line == null)
-					break;
-				/**
-				 * Each row is expected to look like,
-				 * HGNC:5  A1BG    ENSG00000121410
-				 */
-				StringTokenizer st=new StringTokenizer(line);
-				if (st.countTokens()==3){
-					st.nextToken(); 
-					String geneSymbol=st.nextToken(); 
-					String ensemblId=st.nextToken();
-					this.geneSymbolToEnsemblId.put(geneSymbol, ensemblId);
-					this.ensemblIdToGeneSymbol.put(ensemblId,geneSymbol);
-				}
-        }
-        reader.close();
+	@Autowired
+	public GenotypeSimilarityServiceImpl(MongoOperations operator, Map<String,String> geneSymbolToEnsemblId) {
+		this.operator = operator;
+		this.geneSymbolToEnsemblId = geneSymbolToEnsemblId;
+		this.ensemblIdToGeneSymbol = new HashMap<>();
+
+		for (Map.Entry<String, String> entry: geneSymbolToEnsemblId.entrySet()) {
+			String geneSymbol = entry.getKey();
+			String ensemblId = entry.getValue();
+			ensemblIdToGeneSymbol.put(ensemblId, geneSymbol);
 		}
-		catch (Exception e){
-			this.getLogger().error("Error reading gene symbol to emsembl id map:"+e.toString() + " : " + e.getMessage());
-		}	
+
 	}
 
 	/**
@@ -82,7 +50,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
 	 * 2. So far only supports gene symbol and ensembl ID for gene ID field
 	 */
 	public List<Patient> searchByGenomicFeatures(Patient patient){
-		List<Patient> results = new ArrayList<Patient>();		
+		List<Patient> results = new ArrayList<>();
 		
 		StringBuilder geneSymbolQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
 		StringBuilder ensemblIdQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
@@ -92,13 +60,13 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
 			String id = genomicFeature.getGene().get("id");
 			String ensemblId="";
 			String geneId="";
-			if (this.getGeneSymbolToEnsemblId().containsKey(id)){
+			if (geneSymbolToEnsemblId.containsKey(id)){
 				geneId=id;
-				ensemblId=this.geneSymbolToEnsemblId.get(id);
+				ensemblId = geneSymbolToEnsemblId.get(id);
 			}
-			if (this.getEnsemblIdToGeneSymbol().containsKey(id)){
+			if (ensemblIdToGeneSymbol.containsKey(id)){
 				ensemblId=id;
-				geneId=this.getEnsemblIdToGeneSymbol().get(id);
+				geneId= ensemblIdToGeneSymbol.get(id);
 			}
 			
 			geneSymbolQuery.append("'"+geneId+"'"); 
@@ -110,41 +78,37 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
 			if (i<patient.getGenomicFeatures().size()-1){
 				ensemblIdQuery.append(",");
 			}
-			if(!this.getGeneSymbolToEnsemblId().containsKey(id) &&
-					!this.getEnsemblIdToGeneSymbol().containsKey(id)){
+			if(!geneSymbolToEnsemblId.containsKey(id) &&
+					!ensemblIdToGeneSymbol.containsKey(id)){
 				String mesg="could not identify provided gene ID as ensmbl or hgnc:"+id;
-				this.getLogger().error(mesg);
+				logger.error(mesg);
 			}
 			i++;
 		}
 		geneSymbolQuery.append("]}}");
 		ensemblIdQuery.append("]}}");
 		
-		this.logger.info(geneSymbolQuery.toString());
-		this.logger.info(ensemblIdQuery.toString());
+		logger.info(geneSymbolQuery.toString());
+		logger.info(ensemblIdQuery.toString());
 		
 		BasicQuery qGeneId = new BasicQuery(geneSymbolQuery.toString());
-		List<Patient> psGeneId = this.getOperator().find(qGeneId,Patient.class);
+		List<Patient> psGeneId = operator.find(qGeneId,Patient.class);
 		Set<String> usedIds = new HashSet<String>();
 		for (Patient p:psGeneId){
 			results.add(p);
 			usedIds.add(p.getId());
 		}
 		BasicQuery qEnsemblId = new BasicQuery(ensemblIdQuery.toString());
-		List<Patient> psEnsembl = this.getOperator().find(qEnsemblId,Patient.class);
+		List<Patient> psEnsembl = operator.find(qEnsemblId,Patient.class);
 		for (Patient p:psEnsembl){
 			if (!usedIds.contains(p.getId())){
 				results.add(p);
 			}
 		}		
-		this.logger.info(results.toString());
+		logger.info(results.toString());
 		return results;
 	}
-	
 
-	
-	
-	
 	/**
 	 * Ranks a patient list by their genotype similarity to a query patient. Since Genotype
 	 * is half the score (other half is phenotype rank), this section can given a 0.5 as a perfect hit.
@@ -274,68 +238,23 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
 		return codes;
 	}
 	
-	
-	
 	/**
 	 * Returns a list of common genes
 	 * @param p1 patient
 	 * @param p2 patient
 	 */
 	public List<String> findCommonGenes(Patient p1, Patient p2){
-		List<String> p1Genes = new ArrayList<String>();
-		p1.getGenomicFeatures().forEach((k)->{
-							p1Genes.add(k.getGene().get("id"));
-						});
-		List<String> p2Genes = new ArrayList<String>();
-		p2.getGenomicFeatures().forEach((k)->{
-							p2Genes.add(k.getGene().get("id"));
-						});		
-		List<String> p1p2Intersect = p1Genes.stream()
+		List<String> p1Genes = p1.getGenomicFeatures().stream()
+				.map(k -> k.getGene().get("id"))
+				.collect(Collectors.toList());
+
+		List<String> p2Genes = p2.getGenomicFeatures().stream()
+				.map(k -> k.getGene().get("id"))
+				.collect(Collectors.toList());
+
+		return p1Genes.stream()
                 .filter(p2Genes::contains)
                 .collect(Collectors.toList());
-		
-		return p1p2Intersect;
-	}
-	
-	
-	/**
-	 * @return the operator
-	 */
-	public MongoOperations getOperator() {
-		return operator;
 	}
 
-
-	/**
-	 * @param operator the operator to set
-	 */
-	public void setOperator(MongoOperations operator) {
-		this.operator = operator;
-	}
-
-	/**
-	 * @return the geneSymbolToEnsemblId
-	 */
-	public Map<String, String> getGeneSymbolToEnsemblId() {
-		return geneSymbolToEnsemblId;
-	}
-
-	/**
-	 * @return the ensemblIdToGeneSymbol
-	 */
-	public Map<String, String> getEnsemblIdToGeneSymbol() {
-		return ensemblIdToGeneSymbol;
-	}
-	
-	
-	/**
-	 * @return the logger
-	 */
-	public Logger getLogger() {
-		return logger;
-	}	
-	
-	
-
-	
 }
