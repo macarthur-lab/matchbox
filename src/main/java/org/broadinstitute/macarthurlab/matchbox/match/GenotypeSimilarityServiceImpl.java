@@ -17,244 +17,276 @@ import java.util.stream.Collectors;
 
 /**
  * @author harindra
- *
  */
 @Service
-public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService{
+public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService {
 
-	private final MongoOperations operator;
-	private final Map<String,String> geneSymbolToEnsemblId;
-	private final Map<String,String> ensemblIdToGeneSymbol;
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(GenotypeSimilarityServiceImpl.class);
 
-	/**
-	 * Constructor
-	 */
-	@Autowired
-	public GenotypeSimilarityServiceImpl(MongoOperations operator, Map<String,String> geneSymbolToEnsemblId) {
-		this.operator = operator;
-		this.geneSymbolToEnsemblId = geneSymbolToEnsemblId;
-		this.ensemblIdToGeneSymbol = new HashMap<>();
+    //TODO - this needs removing
+    @Autowired
+    private MongoOperations operator;
 
-		for (Map.Entry<String, String> entry: geneSymbolToEnsemblId.entrySet()) {
-			String geneSymbol = entry.getKey();
-			String ensemblId = entry.getValue();
-			ensemblIdToGeneSymbol.put(ensemblId, geneSymbol);
-		}
+    private final Map<String, String> geneSymbolToEnsemblId;
+    private final Map<String, String> ensemblIdToGeneSymbol;
 
-	}
+    /**
+     * Constructor
+     */
+    @Autowired
+    public GenotypeSimilarityServiceImpl(Map<String, String> geneSymbolToEnsemblId) {
+        this.geneSymbolToEnsemblId = geneSymbolToEnsemblId;
+        this.ensemblIdToGeneSymbol = new HashMap<>();
 
-	/**
-	 * Search for matching patients using GenomicFeatures
-	 * 1. Considers it a match if they have AT LEAST 1 gene in common
-	 * 2. So far only supports gene symbol and ensembl ID for gene ID field
-	 */
-	public List<Patient> searchByGenomicFeatures(Patient patient){
-		List<Patient> results = new ArrayList<>();
-		
-		StringBuilder geneSymbolQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
-		StringBuilder ensemblIdQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
-		
-		int i=0;
-		for (GenomicFeature genomicFeature : patient.getGenomicFeatures()){
-			String id = genomicFeature.getGene().get("id");
-			String ensemblId="";
-			String geneId="";
-			if (geneSymbolToEnsemblId.containsKey(id)){
-				geneId=id;
-				ensemblId = geneSymbolToEnsemblId.get(id);
-			}
-			if (ensemblIdToGeneSymbol.containsKey(id)){
-				ensemblId=id;
-				geneId= ensemblIdToGeneSymbol.get(id);
-			}
-			
-			geneSymbolQuery.append("'"+geneId+"'"); 
-			if (i<patient.getGenomicFeatures().size()-1){
-				geneSymbolQuery.append(",");
-			}
+        for (Map.Entry<String, String> entry : geneSymbolToEnsemblId.entrySet()) {
+            String geneSymbol = entry.getKey();
+            String ensemblId = entry.getValue();
+            ensemblIdToGeneSymbol.put(ensemblId, geneSymbol);
+        }
 
-			ensemblIdQuery.append("'"+ensemblId+"'"); 
-			if (i<patient.getGenomicFeatures().size()-1){
-				ensemblIdQuery.append(",");
-			}
-			if(!geneSymbolToEnsemblId.containsKey(id) &&
-					!ensemblIdToGeneSymbol.containsKey(id)){
-				String mesg="could not identify provided gene ID as ensmbl or hgnc:"+id;
-				logger.error(mesg);
-			}
-			i++;
-		}
-		geneSymbolQuery.append("]}}");
-		ensemblIdQuery.append("]}}");
-		
-		logger.info(geneSymbolQuery.toString());
-		logger.info(ensemblIdQuery.toString());
-		
-		BasicQuery qGeneId = new BasicQuery(geneSymbolQuery.toString());
-		List<Patient> psGeneId = operator.find(qGeneId,Patient.class);
-		Set<String> usedIds = new HashSet<String>();
-		for (Patient p:psGeneId){
-			results.add(p);
-			usedIds.add(p.getId());
-		}
-		BasicQuery qEnsemblId = new BasicQuery(ensemblIdQuery.toString());
-		List<Patient> psEnsembl = operator.find(qEnsemblId,Patient.class);
-		for (Patient p:psEnsembl){
-			if (!usedIds.contains(p.getId())){
-				results.add(p);
-			}
-		}		
-		logger.info(results.toString());
-		return results;
-	}
+    }
 
-	/**
-	 * Ranks a patient list by their genotype similarity to a query patient. Since Genotype
-	 * is half the score (other half is phenotype rank), this section can given a 0.5 as a perfect hit.
-	 * @param patients a list of patients to rank
-	 * @param queryPatient a target patient to rank against
-	 * @return Sends back a list of scores for each patient based on genotype. Order matches input list
-	 */
-	public List<Double> rankByGenotypes(List<Patient> patients, Patient queryPatient){
-		List<Double> patientGenotypeRankingScores = new ArrayList<Double>();
-		for (Patient patient :patients){
-			patientGenotypeRankingScores.add(this.getGenotypeSimilarity(patient, queryPatient));
-		}
-		return patientGenotypeRankingScores;
-	}
+    /**
+     * Ranks a patient list by their genotype similarity to a query patient. Since Genotype
+     * is half the score (other half is phenotype rank), this section can given a 0.5 as a perfect hit.
+     *
+     * @param queryPatient a target patient to rank against
+     * @param patients     a list of patients to rank
+     * @return Sends back a list of scores for each patient based on genotype. Order matches input list
+     */
+    public List<Double> scoreGenotypes(Patient queryPatient, List<Patient> patients) {
+        List<Double> patientGenotypeRankingScores = new ArrayList<>();
+        for (Patient patient : patients) {
+            double genotypeSimilarity = getGenotypeSimilarity(patient, queryPatient);
+            logger.debug("{}-{} genotype similarity score = {}", queryPatient.getId(), patient.getId(), genotypeSimilarity);
+            patientGenotypeRankingScores.add(genotypeSimilarity);
+        }
+        return patientGenotypeRankingScores;
+    }
 
-	
-	/**
-	 * Calculates a metric on similarity. Returns 0.5 for a perfect match.
-	 * @param p1	patient 1
-	 * @param queryP	patient 2
-	 * @return	a representative number (described above)
-	 */
-	public double getGenotypeSimilarity(Patient p1, Patient queryP){
-		double simScore=0.0;
-		List<String> commonGenes = findCommonGenes(p1, queryP);
-		//total possible addition of 0.25 (if perfect match)
-		simScore += getZygosityScore(p1, queryP,commonGenes);
-		//total possible addition of 0.25 (if perfect match)
-		simScore += getTypeScore(p1, queryP,commonGenes);
-		return simScore;
-	}
 
-	
-	
-	/**
-	 * Access zygosity's affect on the score. If zygosity is the same in at least
-	 * one of the common genes, 0.25 is returned.
-	 * @param p1	The patient in question
-	 * @param queryP	The query patient
-	 * @return A score (0.25 is returned if there is a match in zygositys)
-	 */
-	public double getZygosityScore(Patient p1, Patient queryP,List<String> commonGenes){
-		double score=0.0d;
-		for (GenomicFeature gf: p1.getGenomicFeatures()){
-			if (commonGenes.contains(gf.getGene().get("id"))){
-				long queryPZygosity=-1L;
-				for (GenomicFeature queryPgf: queryP.getGenomicFeatures()){
-					if (queryPgf.getGene().get("id").equals(gf.getGene().get("id"))){
-						queryPZygosity=queryPgf.getZygosity();
-					}
-				}
-				if (gf.getZygosity() == queryPZygosity){
-					score=0.25;
-				}
-			}
-		}
-		return score;
-	}
-	
-	
-	/**
-	 * Generates a score based on variant positions inside a common gene. Returns a 
-	 * 0.25 if a perfect match
-	 * @param p1 patient
-	 * @param queryP another patient
-	 * @return	Returns a representative metric
-	 */
-	public double getTypeScore(Patient p1, Patient queryP, List<String> p1p2Intersect){
-		double score=0.0;
-		/**
-		 * make map of query relevant gene-name/symbol:variant-type (SO code) 
-		 * TODO:translate all to ensembl before comparison
-		 */
-		Map<String,String> queryGenomicFeatures = new HashMap<String,String>();
-		queryP.getGenomicFeatures().forEach((k)->{
-			if (p1p2Intersect.contains(k.getGene().get("id"))){
-				queryGenomicFeatures.put(k.getGene().get("id"), 
-										 k.getType().get("id"));
-			}
-		});
-		//now see if the match has these SO codes in common
-		int similarCount=0;
-		for(GenomicFeature p1GenomicFeature: p1.getGenomicFeatures()){
-			if (queryGenomicFeatures.containsKey(p1GenomicFeature.getGene().get("id"))){
-				if ( queryGenomicFeatures.get(p1GenomicFeature.getGene().get("id")).equals(p1GenomicFeature.getType().get("id")) )
-				{
-					similarCount+=1;
-				}
-				//UP the score IF it is a HIGH danger variant type?
-				if (this.getSOCodes().contains(p1GenomicFeature.getType().get("id"))){
-					score += 0.1;
-				}
-			}
-		}
-		if (similarCount == queryGenomicFeatures.size()){
-			score += 0.25;
-		}
-		return score;
-	}
-	
-	
-	
-	/**
-	 * TODO: abstract this to config file
-	 * Get a list of SO codes of mutations. gotten from
-	 * //http://doc-openbio.readthedocs.io/projects/jannovar/en/master/var_effects.html
-	 * @return a list of SO codes
-	 */
-	private List<String> getSOCodes(){
-		List<String> codes= new ArrayList<String>();
-		codes.add("SO:1000182");
-		codes.add("SO:0001624");
-		codes.add("SO:0001572");
-		codes.add("SO:0001909");
-		codes.add("SO:0001910");
-		codes.add("SO:0001589");
-		codes.add("SO:0001908");
-		codes.add("SO:0001906");
-		codes.add("SO:0001583");
-		codes.add("SO:1000005");
-		codes.add("SO:0002012");
-		codes.add("SO:0002012");
-		codes.add("SO:0002012");
-		codes.add("SO:0001619");
-		codes.add("SO:0001575");
-		codes.add("SO:0001619");	
-		return codes;
-	}
-	
-	/**
-	 * Returns a list of common genes
-	 * @param p1 patient
-	 * @param p2 patient
-	 */
-	public List<String> findCommonGenes(Patient p1, Patient p2){
-		List<String> p1Genes = p1.getGenomicFeatures().stream()
-				.map(k -> k.getGene().get("id"))
-				.collect(Collectors.toList());
+    /**
+     * Calculates a metric on similarity. Returns 0.5 for a perfect match.
+     *
+     * @param nodePatient patient in the node
+     * @param queryPatient external query patient
+     * @return a representative number (described above)
+     */
+    private double getGenotypeSimilarity(Patient nodePatient, Patient queryPatient) {
+        if (nodePatient.getGenomicFeatures().isEmpty() || queryPatient.getGenomicFeatures().isEmpty()) {
+            //don't overly penalize these - maybe the phenotype score is high which could lead to a good match.
+            return 0.6;
+        }
 
-		List<String> p2Genes = p2.getGenomicFeatures().stream()
-				.map(k -> k.getGene().get("id"))
-				.collect(Collectors.toList());
+        List<String> commonGenes = findCommonGenes(nodePatient, queryPatient);
+        double zygosityScore = getZygosityScore(nodePatient, queryPatient, commonGenes);
+        double typeScore = getTypeScore(nodePatient, queryPatient, commonGenes);
+        //return a maximum of 1.0
+        return Math.min(zygosityScore + typeScore, 1.0);
+    }
 
-		return p1Genes.stream()
+    /**
+     * Returns a list of common genes
+     *
+     * @param p1 patient
+     * @param p2 patient
+     */
+    List<String> findCommonGenes(Patient p1, Patient p2) {
+        List<String> p1Genes = p1.getGenomicFeatures().stream()
+                .map(k -> toGeneSymbol(k.getGene().get("id")))
+                .filter(geneSymbol -> !geneSymbol.equals("UNKNOWN"))
+                .collect(Collectors.toList());
+
+        List<String> p2Genes = p2.getGenomicFeatures().stream()
+                .map(k -> toGeneSymbol(k.getGene().get("id")))
+                .filter(geneSymbol -> !geneSymbol.equals("UNKNOWN"))
+                .collect(Collectors.toList());
+
+        return p1Genes.stream()
                 .filter(p2Genes::contains)
                 .collect(Collectors.toList());
-	}
+    }
+
+    /**
+     * Access zygosity's affect on the score. If zygosity is the same in at least
+     * one of the common genes, 0.5 is returned.
+     *
+     * @param nodePatient patient in the node
+     * @param queryPatient external query patient
+     * @return A score (0.5 is returned if there is a match in zygositys)
+     */
+    private double getZygosityScore(Patient nodePatient, Patient queryPatient, List<String> commonGenes) {
+        for (GenomicFeature gf : nodePatient.getGenomicFeatures()) {
+            String geneId = toGeneSymbol(gf.getGene().get("id"));
+            if (commonGenes.contains(geneId)) {
+                for (GenomicFeature queryPgf : queryPatient.getGenomicFeatures()) {
+                    if (toGeneSymbol(queryPgf.getGene().get("id")).equals(geneId)) {
+                        //basically if the patients both have a gene in common with the same zygosity, this is a good match
+                        //make the code read accordingly.
+                        if (gf.getZygosity() == (long) queryPgf.getZygosity()) {
+                            return 0.5;
+                        }
+                    }
+                }
+            }
+        }
+        return 0.005;
+    }
+
+
+    /**
+     * Generates a score based on variant positions inside a common gene.
+     *
+     * Returns a 0.5 if a perfect match
+     *
+     * @param nodePatient patient in the node
+     * @param queryPatient external query patient
+     * @return Returns a representative metric
+     */
+    private double getTypeScore(Patient nodePatient, Patient queryPatient, List<String> commonGenes) {
+        double score = 0.005;
+        /**
+         * make map of query relevant gene-name/symbol:variant-type (SO code)
+         * TODO:translate all to ensembl before comparison
+         */
+        Map<String, String> queryGenomicFeatures = new HashMap<>();
+        queryPatient.getGenomicFeatures().forEach(k -> {
+            String geneSymbol = toGeneSymbol(k.getGene().get("id"));
+            if (commonGenes.contains(geneSymbol)) {
+                //'type' is optional so check its there to avoid a null pointer later on
+                if (k.getType().containsKey("id")) {
+                    String type = k.getType().get("id");
+                    queryGenomicFeatures.put(geneSymbol, type);
+                }
+            }
+        });
+        //now see if the match has these SO codes in common
+        int similarCount = 0;
+        for (GenomicFeature nodeGenomicFeature : nodePatient.getGenomicFeatures()) {
+            String nodePatientGeneSymbol = toGeneSymbol(nodeGenomicFeature.getGene().get("id"));
+            if (queryGenomicFeatures.containsKey(nodePatientGeneSymbol)) {
+                String soTermId = nodeGenomicFeature.getType().getOrDefault("id", "");
+                if (queryGenomicFeatures.get(nodePatientGeneSymbol).equals(soTermId)) {
+                    similarCount += 1;
+                }
+                //UP the score IF it is a HIGH danger variant type?
+                if (getSOCodes().contains(soTermId)) {
+                    score += 0.1;
+                }
+            }
+        }
+        if (similarCount == queryGenomicFeatures.size()) {
+            score += 0.5;
+        }
+        return score;
+    }
+
+    private String toGeneSymbol(String identifier) {
+//        id: A gene symbol or identifier (mandatory): gene symbol from the HGNC database OR ensembl gene ID OR entrez gene ID
+        if (geneSymbolToEnsemblId.containsKey(identifier)) {
+            return identifier;
+        }
+        if (ensemblIdToGeneSymbol.containsKey(identifier)) {
+            return ensemblIdToGeneSymbol.get(identifier);
+        }
+        //Entrez gene id? This is missing. TODO: make a GeneIdentifier class where these can be stored and compared.
+        return "UNKNOWN";
+    }
+
+    /**
+     * TODO: abstract this to config file
+     * Get a list of SO codes of mutations. gotten from
+     * //http://doc-openbio.readthedocs.io/projects/jannovar/en/master/var_effects.html
+     *
+     * @return a list of SO codes
+     */
+    private List<String> getSOCodes() {
+        List<String> codes = new ArrayList<String>();
+        codes.add("SO:1000182");
+        codes.add("SO:0001624");
+        codes.add("SO:0001572");
+        codes.add("SO:0001909");
+        codes.add("SO:0001910");
+        codes.add("SO:0001589");
+        codes.add("SO:0001908");
+        codes.add("SO:0001906");
+        codes.add("SO:0001583");
+        codes.add("SO:1000005");
+        codes.add("SO:0002012");
+        codes.add("SO:0002012");
+        codes.add("SO:0002012");
+        codes.add("SO:0001619");
+        codes.add("SO:0001575");
+        codes.add("SO:0001619");
+        return codes;
+    }
+
+
+    /**
+     * Search for matching patients using GenomicFeatures
+     * 1. Considers it a match if they have AT LEAST 1 gene in common
+     * 2. So far only supports gene symbol and ensembl ID for gene ID field
+     */
+    //TODO: Check this really isn't required and remove
+    private List<Patient> searchByGenomicFeatures(Patient patient) {
+        List<Patient> results = new ArrayList<>();
+
+        StringBuilder geneSymbolQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
+        StringBuilder ensemblIdQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
+
+        int i = 0;
+        for (GenomicFeature genomicFeature : patient.getGenomicFeatures()) {
+            String id = genomicFeature.getGene().get("id");
+            String ensemblId = "";
+            String geneId = "";
+            if (geneSymbolToEnsemblId.containsKey(id)) {
+                geneId = id;
+                ensemblId = geneSymbolToEnsemblId.get(id);
+            }
+            if (ensemblIdToGeneSymbol.containsKey(id)) {
+                ensemblId = id;
+                geneId = ensemblIdToGeneSymbol.get(id);
+            }
+
+            geneSymbolQuery.append("'" + geneId + "'");
+            if (i < patient.getGenomicFeatures().size() - 1) {
+                geneSymbolQuery.append(",");
+            }
+
+            ensemblIdQuery.append("'" + ensemblId + "'");
+            if (i < patient.getGenomicFeatures().size() - 1) {
+                ensemblIdQuery.append(",");
+            }
+            if (!geneSymbolToEnsemblId.containsKey(id) &&
+                    !ensemblIdToGeneSymbol.containsKey(id)) {
+                String mesg = "could not identify provided gene ID as ensmbl or hgnc:" + id;
+                logger.error(mesg);
+            }
+            i++;
+        }
+        geneSymbolQuery.append("]}}");
+        ensemblIdQuery.append("]}}");
+
+        logger.info("{}", geneSymbolQuery);
+        logger.info("{}", ensemblIdQuery);
+
+        BasicQuery qGeneId = new BasicQuery(geneSymbolQuery.toString());
+        List<Patient> psGeneId = operator.find(qGeneId, Patient.class);
+        Set<String> usedIds = new HashSet<String>();
+        for (Patient p : psGeneId) {
+            results.add(p);
+            usedIds.add(p.getId());
+        }
+        BasicQuery qEnsemblId = new BasicQuery(ensemblIdQuery.toString());
+        List<Patient> psEnsembl = operator.find(qEnsemblId, Patient.class);
+        for (Patient p : psEnsembl) {
+            if (!usedIds.contains(p.getId())) {
+                results.add(p);
+            }
+        }
+        logger.info("{}", results);
+        return results;
+    }
+
 
 }

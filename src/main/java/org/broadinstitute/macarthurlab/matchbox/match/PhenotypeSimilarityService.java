@@ -3,14 +3,15 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
-import java.util.List;
-
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+
+import java.util.List;
 
 /**
  * @author harindra
- *
+ * @author Jules Jacobsen <j.jacobsen@qmul.ac.uk>
  */
 public interface PhenotypeSimilarityService {
-	public List<Double> rankByPhenotypes(List<Patient> patients, Patient queryPatient);
+
+	public List<Double> scorePhenotypes(Patient queryPatient, List<Patient> patients);
 }
