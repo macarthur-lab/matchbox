@@ -45,16 +45,52 @@ public class MatchServiceImpl implements MatchService {
     public List<MatchmakerResult> match(Patient patient, List<Patient> patients) {
         logger.info("Matching query patient {} against all {} patients in this node.", patient.getId(), patients.size());
         //The final score should be in the range 0.0 - 1.0 where 1.0 is a self-match.
-        List<Double> patientGenotypeRankingScores = genotypeMatch.scoreGenotypes(patient, patients);
-        List<Double> patientPhenotypeRankingScores = phenotypeMatch.scorePhenotypes(patient, patients);
-
+        
+        /**
+         * IF genotypes are given:
+         * we are interested in patients with a variant in the same gene as the query, and only
+         * those will be scored and returned
+         */
+        List<Double> patientGenotypeRankingScores = new ArrayList<Double>();
+        List<Patient> baseCaseGenotypeMatchedPatients  = new ArrayList<Patient>();
+        if (patient.getGenomicFeatures().size()>0){
+        	baseCaseGenotypeMatchedPatients = this.getGenotypeMatch().searchByGenomicFeatures(patient);
+        	patientGenotypeRankingScores = genotypeMatch.scoreGenotypes(patient, baseCaseGenotypeMatchedPatients);
+        }
+        /**
+         * IF phenotypes are given:
+         * another set of matches are found based ONLY phenotype matching.
+         */
+        List<Double> patientPhenotypeRankingScores = new ArrayList<Double>();
+        if (patient.getFeatures().size()>0){
+        	patientPhenotypeRankingScores = phenotypeMatch.scorePhenotypes(patient, patients);
+        }
+        
+        /**
+         * find the subset of results that we will send back as results
+         * 1. for genotypes: All results that have a variant in a same gene as the query
+         * 2. for phenotypes: Jules will decide a proper cutoff
+         * 
+         * This function will make a combined final result set that takes into account 1,2
+         */
+        Map<String,Patient> resultsToSendBack = ascertainResultsToSendBack(patients,
+        															 patientPhenotypeRankingScores,
+        															 patientGenotypeRankingScores,
+        															 baseCaseGenotypeMatchedPatients
+        															 );
+        
+        
         List<MatchScore> scores = generateMergedScore(patient, patients, patientGenotypeRankingScores, patientPhenotypeRankingScores);
-
-        logTopNScores(8, patient.getId(), scores);
+        
+        
+        //we probably shouldn't arbitralily narrow results (feedback from analysts)
+        //logTopNScores(8, patient.getId(), scores);
 
         List<MatchmakerResult> allResults = new ArrayList<>();
         for (int i = 0; i < patients.size(); i++) {
             Patient p = patients.get(i);
+        //only add patient to allResults if we had thought to send back to querier    
+        if (resultsToSendBack.keySet().contains(p.getId())){
             MatchScore matchScore = scores.get(i);
             logger.debug("{}", matchScore);
             Map<String, Double> score = new HashMap<>();
@@ -62,6 +98,8 @@ public class MatchServiceImpl implements MatchService {
             //TODO add in the _phentypeMatches and _genotypeMatches etc here. This will require more informative return types from the geno/phenoMatchers
             allResults.add(new MatchmakerResult(score, p));
         }
+        }
+        
 
         //TODO: still need to finalise these cutoffs.
         //return the top five highest scores over 0.42
@@ -75,7 +113,28 @@ public class MatchServiceImpl implements MatchService {
                 .limit(5)
                 .collect(toList());
     }
+    
+    
+    
+    /**
+     * find the subset of results that we will send back as results
+     * 1. for genotypes: All results that have a variant in a same gene as the query
+     * 2. for phenotypes: Jules will decide a proper cutoff
+     * 
+     * This function will make a combined final result set that takes into account 1,2
+     */
+    private Map<String, Patient> ascertainResultsToSendBack(List<Patient> patients,
+    		List<Double>patientPhenotypeRankingScores,
+    		List<Double>patientGenotypeRankingScores,
+    		List<Patient> baseCaseGenotypeMatchedPatients
+			 )
+    {
+    	//TODO IMPLEMENT
+    	return new HashMap<String,Patient>();
+    }
 
+    
+    
     private void logTopNScores(int num, String patientId, List<MatchScore> scores) {
         logger.info("Top {} matches for {}:", num, patientId);
         scores.stream().sorted(Comparator.comparingDouble(MatchScore::getScore).reversed()).limit(num).forEach(matchScore -> logger.info("{}", matchScore));
@@ -92,7 +151,10 @@ public class MatchServiceImpl implements MatchService {
      * @param patientPhenotypeRankingScores scores based on phenotypes
      * @return A merged score
      */
-    private List<MatchScore> generateMergedScore(Patient queryPatient, List<Patient> patients, List<Double> patientGenotypeRankingScores, List<Double> patientPhenotypeRankingScores) {
+    private List<MatchScore> generateMergedScore(Patient queryPatient, 
+    											List<Patient> patients, 
+    											List<Double> patientGenotypeRankingScores, 
+    											List<Double> patientPhenotypeRankingScores) {    	
         List<MatchScore> merged = new ArrayList<>();
         for (int i = 0; i < patients.size(); i++) {
             Patient matchPatient = patients.get(i);
@@ -156,5 +218,21 @@ public class MatchServiceImpl implements MatchService {
                     '}';
         }
     }
+
+	/**
+	 * @return the genotypeMatch
+	 */
+	public GenotypeSimilarityService getGenotypeMatch() {
+		return genotypeMatch;
+	}
+
+	/**
+	 * @return the phenotypeMatch
+	 */
+	public PhenotypeSimilarityService getPhenotypeMatch() {
+		return phenotypeMatch;
+	}
+    
+    
 
 }
