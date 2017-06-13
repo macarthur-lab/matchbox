@@ -11,11 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 /**
- * @author harindra
+ * @author Harindra Arachchi <harindra@broadinstitute.org>
  * @author Jules Jacobsen <j.jacobsen@qmul.ac.uk>
  */
 @Service
@@ -52,39 +53,38 @@ public class MatchServiceImpl implements MatchService {
          * those will be scored and returned
          */
         List<Double> patientGenotypeRankingScores = new ArrayList<Double>();
-        List<Patient> baseCaseGenotypeMatchedPatients  = new ArrayList<Patient>();
+        List<Patient> patientsPickedByGenotype  = new ArrayList<Patient>();
         if (patient.getGenomicFeatures().size()>0){
-        	baseCaseGenotypeMatchedPatients = this.getGenotypeMatch().searchByGenomicFeatures(patient);
-        	patientGenotypeRankingScores = genotypeMatch.scoreGenotypes(patient, baseCaseGenotypeMatchedPatients);
+        	patientsPickedByGenotype = this.getGenotypeMatch().searchByGenomicFeatures(patient);
+        	patientGenotypeRankingScores = genotypeMatch.scoreGenotypes(patient, patientsPickedByGenotype);
         }
         /**
          * IF phenotypes are given:
          * another set of matches are found based ONLY phenotype matching.
+         * 
+         * Phenotype matching system as of now returns all patients scored, but better would be it determines
+         * a best subset on some magic criteria so that component remains a black box and easily switchable
          */
         List<Double> patientPhenotypeRankingScores = new ArrayList<Double>();
+        List<Patient> patientsPickedByPhenotype = new ArrayList<Patient>();
         if (patient.getFeatures().size()>0){
         	patientPhenotypeRankingScores = phenotypeMatch.scorePhenotypes(patient, patients);
+        	patientsPickedByPhenotype = pickTopSubsetOfPhenotypeMatchesToReturn(patientPhenotypeRankingScores,patients);
         }
         
         /**
          * find the subset of results that we will send back as results
-         * 1. for genotypes: All results that have a variant in a same gene as the query
+         * 1. for genotypes: All results that have a variant in a same gene as the query(this is already reflected in the result)
          * 2. for phenotypes: Jules will decide a proper cutoff
          * 
          * This function will make a combined final result set that takes into account 1,2
          */
-        Map<String,Patient> resultsToSendBack = ascertainResultsToSendBack(patients,
-        															 patientPhenotypeRankingScores,
-        															 patientGenotypeRankingScores,
-        															 baseCaseGenotypeMatchedPatients
-        															 );
+        Map<String,Patient> resultsToSendBack = ascertainCombinedResultsToSendBack(patientsPickedByPhenotype,patientsPickedByGenotype);
         
         
         List<MatchScore> scores = generateMergedScore(patient, patients, patientGenotypeRankingScores, patientPhenotypeRankingScores);
         
-        
-        //we probably shouldn't arbitralily narrow results (feedback from analysts)
-        //logTopNScores(8, patient.getId(), scores);
+        logTopNScores(8, patient.getId(), scores);
 
         List<MatchmakerResult> allResults = new ArrayList<>();
         for (int i = 0; i < patients.size(); i++) {
@@ -116,21 +116,43 @@ public class MatchServiceImpl implements MatchService {
     
     
     
+
     /**
-     * find the subset of results that we will send back as results
-     * 1. for genotypes: All results that have a variant in a same gene as the query
-     * 2. for phenotypes: Jules will decide a proper cutoff
-     * 
-     * This function will make a combined final result set that takes into account 1,2
+     * Given a list of patients, and their phenotype ranking scores, sends back a list of them that are deemed
+     * worthy to send back to querier (as we cannot send back all patients in the db to a request)
+     * @param patientPhenotypeRankingScores a series of score representing similarity to query
+     * @param patients	a series of patients
+     * @return a subset of patients that are deemed a close match, and will be sent back as results
      */
-    private Map<String, Patient> ascertainResultsToSendBack(List<Patient> patients,
-    		List<Double>patientPhenotypeRankingScores,
-    		List<Double>patientGenotypeRankingScores,
-    		List<Patient> baseCaseGenotypeMatchedPatients
-			 )
+	private List<Patient> pickTopSubsetOfPhenotypeMatchesToReturn(List<Double> patientPhenotypeRankingScores, List<Patient> patients) {
+		// TODO Auto-generated method stub
+		/**
+		 * To get started, just sending back all patients, Jules, you will do the magic here as the subject expert
+		 * and pick a good way to decide a cutoff and pick a subset of patients?
+		 */
+		return patients;
+	}
+
+	/**
+     * find the subset of results between those found by genotypes and phenotypes 
+     * that we will send back as results.
+     * 
+     * Inputs:
+     * Results found via genotypes (all results that have a variant in a same gene as the query)
+     * Results found via phenotypes: (Jules will decide a proper cutoff)
+	 *
+     * Output:
+     * A map of ID of patient, to the full patient object  
+     *  So in essence will return a UNION of the two lists
+     */
+    private Map<String, Patient> ascertainCombinedResultsToSendBack(List<Patient>patientsPickedByPhenotype, List<Patient>patientsPickedByGenotype)
     {
-    	//TODO IMPLEMENT
-    	return new HashMap<String,Patient>();
+    	List<Patient> intersect = patientsPickedByGenotype.stream().filter(patientsPickedByPhenotype::contains).collect(Collectors.toList());
+    	Map<String,Patient> sendBackToQuerier = new HashMap<String,Patient>();
+    	for (Patient p:intersect){
+    		sendBackToQuerier.put(p.getId(), p);
+    	}
+    	return sendBackToQuerier;
     }
 
     
