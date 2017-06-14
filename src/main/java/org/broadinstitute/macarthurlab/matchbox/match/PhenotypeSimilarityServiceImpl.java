@@ -1,84 +1,45 @@
 package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
-import org.monarchinitiative.exomiser.core.phenotype.*;
+import org.monarchinitiative.exomiser.core.phenotype.Model;
+import org.monarchinitiative.exomiser.core.phenotype.ModelPhenotypeMatch;
+import org.monarchinitiative.exomiser.core.phenotype.ModelScorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * @author Jules Jacobsen <j.jacobsen@qmul.ac.uk>
  */
-@Service
 public class PhenotypeSimilarityServiceImpl implements PhenotypeSimilarityService {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeSimilarityServiceImpl.class);
 
-    private final PhenotypeMatchService phenotypeMatchService;
+    private final ModelScorer phenotypeModelScorer;
 
-    @Autowired
-    public PhenotypeSimilarityServiceImpl(PhenotypeMatchService phenotypeMatchService) {
-        this.phenotypeMatchService = phenotypeMatchService;
+    public PhenotypeSimilarityServiceImpl(ModelScorer phenotypeModelScorer) {
+        this.phenotypeModelScorer = phenotypeModelScorer;
     }
 
-    /**
-     * Ranks a patient list by their phenotype similarity to a query patient
-     *
-     * @param queryPatient a target patient to rank against
-     * @param patients     a list of patients to rank
-     * @return Sends back a list of scores for each patient based on phenotype. Order matches input list
-     */
-    public List<Double> scorePhenotypes(Patient queryPatient, List<Patient> patients) {
-        ModelScorer modelScorer = setUpModelScorer(queryPatient);
-
-//        return patients.stream()
-//                .map(this::toModel)
-//                .map(modelScorer::scoreModel)
-//                //this is not good - we're throwing away all the useful match information
-//                .map(ModelPhenotypeMatch::getScore)
-//                .collect(toList());
-
-        List<Double> patientPhenotypeRankingScores = new ArrayList<>();
-        for (Patient patient : patients) {
-            PatientModel patientModel = toModel(patient);
-            ModelPhenotypeMatch modelPhenotypeMatch = modelScorer.scoreModel(patientModel);
-//            logger.info("{}", modelPhenotypeMatch);
-            if (queryPatient.getFeatures().isEmpty() || patient.getFeatures().isEmpty()) {
-                //don't overly penalize these - maybe the genotype score is high which could lead to a good match.
-                patientPhenotypeRankingScores.add(0.6);
-            } else {
-                logger.debug("{}-{} phenotype similarity score = {}", queryPatient.getId(), patient.getId(), modelPhenotypeMatch.getScore());
-                patientPhenotypeRankingScores.add(modelPhenotypeMatch.getScore());
-            }
+    @Override
+    public PhenotypeSimilarityScore scorePhenotypes(Patient queryPatient, Patient nodePatient) {
+        if (queryPatient.getFeatures().isEmpty() || nodePatient.getFeatures().isEmpty()) {
+            //don't overly penalize these - maybe the genotype score is high which could lead to a good match.
+            return new PhenotypeSimilarityScore(0.6, Collections.emptyList());
         }
-        return patientPhenotypeRankingScores;
-    }
 
-    private ModelScorer setUpModelScorer(Patient queryPatient) {
-        List<String> queryPatientPhenotypes = getObservedPhenotypes(queryPatient);
-        List<PhenotypeTerm> queryPhenotypeTerms = phenotypeMatchService.makePhenotypeTermsFromHpoIds(queryPatientPhenotypes);
-        PhenotypeMatcher hpHpQueryMatcher = phenotypeMatchService.getHumanPhenotypeMatcherForTerms(queryPhenotypeTerms);
-        return PhenodigmModelScorer.forSameSpecies(hpHpQueryMatcher);
+        PatientModel nodePatientModel = toModel(nodePatient);
+        ModelPhenotypeMatch modelPhenotypeMatch = phenotypeModelScorer.scoreModel(nodePatientModel);
+        logger.debug("{}-{} phenotype similarity score = {}", queryPatient.getId(), nodePatient.getId(), modelPhenotypeMatch.getScore());
+        return new PhenotypeSimilarityScore(modelPhenotypeMatch.getScore(), Collections.emptyList());
     }
 
     private PatientModel toModel(Patient patient) {
-        List<String> phenotypes = getObservedPhenotypes(patient);
+        List<String> phenotypes = PhenotypeSimilarityService.getObservedPhenotypeIds(patient);
         return new PatientModel(patient.getId(), phenotypes);
-    }
-
-    private List<String> getObservedPhenotypes(Patient patient) {
-        return patient.getFeatures().stream()
-                .filter(phenotypeFeature -> "yes".equals(phenotypeFeature.getObserved()))
-                .map(PhenotypeFeature::getId)
-                .collect(toList());
     }
 
     private class PatientModel implements Model {

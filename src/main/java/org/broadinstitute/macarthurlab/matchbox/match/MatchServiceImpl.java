@@ -5,14 +5,13 @@ package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.monarchinitiative.exomiser.core.phenotype.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * @author harindra
@@ -23,13 +22,13 @@ public class MatchServiceImpl implements MatchService {
 
     private static final Logger logger = LoggerFactory.getLogger(MatchServiceImpl.class);
 
-    private final GenotypeSimilarityService genotypeMatch;
-    private final PhenotypeSimilarityService phenotypeMatch;
+    private final GenotypeSimilarityService genotypeSimilarityService;
+    private final PhenotypeMatchService phenotypeMatchService;
 
     @Autowired
-    public MatchServiceImpl(GenotypeSimilarityService genotypeMatch, PhenotypeSimilarityService phenotypeMatch) {
-        this.genotypeMatch = genotypeMatch;
-        this.phenotypeMatch = phenotypeMatch;
+    public MatchServiceImpl(GenotypeSimilarityService genotypeSimilarityService, PhenotypeMatchService phenotypeMatchService) {
+        this.genotypeSimilarityService = genotypeSimilarityService;
+        this.phenotypeMatchService = phenotypeMatchService;
     }
 
     /**
@@ -45,116 +44,59 @@ public class MatchServiceImpl implements MatchService {
     public List<MatchmakerResult> match(Patient patient, List<Patient> patients) {
         logger.info("Matching query patient {} against all {} patients in this node.", patient.getId(), patients.size());
         //The final score should be in the range 0.0 - 1.0 where 1.0 is a self-match.
-        List<Double> patientGenotypeRankingScores = genotypeMatch.scoreGenotypes(patient, patients);
-        List<Double> patientPhenotypeRankingScores = phenotypeMatch.scorePhenotypes(patient, patients);
+        PhenotypeSimilarityService phenotypeSimilarityService = setUpPhenotypeSimilarityServiceForPatient(patient);
 
-        List<MatchScore> scores = generateMergedScore(patient, patients, patientGenotypeRankingScores, patientPhenotypeRankingScores);
-
-        logTopNScores(8, patient.getId(), scores);
-
-        List<MatchmakerResult> allResults = new ArrayList<>();
-        for (int i = 0; i < patients.size(); i++) {
-            Patient p = patients.get(i);
-            MatchScore matchScore = scores.get(i);
-            logger.debug("{}", matchScore);
-            Map<String, Double> score = new HashMap<>();
-            score.put("patient", matchScore.getScore());
-            //TODO add in the _phentypeMatches and _genotypeMatches etc here. This will require more informative return types from the geno/phenoMatchers
-            allResults.add(new MatchmakerResult(score, p));
-        }
-
-        //TODO: still need to finalise these cutoffs.
-        //return the top five highest scores over 0.42
-        return allResults.stream()
-                .filter(matchmakerResult -> matchmakerResult.getScore().get("patient") >= 0.42)
-                .sorted(Comparator.comparingDouble(object -> {
-                    //yuk
-                    MatchmakerResult matchmakerResult = (MatchmakerResult) object;
-                    return matchmakerResult.getScore().get("patient");
-                }).reversed())
-                .limit(5)
-                .collect(toList());
-    }
-
-    private void logTopNScores(int num, String patientId, List<MatchScore> scores) {
-        logger.info("Top {} matches for {}:", num, patientId);
-        scores.stream().sorted(Comparator.comparingDouble(MatchScore::getScore).reversed()).limit(num).forEach(matchScore -> logger.info("{}", matchScore));
-    }
-
-
-    /**
-     * Merge phenotype and genotype scores into a single score,
-     * <p>
-     * Algorithm: the absolute value of the weighted average of
-     * genotype (weight:1) and phenotype(weight:1)
-     *
-     * @param patientGenotypeRankingScores  scores based on genotypes
-     * @param patientPhenotypeRankingScores scores based on phenotypes
-     * @return A merged score
-     */
-    private List<MatchScore> generateMergedScore(Patient queryPatient, List<Patient> patients, List<Double> patientGenotypeRankingScores, List<Double> patientPhenotypeRankingScores) {
-        List<MatchScore> merged = new ArrayList<>();
-        for (int i = 0; i < patients.size(); i++) {
-            Patient matchPatient = patients.get(i);
-            Double genotypeScore = patientGenotypeRankingScores.get(i);
-            Double phenotypeScore = patientPhenotypeRankingScores.get(i);
-            merged.add(new MatchScore(queryPatient.getId(), matchPatient.getId(), genotypeScore, phenotypeScore));
-        }
-        return merged;
-    }
-
-    private class MatchScore {
-
-        private final String queryPatientId;
-        private final String matchPatientId;
-
-        private final double score;
-
-        private final double genotypeScore;
-        private final double phenotypeScore;
-
-
-        MatchScore(String queryPatientId, String matchPatientId, double genotypeScore, double phenotypeScore) {
-            this.queryPatientId = queryPatientId;
-            this.matchPatientId = matchPatientId;
-            this.genotypeScore = genotypeScore;
-            this.phenotypeScore = phenotypeScore;
-            this.score = calcualateScore(genotypeScore, phenotypeScore);
-        }
-
-        private double calcualateScore(double genotypeScore, double phenotypeScore) {
-            double mergedScore = genotypeScore * phenotypeScore;
-            if (mergedScore > 1) {
-                mergedScore = 1;
+        List<MatchmakerResult> results = new ArrayList<>();
+        for (Patient nodePatient : patients) {
+            GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient, nodePatient);
+            PhenotypeSimilarityScore phenotypeSimilarityScore = phenotypeSimilarityService.scorePhenotypes(patient, nodePatient);
+            double genotypeScore = genotypeSimilarityScore.getScore();
+            double phenotypeScore = phenotypeSimilarityScore.getScore();
+            if (genotypeSimilarityScore.hasCommonGene() || phenotypeScore >= 0.7) {
+                double matchScore = calculateMatchScore(genotypeScore, phenotypeScore);
+                logger.info("{}-{}: {} genoScore: {} phenoScore: {}", patient.getId(), nodePatient.getId(), matchScore, genotypeScore, phenotypeScore);
+                Map<String, Double> score = new HashMap<>();
+                score.put("patient", matchScore);
+                score.put("_genotypeScore", genotypeScore);
+                score.put("_phenotypeScore", phenotypeScore);
+                //TODO add in the _phentypeMatches and _genotypeMatches etc here.
+                results.add(new MatchmakerResult(score, nodePatient));
             }
-            if (mergedScore < 0) {
-                mergedScore = 0;
-            }
-            return mergedScore;
         }
 
-        public double getScore() {
-            return score;
-        }
+        results.sort(Comparator.comparingDouble(object -> {
+            //yuk
+            MatchmakerResult matchmakerResult = (MatchmakerResult) object;
+            return matchmakerResult.getScore().get("patient");
+        }).reversed());
 
-        public double getGenotypeScore() {
-            return genotypeScore;
-        }
+        logger.info("Matches for patient: {}", patient.getId());
+        results.forEach(matchmakerResult -> logger.info("{} {}", matchmakerResult.getPatient().getId(), matchmakerResult.getScore().get("patient")));;
 
-        public double getPhenotypeScore() {
-            return phenotypeScore;
-        }
+        return results;
+    }
 
-        @Override
-        public String toString() {
-            return "MatchScore{" +
-                    "queryPatientId='" + queryPatientId + '\'' +
-                    ", matchPatientId='" + matchPatientId + '\'' +
-                    ", score=" + score +
-                    ", genotypeScore=" + genotypeScore +
-                    ", phenotypeScore=" + phenotypeScore +
-                    '}';
+    private PhenotypeSimilarityService setUpPhenotypeSimilarityServiceForPatient(Patient patient) {
+        ModelScorer modelScorer = setUpModelScorer(patient);
+        return new PhenotypeSimilarityServiceImpl(modelScorer);
+    }
+
+    private ModelScorer setUpModelScorer(Patient queryPatient) {
+        List<String> queryPatientPhenotypes = PhenotypeSimilarityService.getObservedPhenotypeIds(queryPatient);
+        List<PhenotypeTerm> queryPhenotypeTerms = phenotypeMatchService.makePhenotypeTermsFromHpoIds(queryPatientPhenotypes);
+        PhenotypeMatcher hpHpQueryMatcher = phenotypeMatchService.getHumanPhenotypeMatcherForTerms(queryPhenotypeTerms);
+        return PhenodigmModelScorer.forSameSpecies(hpHpQueryMatcher);
+    }
+
+    private double calculateMatchScore(double genotypeScore, double phenotypeScore) {
+        double mergedScore = genotypeScore * phenotypeScore;
+        if (mergedScore > 1) {
+            mergedScore = 1;
         }
+        if (mergedScore < 0) {
+            mergedScore = 0;
+        }
+        return mergedScore;
     }
 
 }
