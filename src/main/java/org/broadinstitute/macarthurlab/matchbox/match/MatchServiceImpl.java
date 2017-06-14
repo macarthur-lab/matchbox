@@ -81,8 +81,15 @@ public class MatchServiceImpl implements MatchService {
          */
         Map<String,Patient> resultsToSendBack = ascertainCombinedResultsToSendBack(patientsPickedByPhenotype,patientsPickedByGenotype);
         
-        
-        List<MatchScore> scores = generateMergedScore(patient, patients, patientGenotypeRankingScores, patientPhenotypeRankingScores);
+        /**
+         * Generate a merged score for all results for now (later we could only do this for patients we return)
+         */
+        List<MatchScore> scores = generateMergedScore(patient, 
+        											  patients, 
+        											  patientsPickedByGenotype,
+        											  patientGenotypeRankingScores, 
+        											  patientsPickedByPhenotype,
+        											  patientPhenotypeRankingScores);
         
         logTopNScores(8, patient.getId(), scores);
 
@@ -174,16 +181,25 @@ public class MatchServiceImpl implements MatchService {
      * @return A merged score
      */
     private List<MatchScore> generateMergedScore(Patient queryPatient, 
-    											List<Patient> patients, 
-    											List<Double> patientGenotypeRankingScores, 
-    											List<Double> patientPhenotypeRankingScores) {    	
+    											List<Patient> patients,
+    											List<Patient> patientsPickedByGenotype,
+    											List<Double> patientGenotypeRankingScores,
+    											List<Patient> patientsPickedByPhenotype,
+    											List<Double> patientPhenotypeRankingScores) {    
         List<MatchScore> merged = new ArrayList<>();
         for (int i = 0; i < patients.size(); i++) {
+        	//this needs more work to allow for different sized lists coming from these two..
+        	/**
+        	 * 
+        	System.out.println("--");
+        	System.out.println(patientGenotypeRankingScores.size());
             Patient matchPatient = patients.get(i);
             Double genotypeScore = patientGenotypeRankingScores.get(i);
             Double phenotypeScore = patientPhenotypeRankingScores.get(i);
             merged.add(new MatchScore(queryPatient.getId(), matchPatient.getId(), genotypeScore, phenotypeScore));
+            **/
         }
+        
         return merged;
     }
 
