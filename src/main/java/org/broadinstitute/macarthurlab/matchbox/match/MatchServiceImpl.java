@@ -84,27 +84,23 @@ public class MatchServiceImpl implements MatchService {
         /**
          * Generate a merged score for all results for now (later we could only do this for patients we return)
          */
-        List<MatchScore> scores = generateMergedScore(patient, 
-        											  patients, 
+        Map<Patient,MatchScore> scores = generateMergedScore(patient, 
+        											  resultsToSendBack, 
         											  patientsPickedByGenotype,
         											  patientGenotypeRankingScores, 
         											  patientsPickedByPhenotype,
         											  patientPhenotypeRankingScores);
-        
-        logTopNScores(8, patient.getId(), scores);
+        //need to adjust this func a bit
+        //logTopNScores(8, patient.getId(), scores);
 
         List<MatchmakerResult> allResults = new ArrayList<>();
-        for (int i = 0; i < patients.size(); i++) {
-            Patient p = patients.get(i);
-        //only add patient to allResults if we had thought to send back to querier    
-        if (resultsToSendBack.keySet().contains(p.getId())){
-            MatchScore matchScore = scores.get(i);
+        for (Patient p:scores.keySet()) {
+            MatchScore matchScore = scores.get(p);
             logger.debug("{}", matchScore);
             Map<String, Double> score = new HashMap<>();
             score.put("patient", matchScore.getScore());
             //TODO add in the _phentypeMatches and _genotypeMatches etc here. This will require more informative return types from the geno/phenoMatchers
             allResults.add(new MatchmakerResult(score, p));
-        }
         }
         
 
@@ -180,28 +176,52 @@ public class MatchServiceImpl implements MatchService {
      * @param patientPhenotypeRankingScores scores based on phenotypes
      * @return A merged score
      */
-    private List<MatchScore> generateMergedScore(Patient queryPatient, 
-    											List<Patient> patients,
+    private Map<Patient,MatchScore> generateMergedScore(Patient queryPatient, 
+    											Map<String,Patient> resultsToSendBack,
     											List<Patient> patientsPickedByGenotype,
     											List<Double> patientGenotypeRankingScores,
     											List<Patient> patientsPickedByPhenotype,
     											List<Double> patientPhenotypeRankingScores) {    
-        List<MatchScore> merged = new ArrayList<>();
-        for (int i = 0; i < patients.size(); i++) {
-        	//this needs more work to allow for different sized lists coming from these two..
-        	/**
-        	 * 
-        	System.out.println("--");
-        	System.out.println(patientGenotypeRankingScores.size());
-            Patient matchPatient = patients.get(i);
-            Double genotypeScore = patientGenotypeRankingScores.get(i);
-            Double phenotypeScore = patientPhenotypeRankingScores.get(i);
-            merged.add(new MatchScore(queryPatient.getId(), matchPatient.getId(), genotypeScore, phenotypeScore));
-            **/
+        Map<String,List<Double>> scores=new HashMap<String,List<Double>>();
+        //genotypes
+        for (int i=0;i<patientsPickedByGenotype.size();i++){
+        	if (resultsToSendBack.keySet().contains(patientsPickedByGenotype.get(i))){
+        		if (scores.containsKey(patientsPickedByGenotype.get(i))){
+        			scores.get(patientsPickedByGenotype.get(i)).add(patientGenotypeRankingScores.get(i));
+        		}
+        		else{
+        			List<Double> patientScores = new ArrayList<Double>();
+        			patientScores.add(patientGenotypeRankingScores.get(i));
+        			scores.put(patientsPickedByGenotype.get(i).getId(), patientScores);
+        		}
+        	}
         }
         
+        //phenotypes
+        for (int i=0;i<patientsPickedByPhenotype.size();i++){
+        	if (resultsToSendBack.keySet().contains(patientsPickedByPhenotype.get(i))){
+        		if (scores.containsKey(patientsPickedByPhenotype.get(i))){
+        			scores.get(patientsPickedByPhenotype.get(i)).add(patientPhenotypeRankingScores.get(i));
+        		}
+        		else{
+        			List<Double> patientScores = new ArrayList<Double>();
+        			patientScores.add(patientPhenotypeRankingScores.get(i));
+        			scores.put(patientsPickedByPhenotype.get(i).getId(), patientScores);
+        		}
+        	}
+        }
+        
+        //now merge the scores
+        Map<Patient,MatchScore> merged = new HashMap<Patient,MatchScore>();
+        for (String id:scores.keySet()){
+        	Patient matchPatient = resultsToSendBack.get(id);
+            Double genotypeScore = scores.get(id).get(0);   //are there cases when there won't be this score? 
+            Double phenotypeScore = scores.get(id).get(1);  //are there cases when there won't be this score?
+            merged.put(matchPatient,new MatchScore(queryPatient.getId(), matchPatient.getId(), genotypeScore, phenotypeScore));
+        }
         return merged;
     }
+    
 
     private class MatchScore {
 
