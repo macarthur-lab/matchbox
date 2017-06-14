@@ -150,6 +150,12 @@ public class MatchServiceImplTest {
         public List<Double> scoreGenotypes(Patient queryPatient, List<Patient> patients) {
             return patients.stream().map(patient -> returnScore).collect(toList());
         }
+
+		@Override
+		public List<Patient> searchByGenomicFeatures(Patient patient) {
+			// TODO implement this test
+			return null;
+		}
     }
 
     private class MockPhenotypeMatchService implements PhenotypeSimilarityService {

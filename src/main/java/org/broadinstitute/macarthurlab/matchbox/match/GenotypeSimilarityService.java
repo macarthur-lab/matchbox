@@ -14,5 +14,6 @@ import java.util.List;
 public interface GenotypeSimilarityService {
 
     public List<Double> scoreGenotypes(Patient queryPatient, List<Patient> patients);
+    public List<Patient> searchByGenomicFeatures(Patient patient);
 
 }

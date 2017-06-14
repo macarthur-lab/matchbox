@@ -228,7 +228,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * 2. So far only supports gene symbol and ensembl ID for gene ID field
      */
     //TODO: Check this really isn't required and remove
-    private List<Patient> searchByGenomicFeatures(Patient patient) {
+    public List<Patient> searchByGenomicFeatures(Patient patient) {
         List<Patient> results = new ArrayList<>();
 
         StringBuilder geneSymbolQuery = new StringBuilder("{'genomicFeatures.gene.id':{$in:[");
