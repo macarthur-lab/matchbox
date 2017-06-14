@@ -5,15 +5,12 @@ package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 
-import java.util.List;
-
 /**
  * @author harindra
  * @author Jules Jacobsen <j.jacobsen@qmul.ac.uk>
  */
 public interface GenotypeSimilarityService {
 
-    public List<Double> scoreGenotypes(Patient queryPatient, List<Patient> patients);
-    public List<Patient> searchByGenomicFeatures(Patient patient);
+    public GenotypeSimilarityScore scoreGenotypes(Patient queryPatient, Patient nodePatients);
 
 }
