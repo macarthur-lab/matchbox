@@ -144,7 +144,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         double score = 0.0;
         int similarCount = 0;
         for (GenomicFeatureMatch match : genomicFeatureMatches) {
-            logger.debug("Checking type {}", match);
+            logger.debug("Checking {} type {}", match.getGeneIdentifier(), match.getQuerySequenceOntologyId());
             if (match.hasTypeMatch()) {
                 logger.debug("SO term match: {}", match.hasTypeMatch());
                 similarCount++;

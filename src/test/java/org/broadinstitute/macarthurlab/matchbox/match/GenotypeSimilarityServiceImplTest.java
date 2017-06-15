@@ -54,12 +54,13 @@ public class GenotypeSimilarityServiceImplTest {
     @Test
     public void testMatchWhenQueryPatientHasNoGenotype() {
         List<Patient> patients = TestData.getTwoTestPatients();
-        Patient patient = new Patient();
+        Patient queryPatientWithoutGenomicFeatures = TestData.getTestPatient();
+        queryPatientWithoutGenomicFeatures.getGenomicFeatures().clear();
 
         GenotypeSimilarityService genotypeSimilarityService = new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers());
 
         List<Double> matches = patients.stream()
-                .map(nodePatient -> genotypeSimilarityService.scoreGenotypes(patient, nodePatient))
+                .map(nodePatient -> genotypeSimilarityService.scoreGenotypes(queryPatientWithoutGenomicFeatures, nodePatient))
                 .map(GenotypeSimilarityScore::getScore)
                 .collect(toList());
         List<Double> expected = Arrays.asList(0.6, 0.6);

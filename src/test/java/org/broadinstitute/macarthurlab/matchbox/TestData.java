@@ -132,6 +132,12 @@ public class TestData {
         gFeatures2.add(gFeature1);
         gFeatures2.add(gFeature2);
 
+        //features
+        List<PhenotypeFeature> features = new ArrayList<PhenotypeFeature>();
+        features.add(new PhenotypeFeature("HP:0100026", "yes", ""));
+        features.add(new PhenotypeFeature("HP:0003561", "yes", ""));
+        features.add(new PhenotypeFeature("HP:0011451", "yes", ""));
+
         Patient testP1 = new Patient("testPatient1Id",
                 "testPatient1Label",
                 new HashMap<String, String>(),
@@ -140,7 +146,7 @@ public class TestData {
                 "testAgeOfOnset1",
                 "inheritanceMode1",
                 new ArrayList<Map<String, String>>(),
-                new ArrayList<PhenotypeFeature>(),
+                features,
                 gFeatures1
         );
 

@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toList;
  */
 public interface PhenotypeSimilarityService {
 
-	public PhenotypeSimilarityScore scorePhenotypes(Patient queryPatient, Patient nodePatient);
+    public PhenotypeSimilarityScorer buildPhenotypeSimilarityScorer(Patient patient);
 
 	public static List<String> getObservedPhenotypeIds(Patient patient) {
 		return patient.getFeatures().stream()
