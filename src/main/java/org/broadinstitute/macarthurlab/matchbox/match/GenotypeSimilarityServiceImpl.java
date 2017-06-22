@@ -21,6 +21,9 @@ import static java.util.stream.Collectors.toList;
 public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService {
 
     private static final Logger logger = LoggerFactory.getLogger(GenotypeSimilarityServiceImpl.class);
+    //Returning 0.6 so as not to overly penalize these - maybe the phenotype score is high which could lead to a good match.
+    private static final GenotypeSimilarityScore NO_GENOTYPE_MATCH = new GenotypeSimilarityScore(0.6, Collections.emptyList());
+    public static final double DEFAULT_MATCH_SCORE = 0.7;
 
     private final Map<String, String> geneSymbolToEnsemblId;
     private final Map<String, String> ensemblIdToGeneSymbol;
@@ -67,18 +70,23 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      */
     public GenotypeSimilarityScore scoreGenotypes(Patient queryPatient, Patient nodePatient) {
         if (nodePatient.getGenomicFeatures().isEmpty() || queryPatient.getGenomicFeatures().isEmpty()) {
-            //don't overly penalize these - maybe the phenotype score is high which could lead to a good match.
-            return new GenotypeSimilarityScore(0.6, Collections.emptyList());
+            return NO_GENOTYPE_MATCH;
         }
         List<GenomicFeatureMatch> geneMatches = findGenomicFeatureMatches(queryPatient, nodePatient);
+
+        if (geneMatches.isEmpty()){
+            return NO_GENOTYPE_MATCH;
+        }
 
         //TODO: each GenomicFeatureMatch should have its own score based on the variant, zygosity and SO code (as per current implementation)
         //for the final GenotypeSimilarityScore we'll return the top-ranked individual score.
         double zygosityScore = calculateZygosityScore(geneMatches);
         double typeScore = calculateVariantEffectScore(geneMatches);
-        logger.debug("Zygosity: {} Variant Effect: {}", zygosityScore, typeScore);
+        double geneSimilarityScore = DEFAULT_MATCH_SCORE + zygosityScore + typeScore;
+        logger.debug("Gene similarity score: {} = (Gene symbol: {} + Zygosity: {} + Variant Effect: {})", geneSimilarityScore, DEFAULT_MATCH_SCORE, zygosityScore, typeScore);
+
         //return a maximum of 1.0
-        double score = Math.min(zygosityScore + typeScore, 1.0);
+        double score = Math.min(geneSimilarityScore, 1.0);
         return new GenotypeSimilarityScore(score, geneMatches);
     }
 
@@ -111,7 +119,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     private List<GenomicFeatureMatch> samePatientGenomicFeatureMatches(List<GenomicFeature> genomicFeatures) {
         return genomicFeatures.stream()
                 .filter(queryPatientGenomicFeature -> !toGeneSymbol(queryPatientGenomicFeature.getGene().get("id")).equals("UNKNOWN"))
-                .map(queryPatientGenomicFeature ->new GenomicFeatureMatch(queryPatientGenomicFeature, queryPatientGenomicFeature))
+                .map(queryPatientGenomicFeature -> new GenomicFeatureMatch(queryPatientGenomicFeature, queryPatientGenomicFeature))
                 .collect(toList());
     }
 
@@ -120,13 +128,13 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * one of the common genes, 0.5 is returned.
      *
      * @param genomicFeatureMatches the matching genomic features
-     * @return A score (0.5 is returned if there is a match in zygositys)
+     * @return A score (0.15 is returned if there is a match in zygositys)
      */
     private double calculateZygosityScore(List<GenomicFeatureMatch> genomicFeatureMatches) {
         for (GenomicFeatureMatch match : genomicFeatureMatches) {
             if (match.hasZygosityMatch()) {
                 logger.debug("Zygosity match: {}", match.hasZygosityMatch());
-                return 0.5;
+                return 0.15;
             }
         }
         return 0.0;
@@ -135,30 +143,22 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     /**
      * Generates a score based on variant positions inside a common gene.
      *
-     * Returns a 0.5 if a perfect match
+     * Returns a 0.15 if a perfect match
      *
      * @param genomicFeatureMatches patient in the node
      * @return Returns a representative metric
      */
     private double calculateVariantEffectScore(List<GenomicFeatureMatch> genomicFeatureMatches) {
-        double score = 0.0;
-        int similarCount = 0;
         for (GenomicFeatureMatch match : genomicFeatureMatches) {
             logger.debug("Checking {} type {}", match.getGeneIdentifier(), match.getQuerySequenceOntologyId());
             if (match.hasTypeMatch()) {
                 logger.debug("SO term match: {}", match.hasTypeMatch());
-                similarCount++;
-            }
-            //UP the score IF it is a HIGH danger variant type?
-            if (highlyDeleteriousSoCodes().contains(match.getQuerySequenceOntologyId())) {
-                score += 0.1;
+                return 0.15;
             }
         }
-        logger.debug("Matching SO terms: {} Matching genes: {}", similarCount, genomicFeatureMatches.size());
-        if (similarCount == genomicFeatureMatches.size()) {
-            score += 0.5;
-        }
-        return score;
+        // Removed most of this as I don't think this makes much sense. A good match should be a matching gene with the same zygosity and a variant with a similar variant effect.
+        // the gene match is weighted highest as it is the only mandatory field, the type and zygosity can be missing.
+        return 0.0;
     }
 
 

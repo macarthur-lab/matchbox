@@ -54,7 +54,7 @@ public class MatchServiceImpl implements MatchService {
             if (genotypeSimilarityScore.hasCommonGene() || phenotypeScore >= 0.7) {
                 double matchScore = calculateMatchScore(genotypeScore, phenotypeScore);
 //                logger.info("{}-{}: {} genoScore: {} phenoScore: {}", patient.getId(), nodePatient.getId(), matchScore, genotypeScore, phenotypeScore);
-                Map<String, Double> score = new HashMap<>();
+                Map<String, Double> score = new LinkedHashMap<>();
                 score.put("patient", matchScore);
                 score.put("_genotypeScore", genotypeScore);
                 score.put("_phenotypeScore", phenotypeScore);
