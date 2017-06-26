@@ -4,11 +4,6 @@
 package org.broadinstitute.macarthurlab.matchbox.search;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
@@ -16,28 +11,24 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author harindra
  * Does a high level check if the basic requirements are satisfied
  *
  */
-@Service
+@Component
 public class PatientRecordUtility {
-	@Autowired
-	private PatientMongoRepository patientMongoRepository;
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	/**
-	 * Default constructor does nothing
-	 */
-	public PatientRecordUtility(){}
-	
 	
 	public boolean areAllRequiredFieldsPresent(String patientJsonString){
 		boolean verdict=true;
@@ -51,30 +42,30 @@ public class PatientRecordUtility {
 			String id = (String)patient.get("id");
 		}
 		else{
-			this.getLogger().error("Error-areAllRequiredFieldsPresent: id missing, failing requirements!: "+patientJsonString);
+			logger.error("Error-areAllRequiredFieldsPresent: id missing, failing requirements!: "+patientJsonString);
 			verdict=false;
 		}
 		//Contact
 		if (patient.containsKey("contact")){
-			Map<String,String> contactDets = new HashMap<String,String>();
+			Map<String,String> contactDets = new HashMap<>();
 			JSONObject  contact = (JSONObject)patient.get("contact");
 			contactDets.put("name", (String)contact.get("name"));
 			contactDets.put("institution", (String)contact.get("institution"));
 			contactDets.put("href", (String)contact.get("href"));
 			}
 		else{
-			this.getLogger().warn("areAllRequiredFieldsPresent: Some or all contact information missing, failing requirements!: "+patientJsonString);
+			logger.warn("areAllRequiredFieldsPresent: Some or all contact information missing, failing requirements!: "+patientJsonString);
 			verdict=false;
 		}
 		
 		//Either features or genomicFeature HAVE TO BE PRESENT
 		if (!patient.containsKey("features")  && !patient.containsKey("genomicFeatures") ){
-			this.getLogger().warn("areAllRequiredFieldsPresent: features and genomicFeature both missing, failing requirements!: "+patientJsonString);
+			logger.warn("areAllRequiredFieldsPresent: features and genomicFeature both missing, failing requirements!: "+patientJsonString);
 			verdict=false;
 		}
 		}
 		catch(Exception e){
-			this.getLogger().warn("required value is missing or wrong value in place, error parsing and absorbing patient data (areAllRequiredFieldsPresent): " + e.toString() + " : " + patientJsonString);
+			logger.warn("required value is missing or wrong value in place, error parsing and absorbing patient data (areAllRequiredFieldsPresent): " + e.toString() + " : " + patientJsonString);
 			verdict=false;
 		}
 		return verdict;
@@ -85,7 +76,7 @@ public class PatientRecordUtility {
 	/**
 	 * Parses a patient information set encoded in a JSON string and returns a Patient
 	 * object that encloses that information
-	 * @param patientString	A JSON string of data about the patient (structure expected)
+	 * @param patientJsonString	A JSON string of data about the patient (structure expected)
 	 * @return	A Patient object that encloses the JSON data
 	 */
 	public Patient parsePatientInformation(String patientJsonString){
@@ -98,14 +89,14 @@ public class PatientRecordUtility {
 			String id = (String)patient.get("id");
 			
 			//REQUIRED
-			Map<String,String> contactDets = new HashMap<String,String>();
+			Map<String,String> contactDets = new HashMap<>();
 			JSONObject  contact = (JSONObject)patient.get("contact");
 			contactDets.put("name", (String)contact.get("name"));
 			contactDets.put("institution", (String)contact.get("institution"));
 			contactDets.put("href", (String)contact.get("href"));
 			
 			//if genomicFeatures is not supplied, this is REQUIRED
-			List<PhenotypeFeature> featuresDets = new ArrayList<PhenotypeFeature>();
+			List<PhenotypeFeature> featuresDets = new ArrayList<>();
 			if (patient.containsKey("features")){
 				JSONArray  features = (JSONArray)patient.get("features");
 				for (int i=0; i<features.size(); i++){
@@ -120,7 +111,7 @@ public class PatientRecordUtility {
 			}
 			
 			//if features is not supplied, this is REQUIRED
-			List<GenomicFeature> genomicFeaturesDets = new ArrayList<GenomicFeature>();
+			List<GenomicFeature> genomicFeaturesDets = new ArrayList<>();
 			if (patient.containsKey("genomicFeatures")){
 				JSONArray  genomicFeatures = (JSONArray)patient.get("genomicFeatures");
 				
@@ -129,7 +120,7 @@ public class PatientRecordUtility {
 					
 					//REQUIRED (a map with a single key "id")
 					JSONObject geneGenomicFeature  = (JSONObject)genomicFeature.get("gene");
-					Map<String,String> geneDets = new HashMap<String,String>();
+					Map<String,String> geneDets = new HashMap<>();
 					geneDets.put("id",(String)geneGenomicFeature.get("id"));
 				
 					//OPTIONAL
@@ -231,11 +222,11 @@ public class PatientRecordUtility {
 			}
 			
 			//OPTIONAL
-			List<Map<String,String>> disorderDets = new ArrayList<Map<String,String>>();
+			List<Map<String,String>> disorderDets = new ArrayList<>();
 			if (patient.containsKey("disorders")){
 			JSONArray  disorders = (JSONArray)patient.get("disorders");
 			for (int i=0; i<disorders.size(); i++){
-				Map <String,String> disorderDet = new HashMap<String,String>();
+				Map <String,String> disorderDet = new HashMap<>();
 				JSONObject disorder = (JSONObject)disorders.get(i);
 				disorderDet.put("id", (String)disorder.get("id"));
 				disorderDets.add(disorderDet);
@@ -275,7 +266,7 @@ public class PatientRecordUtility {
 			parsed.put("id", id);
 		}
 		catch(Exception e){
-				this.getLogger().error("ERROR: parsing id from JSON DELETE call :"+e.getMessage());
+				logger.error("ERROR: parsing id from JSON DELETE call :"+e.getMessage());
 			}
 		return parsed;
 	}
@@ -294,25 +285,11 @@ public class PatientRecordUtility {
 
 
 	/**
-	 * @return the patientMongoRepository
-	 */
-	public PatientMongoRepository getPatientMongoRepository() {
-		return patientMongoRepository;
-	}
-
-	/**
-	 * @return the logger
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-
-	/**
 	 * The standard information release disclaimer
 	 * @return a disclaimer string
 	 */
 	public String getDisclaimer(){
-		StringBuilder disclaimer=new StringBuilder();
+		StringBuilder disclaimer = new StringBuilder();
 		disclaimer.append("The data in Matchmaker Exchange is provided for research use only. ");
 		disclaimer.append("Broad Institute provides the data in Matchmaker Exchange 'as is'. Broad Institute makes no representations or warranties of any kind concerning the data, express or implied, including without limitation, warranties of merchantability, fitness for a particular purpose, noninfringement, or the absence of latent or other defects, whether or not discoverable. Broad will not be liable to the user or any third parties claiming through user, for any loss or damage suffered through the use of Matchmaker Exchange. In no event shall Broad Institute or its respective directors, officers, employees, affiliated investigators and affiliates be liable for indirect, special, incidental or consequential damages or injury to property and lost profits, regardless of whether the foregoing have been advised, shall have other reason to know, or in fact shall know of the possibility of the foregoing. ");
 		disclaimer.append("Prior to using Broad Institute data in a publication, the user will contact the owner of the matching dataset to assess the integrity of the match. If the match is validated, the user will offer appropriate recognition of the data owner's contribution, in accordance with academic standards and custom. Proper acknowledgment shall be made for the contributions of a party to such results being published or otherwise disclosed, which may include co-authorship. ");

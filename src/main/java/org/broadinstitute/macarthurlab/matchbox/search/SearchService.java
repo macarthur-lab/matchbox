@@ -6,16 +6,15 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.search;
 
-import java.util.List;
-
-import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+
+import java.util.List;
 
 /**
  * @author harindra
- *
  */
 public interface SearchService {
-	public List<String> searchInExternalMatchmakerNodesOnly(Patient patient);
-	public List<String> searchInLocalDatabaseOnly(Patient patient, String requestOriginHostname);
+    public List<String> searchInExternalMatchmakerNodesOnly(Patient patient);
+
+    public List<String> searchInLocalDatabaseOnly(Patient patient, String requestOriginHostname);
 }
