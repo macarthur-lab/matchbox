@@ -4,77 +4,36 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.metrics;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.MongoDBConfiguration;
-import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
-import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
-import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
-import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+
+import java.util.*;
 
 /**
  * @author harindra
  *
  */
 
-public abstract class BaseMetric {
-	private MongoOperations operator;
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private Map<String,String> geneSymbolToEnsemblId;
-	
-	/**
-	 * TODO: the gene map used here is also used in another class, should be abstracted out to a
-	 * utility class to be used in common. 
-	 * Constructor
-	 */
+public class BaseMetric {
+
+	private static final Logger logger = LoggerFactory.getLogger(BaseMetric.class);
+
+	MongoOperations operator;
+	Map<String,String> geneSymbolToEnsemblId;
+
 	public BaseMetric() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(MongoDBConfiguration.class);
-		this.operator = context.getBean("mongoTemplate", MongoOperations.class);
-		this.geneSymbolToEnsemblId = new HashMap<String,String>();
-		try{
-			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/config/gene_symbol_to_ensembl_id_map.txt";
-			
-			File geneSymbolToEnsemnlIdFile = new File(geneSymbolToEnsemnlId);
-			BufferedReader reader = new BufferedReader(new FileReader(geneSymbolToEnsemnlIdFile));
-			while (true) {
-				String line = reader.readLine();
-				if (line == null)
-					break;
-				/**
-				 * Each row is expected to look like,
-				 * HGNC:5  A1BG    ENSG00000121410
-				 */
-				StringTokenizer st=new StringTokenizer(line);
-				if (st.countTokens()==3){
-					st.nextToken(); 
-					String geneSymbol=st.nextToken(); 
-					String ensemblId=st.nextToken();
-					this.geneSymbolToEnsemblId.put(geneSymbol, ensemblId);
-				}
-        }
-        reader.close();
-		}
-		catch (Exception e){
-			this.getLogger().error("Error reading gene symbol to emsembl id map:"+e.toString() + " : " + e.getMessage());
-		}
 	}
-	
-	
+
+	@Autowired
+	public BaseMetric(MongoOperations operator, Map<String, String> geneSymbolToEnsemblId) {
+		this.operator = operator;
+		this.geneSymbolToEnsemblId = geneSymbolToEnsemblId;
+	}
+
 	/**
 	 * TODO:
 	 * 	- Nested for loop needs to be improved and processing moved to DB, OK for low load now)
@@ -90,7 +49,7 @@ public abstract class BaseMetric {
 		}
 		String query = "{}";
 		BasicQuery q = new BasicQuery(query);
-		List<ExternalMatchQuery> extQueries = this.getOperator().find(q,ExternalMatchQuery.class);
+		List<ExternalMatchQuery> extQueries = operator.find(q,ExternalMatchQuery.class);
 		Set<String> matchedGenes = new HashSet<String>();
 		for (ExternalMatchQuery extQry:extQueries){
 			for (MatchmakerResult result : extQry.getResults()){
@@ -99,8 +58,8 @@ public abstract class BaseMetric {
 						matchedGenes.add(gf.getGene().get("id"));
 					}
 					else{
-						if (this.getGeneSymbolToEnsemblId().containsKey(gf.getGene().get("id"))){
-							matchedGenes.add(this.getGeneSymbolToEnsemblId().get(this.getGeneSymbolToEnsemblId()));
+						if (geneSymbolToEnsemblId.containsKey(gf.getGene().get("id"))){
+							matchedGenes.add(geneSymbolToEnsemblId.get(geneSymbolToEnsemblId));
 						}
 					}
 				}
@@ -177,18 +136,10 @@ public abstract class BaseMetric {
 	protected int getNumberOfCasesWithDiagnosis(){
 		String query = "{$where:\"this.disorders.length > 0\"}";
 		BasicQuery q = new BasicQuery(query);
-		List<Patient> patients = this.getOperator().find(q,Patient.class);
+		List<Patient> patients = operator.find(q,Patient.class);
 		return patients.size();
 	}
 
-
-	/**
-	 * @param operator the operator to set
-	 */
-	public void setOperator(MongoOperations operator) {
-		this.operator = operator;
-	}
-	
 	
 	/**
 	 * Counts the number of unique phenotypes in the system
@@ -243,7 +194,7 @@ public abstract class BaseMetric {
 	public int getNumOfIncomingMatchRequests(){
 		StringBuilder query = new StringBuilder("{}");
 		BasicQuery q = new BasicQuery(query.toString());
-		List<ExternalMatchQuery> extQueries = this.getOperator().find(q,ExternalMatchQuery.class);
+		List<ExternalMatchQuery> extQueries = operator.find(q,ExternalMatchQuery.class);
 		return extQueries.size();
 	}
 	
@@ -256,7 +207,7 @@ public abstract class BaseMetric {
 		Map<String, Set<String>> matchedIdPairs = new HashMap<String,Set<String>>();
 		StringBuilder query = new StringBuilder("{matchFound:true}");
 		BasicQuery q = new BasicQuery(query.toString());
-		List<ExternalMatchQuery> extQueries = this.getOperator().find(q,ExternalMatchQuery.class);
+		List<ExternalMatchQuery> extQueries = operator.find(q,ExternalMatchQuery.class);
 		for (ExternalMatchQuery matchedQuery:extQueries){
 			String queryId = matchedQuery.getIncomingQuery().getId();
 			for (MatchmakerResult result: matchedQuery.getResults()){
@@ -307,40 +258,5 @@ public abstract class BaseMetric {
 		}
 		return counts;
 	}
-	
-
-	/**
-	 * @return the operator
-	 */
-	public MongoOperations getOperator() {
-		return operator;
-	}
-	
-	
-	/**
-	 * @return the logger
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-
-
-	/**
-	 * @return the geneSymbolToEnsemblId
-	 */
-	public Map<String, String> getGeneSymbolToEnsemblId() {
-		return geneSymbolToEnsemblId;
-	}
-
-
-	/**
-	 * @param geneSymbolToEnsemblId the geneSymbolToEnsemblId to set
-	 */
-	public void setGeneSymbolToEnsemblId(Map<String, String> geneSymbolToEnsemblId) {
-		this.geneSymbolToEnsemblId = geneSymbolToEnsemblId;
-	}	
-	
-	
-	
 
 }

@@ -28,33 +28,41 @@ A significant amount of development is typically required to join the MME; this 
 
 	- Clone the repository
 
-		git clone https://github.com/macarthur-lab/matchbox
+		```git clone https://github.com/macarthur-lab/matchbox```
 
 	- Build source files (maven is required to be on your system). At this point MongoDB should be installed and wired into your application via resources/application.properties. If you haven't, some tests will fail and your build will fail.
 		
 		For now, if you like, you can skip tests and build without MongoDB with,
 		
-		mvn -Dmaven.test.skip=true clean install package
+		```mvn -Dmaven.test.skip=true clean install package```
 		
 		To build with tests you will have to wire in MongoDB. To wire in MongoDB, update the following lines in top-level resources/application.properties appropriately. Add in your Java key certificate key store to enable Java HTTPS connections to other nodes, and uncomment plus populate the server.ssl.* attributes to start matchbox as HTTPS. If you are not planning to proxy matchbox behind a HTTPS service, you would have to server matchbox as HTTPS per MME requirements.
 		```
-		spring.http.encoding.force=false
-		logging.file=logs/spring-boot-logging.log
-		mongoDatabaseHostName=<your-database-host-name>
-		mongoDatabaseUserName=<your-username>
-		mongoDatabasePassword=<your-password>
-		mongoDatabaseName=<a-name-for-your-database>
-		mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
-		keyTrustStore=<path-to-your-java-keystore>
-		#--populate the following to be HTTPS (required if server is not behind proxy)
-		#server.port=8443
-		#server.ssl.key-store=file:<path-to-JKS-file>
-		#server.ssl.key-store-password=<your-password>
-		#server.ssl.key-password=<you-jks-domain>
+        spring.application.name=matchbox
+        logging.file=logs/matchbox.log
+        
+        spring.http.encoding.force=false
+        
+        #Enable these as required for any specific MongoDB setup.
+        #spring.data.mongodb.host=
+        #spring.data.mongodb.port=
+        #spring.data.mongodb.username=
+        #spring.data.mongodb.password=
+        #spring.data.mongodb.database=mme_primary
+        
+        #Enable the following to be HTTPS (required if server is not proxied)
+        #see https://www.drissamri.be/blog/java/enable-https-in-spring-boot/
+        #server.port=8443
+        #server.ssl.key-store=file:<path-to-JKS-file>
+        #server.ssl.key-store-password=<your-password>
+        #server.ssl.key-password=<you-jks-domain>
+        
+        matchbox.gene-symbol-to-id-mappings=${user.dir}/config/gene_symbol_to_ensembl_id_map.txt
+        matchbox.connected-nodes=${user.dir}/config/nodes.json
 		```
 		Following that, with the instance of MongoDB up and running and accessible to the application network,
 
-		mvn clean install package
+		```mvn clean install```
 		
 		Should build successfully.
 		
@@ -62,29 +70,34 @@ A significant amount of development is typically required to join the MME; this 
 
 	- Start server
 
-		java -jar target/matchbox-<version>.jar
+		```java -jar target/matchbox-<version>.jar```
 
 
-* NOTE: if you would like to change the default port the server listens on (8080), please set/use the environment variable SERVER_PORT
+* NOTE: if you would like to change the default port the server listens on (8080), you can either set/use the environment 
+variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```java -jar``` incantation. For example
+ 
+     ```export SERVER_PORT=9020```
+    
+  or
+       
+    ```java -jar matchbox-0.1.0.jar --server.port=9020```
 
-	for example,
-	export SERVER_PORT=9020
-
-
+  It is similarly possible to change any of the variables contained in the application.properties in this manner. The 
+  latter is usually a better option as this will be application instance specific rather than as a global system variable. 
+  
 ## General overview:
 
 * Typically you would use something like the following path
 
-	http://localhost:8080/match
+	```http://localhost:8080/match```
 
 * Along with the following headers (we are using "abcd" as an example token, please change before production!"):
 
+	```
 	X-Auth-Token: abcd
-
 	Accept: application/vnd.ga4gh.matchmaker.v1.0+json
-
 	Content-Type: application/x-www-form-urlencoded
-	
+	```
 
 * And a JSON payload when a POST is required. (complete examples below)
 
@@ -92,29 +105,29 @@ A significant amount of development is typically required to join the MME; this 
 
 * Patients (one at a time) can be added to the matchmaker system via:
 
-	/patient/add
+	```/patient/add```
 
 * Patients (one at a time) can be deleted from the system via a DELETE to:
 
-	/patient/delete
+	```/patient/delete```
 	
-	with payload : {"id":"id_to_delete"}
+	with payload : ```{"id":"id_to_delete"}```
 		
 * You can view all patients in the system with (GET):
 
-	/patient/view
+	```/patient/view```
 	
 * You can match a patient, with all other patients ONLY IN the matchbox database with a POST containing query patient JSON to:
 
-	/match
+	```/match```
 
 * You can match a patient, with all other patients ONLY IN the Matchmaker network (EXCLUDING matchbox database). The nodes that it will query against are specified in the config.xml file found in the resources directory at the application root. To make the query, make a POST containing patient JSON to:
 
-	/match/external
+	```/match/external```
 	
 * The correct JSON format a query patient should be described in can be found at:
 
-	https://github.com/ga4gh/mme-apis/blob/master/search-api.md
+	````https://github.com/ga4gh/mme-apis/blob/master/search-api.md````
 
 
 
@@ -225,19 +238,12 @@ While commandline tools such as cURL can be used with <i>matchbox</i>, an user i
 There are unit tests included that can be executed via Maven. Prior to doing so, you will need an instance of MongoDB to be running and wired into matchbox via the application.properties file found in the top-level resources directory
 
 ```
-	spring.http.encoding.force=false
-	logging.file=logs/spring-boot-logging.log
-	mongoDatabaseHostName=<your-database-host-name>
-	mongoDatabaseUserName=<your-username>
-	mongoDatabasePassword=<your-password>
-	mongoDatabaseName=<a-name-for-your-database>
-	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
-	keyTrustStore=<path-to-your-java-keystore>
-	#--populate the following to be HTTPS (required if server is not behind proxy)
-	#server.port=8443
-	#server.ssl.key-store=file:<path-to-JKS-file>
-	#server.ssl.key-store-password=<your-password>
-	#server.ssl.key-password=<you-jks-domain>
+#Enable these as required for any specific MongoDB setup.
+#spring.data.mongodb.host=
+#spring.data.mongodb.port=
+#spring.data.mongodb.username=
+#spring.data.mongodb.password=
+#spring.data.mongodb.database=mme_primary
 ```
 
 Once the above values are set,
@@ -263,19 +269,27 @@ should execute the unit tests.
 	```
 	
 	```
-	spring.http.encoding.force=false
-	logging.file=logs/spring-boot-logging.log
-	mongoDatabaseHostName=<your-database-host-name>
-	mongoDatabaseUserName=<your-username>
-	mongoDatabasePassword=<your-password>
-	mongoDatabaseName=mme_primary
-	mongoDatabaseMappingBasePackage=org.broadinstitute.macarthurlab.matchbox
-	keyTrustStore=<path-to-your-java-keystore>
-	#--populate the following to be HTTPS (required if server is not behind proxy)
-	#server.port=8443
-	#server.ssl.key-store=file:<path-to-JKS-file>
-	#server.ssl.key-store-password=<your-password>
-	#server.ssl.key-password=<you-jks-domain>
+    spring.application.name=matchbox
+    logging.file=logs/matchbox.log
+    
+    spring.http.encoding.force=false
+    
+    #Enable these as required for any specific MongoDB setup.
+    #spring.data.mongodb.host=
+    #spring.data.mongodb.port=
+    #spring.data.mongodb.username=
+    #spring.data.mongodb.password=
+    #spring.data.mongodb.database=mme_primary
+    
+    #Enable the following to be HTTPS (required if server is not proxied)
+    #see https://www.drissamri.be/blog/java/enable-https-in-spring-boot/
+    #server.port=8443
+    #server.ssl.key-store=file:<path-to-JKS-file>
+    #server.ssl.key-store-password=<your-password>
+    #server.ssl.key-password=<you-jks-domain>
+    
+    matchbox.gene-symbol-to-id-mappings=${user.dir}/config/gene_symbol_to_ensembl_id_map.txt
+    matchbox.connected-nodes=${user.dir}/config/nodes.json
 	```
 	
 * You can update resources/config.xml with your connections. But for initial test, we can use the default client connection with token "abcd" to connect into. We won't search external databases yet, since that involves getting tokens from other centers.
