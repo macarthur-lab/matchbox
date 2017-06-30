@@ -102,11 +102,11 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
 
         List<GenomicFeatureMatch> matches = new ArrayList<>();
         for (GenomicFeature queryPatientGenomicFeature : queryPatientGenomicFeatures) {
-            String queryPatientGeneSymbol = toGeneSymbol(queryPatientGenomicFeature.getGene().get("id"));
-            if (!queryPatientGeneSymbol.equals("UNKNOWN")) {
+            String queryPatientEnsemblId = toEnsemblId(queryPatientGenomicFeature.getGene().get("id"));
+            if (!queryPatientEnsemblId.equals("UNKNOWN")) {
                 for (GenomicFeature nodePatientGenomicFeature : nodePatientGenomicFeatures) {
-                    String nodePatientGeneSymbol = toGeneSymbol(nodePatientGenomicFeature.getGene().get("id"));
-                    if (nodePatientGeneSymbol.equals(queryPatientGeneSymbol)) {
+                    String nodePatientEnsemblId = toEnsemblId(nodePatientGenomicFeature.getGene().get("id"));
+                    if (nodePatientEnsemblId.equals(queryPatientEnsemblId)) {
                         GenomicFeatureMatch match = new GenomicFeatureMatch(queryPatientGenomicFeature, nodePatientGenomicFeature);
                         matches.add(match);
                     }
@@ -173,6 +173,18 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         //Entrez gene id? This is missing. TODO: make a GeneIdentifier class where these can be stored and compared.
         return "UNKNOWN";
     }
+
+    private String toEnsemblId(String identifier) {
+//      id: A gene symbol or identifier (mandatory): gene symbol from the HGNC database OR ensembl gene ID OR entrez gene ID
+      if (geneSymbolToEnsemblId.containsKey(identifier)) {
+    	  return geneSymbolToEnsemblId.get(identifier);
+      }
+      if (ensemblIdToGeneSymbol.containsKey(identifier)) {
+    	  return identifier;
+      }
+      //Entrez gene id? This is missing. TODO: make a GeneIdentifier class where these can be stored and compared.
+      return "UNKNOWN";
+  }
 
     /**
      * TODO: abstract this to config file
