@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -17,12 +18,15 @@ import java.util.*;
  * @author harindra
  *
  */
-
+@Component
 public class BaseMetric {
 
 	private static final Logger logger = LoggerFactory.getLogger(BaseMetric.class);
-
+	
+    
+    @Autowired
 	MongoOperations operator;
+    
 	Map<String,String> geneSymbolToEnsemblId;
 
 	public BaseMetric() {
@@ -30,7 +34,7 @@ public class BaseMetric {
 
 	@Autowired
 	public BaseMetric(MongoOperations operator, Map<String, String> geneSymbolToEnsemblId) {
-		this.operator = operator;
+		//this.operator = operator;
 		this.geneSymbolToEnsemblId = geneSymbolToEnsemblId;
 	}
 

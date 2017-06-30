@@ -4,9 +4,12 @@
 package org.broadinstitute.macarthurlab.matchbox.metrics;
 
 
+import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.Metric;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PrivilegedMetric;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,15 @@ import java.util.List;
  */
 @Service(value="privilegedMetricServiceImpl")
 public class PrivilegedMetricServiceImpl extends BaseMetric implements MetricService{
+	
+    /**
+     * A connection to MongoDB for queries
+     */
+    //@Autowired
+    //private PatientMongoRepository patientMongoRepository;
+    
+    @Autowired
+    private MongoOperations operator;
 
 	/**
 	 * Returns a String representing a JSON
