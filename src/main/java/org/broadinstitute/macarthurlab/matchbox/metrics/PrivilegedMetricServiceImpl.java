@@ -21,15 +21,6 @@ import java.util.List;
  */
 @Service(value="privilegedMetricServiceImpl")
 public class PrivilegedMetricServiceImpl extends BaseMetric implements MetricService{
-	
-    /**
-     * A connection to MongoDB for queries
-     */
-    //@Autowired
-    //private PatientMongoRepository patientMongoRepository;
-    
-    @Autowired
-    private MongoOperations operator;
 
 	/**
 	 * Returns a String representing a JSON

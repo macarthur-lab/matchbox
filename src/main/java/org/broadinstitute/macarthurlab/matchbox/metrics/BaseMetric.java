@@ -12,6 +12,9 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.*;
 
 /**
@@ -20,22 +23,41 @@ import java.util.*;
  */
 @Component
 public class BaseMetric {
-
 	private static final Logger logger = LoggerFactory.getLogger(BaseMetric.class);
 	
-    
     @Autowired
 	MongoOperations operator;
     
 	Map<String,String> geneSymbolToEnsemblId;
 
 	public BaseMetric() {
-	}
-
-	@Autowired
-	public BaseMetric(MongoOperations operator, Map<String, String> geneSymbolToEnsemblId) {
-		//this.operator = operator;
-		this.geneSymbolToEnsemblId = geneSymbolToEnsemblId;
+		this.geneSymbolToEnsemblId = new HashMap<String,String>();	
+		try{
+			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/config/gene_symbol_to_ensembl_id_map.txt";
+			
+			File geneSymbolToEnsemnlIdFile = new File(geneSymbolToEnsemnlId);
+			BufferedReader reader = new BufferedReader(new FileReader(geneSymbolToEnsemnlIdFile));
+			while (true) {
+				String line = reader.readLine();
+				if (line == null)
+					break;
+				/**
+				 * Each row is expected to look like,
+				 * HGNC:5  A1BG    ENSG00000121410
+				 */
+				StringTokenizer st=new StringTokenizer(line);
+				if (st.countTokens()==3){
+					st.nextToken(); 
+					String geneSymbol=st.nextToken(); 
+					String ensemblId=st.nextToken();
+					this.geneSymbolToEnsemblId.put(geneSymbol, ensemblId);
+				}
+        }
+        reader.close();
+		}
+		catch (Exception e){
+			this.logger.error("Error reading gene symbol to emsembl id map:"+e.toString() + " : " + e.getMessage());
+		}
 	}
 
 	/**
