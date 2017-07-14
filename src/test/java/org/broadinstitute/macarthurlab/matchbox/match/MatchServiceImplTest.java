@@ -1,8 +1,10 @@
 package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.TestData;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeSimilarityScore;
 import org.junit.Test;
 
 import java.util.Collections;

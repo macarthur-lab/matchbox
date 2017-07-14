@@ -1,4 +1,4 @@
-package org.broadinstitute.macarthurlab.matchbox.match;
+package org.broadinstitute.macarthurlab.matchbox.entities;
 
 import java.util.List;
 import java.util.Objects;

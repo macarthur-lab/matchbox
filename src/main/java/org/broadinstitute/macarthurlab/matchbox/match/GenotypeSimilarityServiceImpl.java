@@ -4,6 +4,8 @@
 package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

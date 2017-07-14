@@ -3,8 +3,10 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
+import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeSimilarityScore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +51,10 @@ public class MatchServiceImpl implements MatchService {
         for (Patient nodePatient : patients) {
             GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient, nodePatient);
             PhenotypeSimilarityScore phenotypeSimilarityScore = phenotypeSimilarityScorer.scorePhenotypes(patient, nodePatient);
+            
             double genotypeScore = genotypeSimilarityScore.getScore();
             double phenotypeScore = phenotypeSimilarityScore.getScore();
+            
             if (genotypeSimilarityScore.hasCommonGene() || phenotypeScore >= 0.7) {
                 double matchScore = calculateMatchScore(genotypeScore, phenotypeScore);
 //                logger.info("{}-{}: {} genoScore: {} phenoScore: {}", patient.getId(), nodePatient.getId(), matchScore, genotypeScore, phenotypeScore);

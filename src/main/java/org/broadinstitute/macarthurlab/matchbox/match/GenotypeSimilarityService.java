@@ -3,6 +3,7 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
+import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 
 /**
