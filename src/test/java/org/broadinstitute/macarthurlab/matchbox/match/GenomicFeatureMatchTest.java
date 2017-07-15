@@ -1,6 +1,7 @@
 package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
 import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.junit.Test;
 

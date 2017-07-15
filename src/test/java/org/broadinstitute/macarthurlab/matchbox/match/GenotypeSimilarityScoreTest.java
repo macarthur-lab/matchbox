@@ -1,6 +1,8 @@
 package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.junit.Test;
 
 import java.util.Collections;

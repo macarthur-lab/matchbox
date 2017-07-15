@@ -2,6 +2,7 @@ package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.TestData;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeSimilarityScore;
 import org.junit.Test;
 import org.monarchinitiative.exomiser.core.phenotype.Model;
 import org.monarchinitiative.exomiser.core.phenotype.ModelPhenotypeMatch;

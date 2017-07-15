@@ -1,6 +1,4 @@
-package org.broadinstitute.macarthurlab.matchbox.match;
-
-import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
+package org.broadinstitute.macarthurlab.matchbox.entities;
 
 import java.util.Objects;
 
