@@ -123,7 +123,7 @@ public class PatientController {
 			Map<String,String> delInfo = this.patientUtility.parsePatientIdFromDeleteCall(decodedRequestString);
 			Long numDeleted=this.patientMongoRepository.deletePatientById(delInfo.get("id"));
 			if (numDeleted==1){
-				jsonMessage = "{\"message\":\"deleted " + Long.toString(numDeleted) + " patient.\",\"status_code\":200\"}";
+				jsonMessage = "{\"message\":\"deleted " + Long.toString(numDeleted) + " patient.\",\"status_code\":200}";
 			}
 			if (numDeleted==0){
 				jsonMessage = "{\"message\":\"no patients were deleted, are you sure that ID was valid?\",\"status_code\":400\"}";

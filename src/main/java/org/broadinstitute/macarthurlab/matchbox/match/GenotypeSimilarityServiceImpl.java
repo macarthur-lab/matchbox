@@ -92,7 +92,14 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         return new GenotypeSimilarityScore(score, geneMatches);
     }
 
-    List<GenomicFeatureMatch> findGenomicFeatureMatches(Patient queryPatient, Patient nodePatient) {
+    
+    /**
+     * Find matches arrising from genotype similarity
+     * @param queryPatient patient queried with
+     * @param nodePatient a patient from the local database
+     * @return
+     */
+    protected List<GenomicFeatureMatch> findGenomicFeatureMatches(Patient queryPatient, Patient nodePatient) {
 
         List<GenomicFeature> queryPatientGenomicFeatures = queryPatient.getGenomicFeatures();
         List<GenomicFeature> nodePatientGenomicFeatures = nodePatient.getGenomicFeatures();

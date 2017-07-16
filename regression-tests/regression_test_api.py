@@ -24,6 +24,9 @@ MME_CONTENT_TYPE_HEADER='application/x-www-form-urlencoded'
 MME_SERVER_HOST='http://localhost:8080'
 MME_ADD_INDIVIDUAL_URL = MME_SERVER_HOST + '/patient/add'
 MME_DELETE_INDIVIDUAL_URL = MME_SERVER_HOST + '/patient/delete'
+MME_LOCAL_SEARCH_URL = MME_SERVER_HOST + '/match'
+
+
 '''
     matches in local MME database ONLY, won't search in other MME nodes
 '''
@@ -56,13 +59,19 @@ def start():
     """
     Start processing
     """
+    #insert patients
     test_patients=get_test_data()
     inserted_ids=insert_test_data_into_db(test_patients)
     if len(inserted_ids)==50:
         print "\n\ninsertion passed."
     else:
         print "\n\ninserting wasn't complete, inserted number:",len(inserted_ids)
-    #deleted_ids=delete_test_data_in_db(inserted_ids)
+        
+    #search with test patients against themselves
+    searchTestPatients(test_patients)
+    
+    #clean up after tests
+    deleted_ids=delete_test_data_in_db(inserted_ids)
     print "\n\n"
 
 def insert_test_data_into_db(patients):
@@ -89,7 +98,33 @@ def insert_test_data_into_db(patients):
         print 'error inserting test patients',e
         sys.exit()
         
-        
+      
+def searchTestPatients(patients):
+    """
+    Search with these patients for matches
+    """     
+    try:
+        print "{:20s} {:20s} {:20s} {:20s} {:20s}".format("query_id","match_id" , "score", "genotype_score", "phenotype_score")
+        headers={
+                 "X-Auth-Token":ACCESS_TOKEN,
+                 "Accept":MME_NODE_ACCEPT_HEADER,
+                 "Content-Type":MME_CONTENT_TYPE_HEADER
+                 }
+        for patient in patients:
+            payload = {"patient":patient}
+            req = requests.post(MME_LOCAL_SEARCH_URL, 
+                               data=json.dumps(payload),
+                               headers=headers)
+            if req.status_code==200:
+                asJson = json.loads(req.text)
+                for result in asJson['results']:
+                    print "{:20s} {:20s} {:10f} {:10f} {:10f}".format(patient['id'],result['patient']['id'],result['score']['patient'],result['score']['_genotypeScore'],result['score']['_phenotypeScore'])
+        return []
+    except Exception as e:
+        print 'error searching with test patients:',e
+        sys.exit()
+         
+  
 def delete_test_data_in_db(ids_to_delete):
     """
     Deletes a series of test patients from DB and returns a list of deleted IDs
@@ -103,15 +138,15 @@ def delete_test_data_in_db(ids_to_delete):
                  }
         for id in ids_to_delete:
             payload = {"id":id}
-            req = requests.post(MME_DELETE_INDIVIDUAL_URL, 
+            req = requests.delete(MME_DELETE_INDIVIDUAL_URL, 
                               data=json.dumps(payload),
                               headers=headers)
-            print "\t\t----deleting",patient['id'],req.text
+            print "\t\t----deleting",id,req.text
             if json.loads(req.text)["status_code"]==200:
-                deleted_ids.append(patient['id'])
+                deleted_ids.append(id)
         return deleted_ids
     except Exception as e:
-        print 'error deleting test patients',e
+        print 'error deleting test patients:',e
         sys.exit()
   
   
