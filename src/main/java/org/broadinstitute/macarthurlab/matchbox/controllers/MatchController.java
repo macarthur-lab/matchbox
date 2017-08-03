@@ -56,7 +56,6 @@ public class MatchController {
     public ResponseEntity<?> match(@RequestBody String requestString, HttpServletRequest request) {
         String originMatchmakerNodeName = request.getAttribute("originMatchmakerNodeName").toString();
         Patient queryPatient = null;
-
         try {
             String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
             // TODO figure out why there is a = at the end of JSON string

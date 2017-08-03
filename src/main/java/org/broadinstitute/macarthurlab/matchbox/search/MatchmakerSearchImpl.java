@@ -93,7 +93,6 @@ public class MatchmakerSearchImpl implements SearchService {
         List<Patient> nodePatients = patientMongoRepository.findAll();
 
         List<MatchmakerResult> results = matchService.match(queryPatient, nodePatients);
-
         List<String> scrubbedResults = new ArrayList<>();
         for (MatchmakerResult r : results) {
             if (!r.getPatient().getId().equals(queryPatient.getId())) {
@@ -102,6 +101,7 @@ public class MatchmakerSearchImpl implements SearchService {
                 logger.info("ignoring this result since it is the same as query patient (same ID)");
             }
         }
+        
         /**
          *  persist for logging and metrics and tracking of data sent out. Persist the
          *  incoming query ONLY if a match is made, otherwise don't keep any of the

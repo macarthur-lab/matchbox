@@ -61,7 +61,7 @@ def start():
     """
     #insert patients
     test_patients=get_test_data()
-    inserted_ids=insert_test_data_into_db(test_patients)
+    #inserted_ids=insert_test_data_into_db(test_patients)
     if len(inserted_ids)==50:
         print "\n\ninsertion passed."
     else:
@@ -71,7 +71,7 @@ def start():
     searchTestPatients(test_patients)
     
     #clean up after tests
-    deleted_ids=delete_test_data_in_db(inserted_ids)
+    #deleted_ids=delete_test_data_in_db(inserted_ids)
     print "\n\n"
 
 def insert_test_data_into_db(patients):

@@ -6,7 +6,15 @@ package org.broadinstitute.macarthurlab.matchbox.match;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
+import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.network.CertificateAdjustment;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +22,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import static java.util.stream.Collectors.toList;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
  * @author harindra
@@ -74,6 +89,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         if (nodePatient.getGenomicFeatures().isEmpty() || queryPatient.getGenomicFeatures().isEmpty()) {
             return NO_GENOTYPE_MATCH;
         }
+        //here is list of gene-matches the query and this specific node patient had in common
         List<GenomicFeatureMatch> geneMatches = findGenomicFeatureMatches(queryPatient, nodePatient);
 
         if (geneMatches.isEmpty()){
@@ -140,6 +156,8 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return A score (0.15 is returned if there is a match in zygositys)
      */
     private double calculateZygosityScore(List<GenomicFeatureMatch> genomicFeatureMatches) {
+    	
+    	findAlleFreq("dd");
         for (GenomicFeatureMatch match : genomicFeatureMatches) {
             if (match.hasZygosityMatch()) {
                 logger.debug("Zygosity match: {}", match.hasZygosityMatch());
@@ -147,6 +165,31 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
             }
         }
         return 0.0;
+    }
+    
+    
+    /**
+     * Find the allele frequency of this variant
+     * @param variant
+     * @return
+     */
+    public Double findAlleFreq(String variant){
+    	HttpsURLConnection connection = null;  
+    	String gnomadUrl = "http://gnomad.broadinstitute.org/variant/1-55516888-G-GA";
+		try {
+			Document doc = Jsoup.connect(gnomadUrl).get();
+			Elements headlines = doc.select("#af-total");
+			System.out.println(headlines);
+		  } catch (Exception e) {
+			  logger.error("error connecting to: " + gnomadUrl + ": "+e.getMessage());    
+		  } finally {
+		    if(connection != null) {
+		      connection.disconnect(); 
+		    }
+		  }
+    	
+    	
+    	return 0d;
     }
 
     /**

@@ -3,6 +3,7 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
+import org.apache.commons.math3.stat.inference.TTest;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
@@ -48,6 +49,10 @@ public class MatchServiceImpl implements MatchService {
         PhenotypeSimilarityScorer phenotypeSimilarityScorer = phenotypeSimilarityService.buildPhenotypeSimilarityScorer(patient);
 
         List<MatchmakerResult> results = new ArrayList<>();
+        
+        List<MatchmakerResult> nodePatientsWithVariantInSameGeneAsQuery = new LinkedList<MatchmakerResult>();
+        List<MatchmakerResult> nodePatientsWithNoVariantInSameGeneAsQuery = new LinkedList<MatchmakerResult>();
+        
         for (Patient nodePatient : patients) {
             GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient, nodePatient);
             PhenotypeSimilarityScore phenotypeSimilarityScore = phenotypeSimilarityScorer.scorePhenotypes(patient, nodePatient);
@@ -55,17 +60,37 @@ public class MatchServiceImpl implements MatchService {
             double genotypeScore = genotypeSimilarityScore.getScore();
             double phenotypeScore = phenotypeSimilarityScore.getScore();
             
-            if (genotypeSimilarityScore.hasCommonGene() || phenotypeScore >= 0.7) {
-                double matchScore = calculateMatchScore(genotypeScore, phenotypeScore);
-//                logger.info("{}-{}: {} genoScore: {} phenoScore: {}", patient.getId(), nodePatient.getId(), matchScore, genotypeScore, phenotypeScore);
-                Map<String, Double> score = new LinkedHashMap<>();
-                score.put("patient", matchScore);
-                score.put("_genotypeScore", genotypeScore);
-                score.put("_phenotypeScore", phenotypeScore);
-                //TODO add in the _phentypeMatches and _genotypeMatches etc here.
-                results.add(new MatchmakerResult(score, nodePatient));
+            double matchScore = calculateMatchScore(genotypeScore, phenotypeScore);
+            logger.info("{}-{}: {} genoScore: {} phenoScore: {}", patient.getId(), nodePatient.getId(), matchScore, genotypeScore, phenotypeScore);
+            Map<String, Double> score = new LinkedHashMap<>();
+            score.put("patient", matchScore);
+            score.put("_genotypeScore", genotypeScore);
+            score.put("_phenotypeScore", phenotypeScore);
+            if (genotypeSimilarityScore.hasCommonGene()){
+            	nodePatientsWithVariantInSameGeneAsQuery.add(new MatchmakerResult(score, nodePatient));
             }
+            else{
+            	nodePatientsWithNoVariantInSameGeneAsQuery.add(new MatchmakerResult(score, nodePatient));
+            }
+    
         }
+        //now get list<Double> of only phenotype scores
+        List<Double> phenoScoresOfNodePatientsWithVariant = new LinkedList<Double>();
+        List<Double> phenoScoresOfNodePatientsWithoutVariant = new LinkedList<Double>();
+        for (MatchmakerResult r: nodePatientsWithVariantInSameGeneAsQuery){
+        	phenoScoresOfNodePatientsWithVariant.add(r.getScore().get("_phenotypeScore"));
+        }
+        for (MatchmakerResult r: nodePatientsWithNoVariantInSameGeneAsQuery){
+        	phenoScoresOfNodePatientsWithoutVariant.add(r.getScore().get("_phenotypeScore"));
+        }
+        
+        //temp, need to wire in the P-values
+         //TODO add in the _phentypeMatches and _genotypeMatches etc here.
+        for (MatchmakerResult result : nodePatientsWithVariantInSameGeneAsQuery){
+        	results.add(new MatchmakerResult(result.getScore(), result.getPatient()));
+        }
+        
+        
 
         results.sort(Comparator.comparingDouble(object -> {
             //yuk
