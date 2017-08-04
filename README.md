@@ -22,51 +22,103 @@ A significant amount of development is typically required to join the MME; this 
 
 * An authenticated MongoDB instance (available from https://www.mongodb.org/). This application requires a password protected MongoDB instance for tests and build to succeed (you can build without tests and MongoDB and configure MongoDB later if required as described below).
 
-## Quick start build:
+## Build:
 
-* Download the source code and simply build on your system via.
+You can build <i>matchbox</i> via two methods. 
+
+1. Directly through maven.
+
+OR
+
+2. Using Docker (https://www.docker.com/) 
+
+
+## 1. Build directly via Maven:
+
+<i>matchbox</i> relies on a modified version of Exomiser (https://github.com/exomiser/Exomiser), its reference data and libraries for the phenotype matching algorithm. Given that these libraries are currently not in a maven repository, we obtain this dependency via first building Exomiser and then followed by <i>matchbox</i>.  By building Exomiser first, we put its jars in the local maven repository, where the <i>matchbox</i> build is able to see and use them.
+
+* Clone the Exomiser package
+	- Make sure you have a settings.xml file in your ~/.m2/ directory with the following entry (to activate a local repsitory for Maven to use)
+	
+		```
+			<settings>
+    			<localRepository>${user.home}/.m3/repository</localRepository>
+			</settings>
+		```
+
+
+	- Clone the repository
+
+		```git clone -b development https://github.com/exomiser/Exomiser```
+
+	- Build the source files
+
+		``` clean install package ```
+
+
+* Now download the source code for <i>matchbox</i> and build on your system. It should now see all the Exomiser related dependencies in the local maven repository.
 
 	- Clone the repository
 
 		```git clone https://github.com/macarthur-lab/matchbox```
 
-	- Build source files (maven is required to be on your system). At this point MongoDB should be installed and wired into your application via resources/application.properties. If you haven't, some tests will fail and your build will fail.
-		
-		For now, if you like, you can skip tests and build without MongoDB with,
-		
-		```mvn -Dmaven.test.skip=true clean install package```
-		
-		To build with tests you will have to wire in MongoDB. To wire in MongoDB, update the following lines in top-level resources/application.properties appropriately. Add in your Java key certificate key store to enable Java HTTPS connections to other nodes, and uncomment plus populate the server.ssl.* attributes to start matchbox as HTTPS. If you are not planning to proxy matchbox behind a HTTPS service, you would have to server matchbox as HTTPS per MME requirements.
-		```
-        spring.application.name=matchbox
-        logging.file=logs/matchbox.log
-        
-        spring.http.encoding.force=false
-        
-        #Enable these as required for any specific MongoDB setup.
-        #spring.data.mongodb.host=
-        #spring.data.mongodb.port=
-        #spring.data.mongodb.username=
-        #spring.data.mongodb.password=
-        #spring.data.mongodb.database=mme_primary
-        
-        #Enable the following to be HTTPS (required if server is not proxied)
-        #see https://www.drissamri.be/blog/java/enable-https-in-spring-boot/
-        #server.port=8443
-        #server.ssl.key-store=file:<path-to-JKS-file>
-        #server.ssl.key-store-password=<your-password>
-        #server.ssl.key-password=<you-jks-domain>
-        
-        matchbox.gene-symbol-to-id-mappings=${user.dir}/config/gene_symbol_to_ensembl_id_map.txt
-        matchbox.connected-nodes=${user.dir}/config/nodes.json
-		```
-		Following that, with the instance of MongoDB up and running and accessible to the application network,
 
-		```mvn clean install```
+	- Update the following lines in the src/main/resources/application.properties appropriately. 
+	
+		- If you are NOT planning to proxy matchbox behind a HTTPS service, you would have to start server matchbox as HTTPS per MME requirements.
+	
+			- Uncomment and populate the server.ssl.* attributes to start <i>matchbox</i> as HTTPS. 
 		
-		Should build successfully.
+		- The "exomiser.data-directory=" field is required by Exomiser for phenotype matching. This reference data can be fetched by,
+		
+		```
+			wget https://storage.googleapis.com/pub/gsutil.tar.gz
+			
+			tar -xvzf gsutil.tar.gz
+		```
+		
+		Provide the path of the above untar'ed "data" directory to the "exomiser.data-directory=" field, for example,
+		```
+			exomiser.data-directory==/Users/john/Documents/exomiser-cli-7.2.1/data
+		```
+		
+		A full example would look like,
+		
+
+		```
+		spring.application.name=matchbox
+		logging.file=logs/matchbox.log
+		
+		spring.http.encoding.force=false
+		
+		#Enable these as required for any specific MongoDB setup.
+		#spring.data.mongodb.host=
+		#spring.data.mongodb.port=
+		#spring.data.mongodb.username=
+		#spring.data.mongodb.password=
+		#spring.data.mongodb.database=mme_primary
+		
+		#Enable the following to be HTTPS (REQUIRED by MME if server is not proxied)
+		#thanks to https://www.drissamri.be/blog/java/enable-https-in-spring-boot/
+		#keyTrustStore=<your_KeyStore.jks>
+		#server.port=8443
+		#server.ssl.key-store=file:<path-to-JKS-file>
+		#server.ssl.key-store-password=<your-password>
+		#server.ssl.key-password=<you-jks-domain>
+		
+		matchbox.gene-symbol-to-id-mappings=${user.dir}/config/gene_symbol_to_ensembl_id_map.txt
+		matchbox.connected-nodes=${user.dir}/config/nodes.json
+		
+		exomiser.data-directory=
+		```
+		
+	- Now build source files. 
+		
+		```mvn clean install package```
+		
 		
 	- That should create a directory called "target" with an executable JAR file
+
 
 	- Start server
 
@@ -84,6 +136,23 @@ variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```
 
   It is similarly possible to change any of the variables contained in the application.properties in this manner. The 
   latter is usually a better option as this will be application instance specific rather than as a global system variable. 
+  
+  
+  
+## 2. Build using Docker:
+
+The top-level docker directory has the necessary files to build a docker image of matchbox with all reference data downloaded into it. The total image build takes close to a 
+hour depending on your internet speed due to a download of a ~20GB tar'ed file and the subsequent untar'ing of that. This method of deployment is still
+in testing and we do not use it in production yet and is in testing. To use it to build,
+
+For example,
+```
+	cd docker
+	
+	docker build -t matchbox-dimage .
+	
+	docker run -it matchbox-dimage
+```  
   
 ## General overview:
 
@@ -156,7 +225,7 @@ variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```
 	```
 	* We will soon also integrate disorder, and variant position to further improve this matching strategy.
 
-* Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.(naive implementation as of now, improvement in progress). We are also in the process of adding in phenotype-only based matching in the absence of genotype information.
+* Phenotype matching is done as a secondary step to help narrow down initial search via genotypes.
 
 * If the matched result patient has the same ID as the query patient, it won't be sent back. In these cases it is assumed that the result and the query -for some reason- are the same patient.
 
@@ -196,7 +265,35 @@ variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```
   
 ```
 
-## Adding a token to give a user access to matchbox:
+## Adding a token to give an external user/node access to <i>matchbox</i>:
+
+You can use the top-level config/config.xml file for this purpose. For example,
+
+This describes a node,
+```
+  <bean id="defaultAccessToken"
+      class="org.broadinstitute.macarthurlab.matchbox.entities.AuthorizedToken">
+      <constructor-arg type="java.lang.String" value="Default Access Token" />
+      <constructor-arg type="java.lang.String" value="abcd" />
+      <constructor-arg type="java.lang.String" value="Local Center name" />
+      <constructor-arg type="java.lang.String" value="user@center.org" />
+  </bean>
+```
+
+And the following adds it to the list of nodes,
+```
+  <bean id="accessAuthorizedNode"
+      class="org.broadinstitute.macarthurlab.matchbox.authentication.AccessAuthorizedNode">
+      <property name="accessAuthorizedNodes">
+         <list>
+            <ref bean="defaultAccessToken"/>            
+         </list>
+      </property>
+  </bean>
+```
+
+
+A complete example would be,
 
 
 ```
@@ -219,11 +316,32 @@ variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```
 
 ```
 
+## Adding a token to give an external user/node access to <i>matchbox</i>:
+
+You can use the top-level config/nodes.json file to give external nodes access to <i>matchbox</i>. For example,
+
+```
+{
+	"nodes":[{
+		"name": "test-ref-server",
+		"token" : "abcd",
+		"url" : "https://localhost:8443/match",
+		"contentTypeHeader" : "application/vnd.ga4gh.matchmaker.v1.0+json",
+		"contentLanguage" : "en-US",
+		"acceptHeader" : "application/vnd.ga4gh.matchmaker.v1.0+json",
+		"selfSignedCertificate": true
+		}]
+}
+```
+
+The "nodes" object here is a list of such nodes. You can add any number of nodes ({..}) to this list and followed by a server restart for <i>matchbox</i> to start giving them access.
+
+
 ## Recommended deployment architecture
 
 We recommend matchbox be deployed behind a fire-wall. The front-end website would communicate with its back-end. That back-end would communicate with matchbox via a privileged port. That port would be the only port opened on the machine matchbox would live on. This would provide its data maximum security layers.
 
-Further we recommend that precautions be taken to avoid commiting to github the config.xml file that contains your tokens. We use a separate private github repository to maintain the completed config.xml file.
+Further we recommend that precautions be taken to avoid commiting to github the config.xml file that contains your tokens. We use a separate private github repository (or ideally a secure file system location or volt) to maintain the completed config.xml file.
 
 ## User interface
 
@@ -235,62 +353,13 @@ While commandline tools such as cURL can be used with <i>matchbox</i>, an user i
 
 ## Testing
 
-There are unit tests included that can be executed via Maven. Prior to doing so, you will need an instance of MongoDB to be running and wired into matchbox via the application.properties file found in the top-level resources directory
-
-```
-#Enable these as required for any specific MongoDB setup.
-#spring.data.mongodb.host=
-#spring.data.mongodb.port=
-#spring.data.mongodb.username=
-#spring.data.mongodb.password=
-#spring.data.mongodb.database=mme_primary
-```
-
-Once the above values are set,
+There are unit tests included that can be executed via Maven. To execute the unit tests,
 
 	mvn test
-	
-should execute the unit tests.
 
 
-## End to end example
+## Adding in access and connecting to other nodes
 
-* Clone the repo
-
-	```
-	git clone https://github.com/macarthur-lab/matchbox
-	```
-
-* Update the resource directory with your database connection information and trust store for Java HTTPS connections to other nodes,
-
-	Edit properties file,
-	```
-	vi resources/application.properties
-	```
-	
-	```
-    spring.application.name=matchbox
-    logging.file=logs/matchbox.log
-    
-    spring.http.encoding.force=false
-    
-    #Enable these as required for any specific MongoDB setup.
-    #spring.data.mongodb.host=
-    #spring.data.mongodb.port=
-    #spring.data.mongodb.username=
-    #spring.data.mongodb.password=
-    #spring.data.mongodb.database=mme_primary
-    
-    #Enable the following to be HTTPS (required if server is not proxied)
-    #see https://www.drissamri.be/blog/java/enable-https-in-spring-boot/
-    #server.port=8443
-    #server.ssl.key-store=file:<path-to-JKS-file>
-    #server.ssl.key-store-password=<your-password>
-    #server.ssl.key-password=<you-jks-domain>
-    
-    matchbox.gene-symbol-to-id-mappings=${user.dir}/config/gene_symbol_to_ensembl_id_map.txt
-    matchbox.connected-nodes=${user.dir}/config/nodes.json
-	```
 	
 * You can update resources/config.xml with your connections. But for initial test, we can use the default client connection with token "abcd" to connect into. We won't search external databases yet, since that involves getting tokens from other centers.
 
@@ -313,14 +382,7 @@ should execute the unit tests.
    </bean>
   
 	```
-  
-	
-
-* Build the source code (skip unit-tests for now), if you would like to test as well, make sure you have MongoDB installed and wired into application via resources/application.properties
-
-	```
- 	mvn clean install package -Dmaven.test.skip=true
-	```
+ 
 
 * Start the server
 
