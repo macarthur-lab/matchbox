@@ -65,9 +65,11 @@ OR
 
 	- To wire in MongoDB, update the following lines in the src/main/resources/application.properties appropriately. 
 		
-		-- Uncomment and populate the server.ssl.* attributes to start <i>matchbox</i> as HTTPS. 
-		-- If you are not planning to proxy matchbox behind a HTTPS service, you would have to start server matchbox as HTTPS per MME requirements.
-		-- The "exomiser.data-directory=" field is required by Exomiser for phenotype matching. This data can be fetched by,
+		- Uncomment and populate the server.ssl.* attributes to start <i>matchbox</i> as HTTPS. 
+		
+		- If you are not planning to proxy matchbox behind a HTTPS service, you would have to start server matchbox as HTTPS per MME requirements.
+		
+		- The "exomiser.data-directory=" field is required by Exomiser for phenotype matching. This data can be fetched by,
 		
 		```
 			wget https://storage.googleapis.com/pub/gsutil.tar.gz
@@ -137,7 +139,7 @@ variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```
   
   
   
-## 1. Build using Docker:
+## 2. Build using Docker:
 
 IN PROGRESS  
   
