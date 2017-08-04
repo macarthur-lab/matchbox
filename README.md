@@ -63,11 +63,13 @@ OR
 		```git clone https://github.com/macarthur-lab/matchbox```
 
 
-	- To wire in MongoDB, update the following lines in the src/main/resources/application.properties appropriately. 
+	- Update the following lines in the src/main/resources/application.properties appropriately. 
+	
+		- If you are NOT planning to proxy matchbox behind a HTTPS service, you would have to start server matchbox as HTTPS per MME requirements.
+	
+			- Uncomment and populate the server.ssl.* attributes to start <i>matchbox</i> as HTTPS. 
 		
-		-- Uncomment and populate the server.ssl.* attributes to start <i>matchbox</i> as HTTPS. 
-		-- If you are not planning to proxy matchbox behind a HTTPS service, you would have to start server matchbox as HTTPS per MME requirements.
-		-- The "exomiser.data-directory=" field is required by Exomiser for phenotype matching. This data can be fetched by,
+		- The "exomiser.data-directory=" field is required by Exomiser for phenotype matching. This reference data can be fetched by,
 		
 		```
 			wget https://storage.googleapis.com/pub/gsutil.tar.gz
@@ -75,7 +77,7 @@ OR
 			tar -xvzf gsutil.tar.gz
 		```
 		
-		Provide the path of the above directory to the "exomiser.data-directory=" field, for example,
+		Provide the path of the above untar'ed "data" directory to the "exomiser.data-directory=" field, for example,
 		```
 			exomiser.data-directory==/Users/john/Documents/exomiser-cli-7.2.1/data
 		```
@@ -137,7 +139,7 @@ variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```
   
   
   
-## 1. Build using Docker:
+## 2. Build using Docker:
 
 IN PROGRESS  
   
