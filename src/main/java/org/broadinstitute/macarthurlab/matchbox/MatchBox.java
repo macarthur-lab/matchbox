@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ImportResource;
  * Entry point to application. Application starts here.
  *
  */
-@SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
+@SpringBootApplication
 @ImportResource("file:config/config.xml")
 public class MatchBox {
     public static void main( String[] args ) {
