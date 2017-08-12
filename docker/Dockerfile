@@ -65,4 +65,13 @@ RUN cp -rf $MATCHBOX_CONFIG_DIR . \
 
 EXPOSE 9020
 
+#Environment variables for Mongo connection. Please populate
+env EXOMISER_DATA_DIR=/Exomiser/matchbox/data/data
+env MONGODB_HOSTNAME=
+env MONGODB_PORT=
+env MONGODB_USERNAME=
+env MONGODB_PASSWORD=
+
+
+
 CMD ["/root/bin/entrypoint.sh"]
