@@ -9,6 +9,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.network.CertificateAdjustment;
+import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -44,6 +45,12 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
 
     private final Map<String, String> geneSymbolToEnsemblId;
     private final Map<String, String> ensemblIdToGeneSymbol;
+    
+    /**
+     * A set of tools to help with make a Http call to an external node
+     */
+    @Autowired
+    private Communication httpCommunication;
 
     /**
      * Constructor
@@ -95,7 +102,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         if (geneMatches.isEmpty()){
             return NO_GENOTYPE_MATCH;
         }
-
+    	findAlleFreq("dd");
         //TODO: each GenomicFeatureMatch should have its own score based on the variant, zygosity and SO code (as per current implementation)
         //for the final GenotypeSimilarityScore we'll return the top-ranked individual score.
         double zygosityScore = calculateZygosityScore(geneMatches);
@@ -156,8 +163,6 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return A score (0.15 is returned if there is a match in zygositys)
      */
     private double calculateZygosityScore(List<GenomicFeatureMatch> genomicFeatureMatches) {
-    	
-    	findAlleFreq("dd");
         for (GenomicFeatureMatch match : genomicFeatureMatches) {
             if (match.hasZygosityMatch()) {
                 logger.debug("Zygosity match: {}", match.hasZygosityMatch());
@@ -174,21 +179,10 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return
      */
     public Double findAlleFreq(String variant){
-    	HttpsURLConnection connection = null;  
-    	String gnomadUrl = "http://gnomad.broadinstitute.org/variant/1-55516888-G-GA";
-		try {
-			Document doc = Jsoup.connect(gnomadUrl).get();
-			Elements headlines = doc.select("#af-total");
-			System.out.println(headlines);
-		  } catch (Exception e) {
-			  logger.error("error connecting to: " + gnomadUrl + ": "+e.getMessage());    
-		  } finally {
-		    if(connection != null) {
-		      connection.disconnect(); 
-		    }
-		  }
-    	
-    	
+    	String payload = "{\"query\": \"query{variant(id:\\\"1-55516888-G-GA\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}";
+    	System.out.println(payload);
+    	String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org", payload);
+    	System.out.println(reply);
     	return 0d;
     }
 

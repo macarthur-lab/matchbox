@@ -53,6 +53,9 @@ public class MatchServiceImpl implements MatchService {
         List<MatchmakerResult> nodePatientsWithVariantInSameGeneAsQuery = new LinkedList<MatchmakerResult>();
         List<MatchmakerResult> nodePatientsWithNoVariantInSameGeneAsQuery = new LinkedList<MatchmakerResult>();
         
+        //compare every patient in matchbox pairwise with the query patient, and when a gene-match happens, put it
+        //aside to return. Keep the others aside for scoring probabilities. Each patient gets a separate phenotype
+        //and a genotype score/
         for (Patient nodePatient : patients) {
             GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient, nodePatient);
             PhenotypeSimilarityScore phenotypeSimilarityScore = phenotypeSimilarityScorer.scorePhenotypes(patient, nodePatient);
