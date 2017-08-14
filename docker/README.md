@@ -1,4 +1,4 @@
-# <i>matchbox Docker build process</i>
+# <i>matchbox Docker build process (beta)</i>
 
 We are still in the process of designing a best practices build and deployment process using Docker and Kubernetes, 
 so please consider this a work in progress. Please be careful to not check in Docker files with private secure
