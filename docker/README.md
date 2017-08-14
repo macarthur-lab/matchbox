@@ -54,10 +54,10 @@ usernames and passwords.
 the build step, 
 
 
-4. You should now be able to start matchbox with (for example, lets call the image "matchboxwvol",
+4. You should now be able to start matchbox with (for example, using the image "matchboxwvol" we built ealier),
 
 	```
-		docker run -ti -p 9020:9020 -v "/reference_data/exomiser-cli-7.2.1/data":/Exomiser/matchbox/data/data matchboxwvol 
+		docker run -ti -p 9020:9020 -v "/reference_data/exomiser-cli-7.2.1/data":/Exomiser/matchbox/data/data matchbox-docimg 
 	``` 
 
 
