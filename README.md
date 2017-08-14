@@ -141,18 +141,11 @@ variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```
   
 ## 2. Build using Docker:
 
-The top-level docker directory has the necessary files to build a docker image of matchbox with all reference data downloaded into it. The total image build takes close to a 
-hour depending on your internet speed due to a download of a ~20GB tar'ed file and the subsequent untar'ing of that. This method of deployment is still
-in testing and we do not use it in production yet and is in testing. To use it to build,
+The top-level docker directory has the necessary files and instructions to build a docker image of matchbox. Please refer
+to that README for details.
 
-For example,
-```
-	cd docker
-	
-	docker build -t matchbox-dimage .
-	
-	docker run -it matchbox-dimage
-```  
+[docker/README.md]
+
   
 ## General overview:
 
