@@ -53,14 +53,15 @@ usernames and passwords.
 	* And you have a MongoDB instance running and you have added its credentials and details to the Dockerfile before
 the build step, 
 
-You should now be able to start matchbox with (for example, lets call the image "matchboxwvol",
+
+4. You should now be able to start matchbox with (for example, lets call the image "matchboxwvol",
 
 	```
 		docker run -ti -p 9020:9020 -v "/reference_data/exomiser-cli-7.2.1/data":/Exomiser/matchbox/data/data matchboxwvol 
 	``` 
 
 
-4. You can test your instance with,
+5. You can test your instance with,
 	
 	```
 		curl -X GET -H "X-Auth-Token: abcd" -H "Accept: application/vnd.ga4gh.matchmaker.v1.0+json" -H "Content-Type: application/x-www-form-urlencoded" http://localhost:9020/patient/view
