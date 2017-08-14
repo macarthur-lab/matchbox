@@ -2,6 +2,8 @@ package org.broadinstitute.macarthurlab.matchbox;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.ImportResource;
 
 
@@ -12,14 +14,8 @@ import org.springframework.context.annotation.ImportResource;
 @SpringBootApplication
 @ImportResource("file:config/config.xml")
 public class MatchBox {
-
-//    @Autowired
-//    static Environment environment;
-
     public static void main( String[] args ) {
         System.out.println( "Starting matchbox server.." );
-        //set the trust store java path (required for Communication class as well
-//        System.setProperty("javax.net.ssl.trustStore", environment.getProperty("keyTrustStore"));
         SpringApplication.run(MatchBox.class, args);
     }
 }
