@@ -55,12 +55,12 @@ public class Variant {
 	 * Returns true if ALL fields are unpopulated
 	 */
 	public boolean isUnPopulated(){
-		if (this.assembly=="" &&
-				this.referenceName=="" &&
+		if (this.assembly.equals("") &&
+				this.referenceName.equals("") &&
 				this.start==-1 &&
 				this.end==-1   &&
-				this.referenceBases=="" &&
-				this.alternateBases==""){
+				this.referenceBases.equals("") &&
+				this.alternateBases.equals("")){
 			return true;
 		}
 		return false;

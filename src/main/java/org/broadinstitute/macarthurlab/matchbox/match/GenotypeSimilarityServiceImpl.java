@@ -13,6 +13,7 @@ import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -107,9 +108,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
             return NO_GENOTYPE_MATCH;
         }
     	
-        this.findPopulationProbabilities(geneMatches);
-        //findAlleFreq("dd,"","","");
-        
+        this.findNormalPopulationProbabilities(geneMatches);
         
         //TODO: each GenomicFeatureMatch should have its own score based on the variant, zygosity and SO code (as per current implementation)
         //for the final GenotypeSimilarityScore we'll return the top-ranked individual score.
@@ -186,22 +185,25 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @param geneMatches a list of gene matches between a query patient and local-db patient
      * @return An average of allele frequencies between query and local 
      */
-    public double findPopulationProbabilities(List<GenomicFeatureMatch> geneMatches){
+    public double findNormalPopulationProbabilities(List<GenomicFeatureMatch> geneMatches){
     	Double localMatchAlleleFreq=0d;
     	Double queryAlleleFreq=0d;
     	List<Double> alleleFredAvgs = new ArrayList<Double>(); 
     	for (GenomicFeatureMatch gFeatureMatch : geneMatches){
-    		localMatchAlleleFreq = this.findAlleFreq(
-    													gFeatureMatch.getNodeFeature().getVariant().getReferenceName(),
-    													gFeatureMatch.getNodeFeature().getVariant().getStart(),
-    													gFeatureMatch.getNodeFeature().getVariant().getReferenceBases(),
-    													gFeatureMatch.getNodeFeature().getVariant().getAlternateBases());  		
-    		queryAlleleFreq = this.findAlleFreq(
-														gFeatureMatch.getQueryFeature().getVariant().getReferenceName(),
-														gFeatureMatch.getQueryFeature().getVariant().getStart(),
-														gFeatureMatch.getQueryFeature().getVariant().getReferenceBases(),
-														gFeatureMatch.getQueryFeature().getVariant().getAlternateBases());
-    		alleleFredAvgs.add((localMatchAlleleFreq + queryAlleleFreq)/2);
+    		if (!gFeatureMatch.getNodeFeature().getVariant().isUnPopulated()){
+	    		localMatchAlleleFreq = this.findAlleFreq(
+	    													gFeatureMatch.getNodeFeature().getVariant().getReferenceName(),
+	    													gFeatureMatch.getNodeFeature().getVariant().getStart(),
+	    													gFeatureMatch.getNodeFeature().getVariant().getReferenceBases(),
+	    													gFeatureMatch.getNodeFeature().getVariant().getAlternateBases());  		
+	    		queryAlleleFreq = this.findAlleFreq(
+															gFeatureMatch.getQueryFeature().getVariant().getReferenceName(),
+															gFeatureMatch.getQueryFeature().getVariant().getStart(),
+															gFeatureMatch.getQueryFeature().getVariant().getReferenceBases(),
+															gFeatureMatch.getQueryFeature().getVariant().getAlternateBases());
+	    		//note: is there a better way to combine the two or do we have to?
+	    		alleleFredAvgs.add((localMatchAlleleFreq + queryAlleleFreq)/2); 
+    		}
     	}
     	double combined=0.0001d;  //a starting value
     	for (Double freq: alleleFredAvgs){
@@ -217,6 +219,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return
      */
     public double findAlleFreq(String chromosome, Long variantPos, String refBase, String altBase){
+    	/**
     	StringBuilder payload=new StringBuilder();
     	payload.append("{\"query\": \"query{variant(id:\\\"");
     	payload.append(chromosome);
@@ -227,13 +230,40 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	payload.append("-");
     	payload.append(altBase);
     	payload.append("\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}");
-    	//String payload = "{\"query\": \"query{variant(id:\\\"1-55516888-G-GA\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}";
-    	System.out.println(payload.toString());
+    	**/
+    	String payload = "{\"query\": \"query{variant(id:\\\"1-55516888-G-GA\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}";
+    	//System.out.println(payload.toString());
     	String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org", payload.toString());
-    	System.out.println(reply);
+    	System.out.println(this.parseGnomadReply(reply) );
     	return 1d;
     }
+    
+    
+    /**
+     * Parses a reply from Gnomad service
+     * @param reply A string reply in JSON format
+     * @return a map of values returned back from gnomad
+     */
+    private Map<String,String> parseGnomadReply(String reply) {
+    	Map<String,String> parsed = new HashMap<String,String>();
+    	try{
+	    	JSONParser parser = new JSONParser();
+	    	JSONObject jsonObject = (JSONObject) parser.parse(reply);
+	    	JSONObject dataObj = (JSONObject)jsonObject.get("data");
+	    	JSONObject variantObj = (JSONObject)dataObj.get("variant");
+	    	parsed.put("allele_count",(String)variantObj.get("allele_count"));
+	    	parsed.put("allele_count",(String)variantObj.get("allele_num"));
+	    	System.out.println(parsed);
+    	}
+    	catch(Exception e){
+    		System.out.println("ddsadasdd");
+    		logger.debug("error parsing gnomad reply: {}", e.getMessage());
+    	}
+    	return parsed;
+    }
 
+       
+    
     /**
      * Generates a score based on variant positions inside a common gene.
      *

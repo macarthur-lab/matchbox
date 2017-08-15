@@ -88,7 +88,7 @@ public class MatchServiceImpl implements MatchService {
         }
         
         //temp, need to wire in the P-values
-         //TODO add in the _phentypeMatches and _genotypeMatches etc here.
+        //TODO add in the _phentypeMatches and _genotypeMatches etc here.
         for (MatchmakerResult result : nodePatientsWithVariantInSameGeneAsQuery){
         	results.add(new MatchmakerResult(result.getScore(), result.getPatient()));
         }
