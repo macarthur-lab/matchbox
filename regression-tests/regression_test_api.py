@@ -21,7 +21,8 @@ PROFILE=0
 ACCESS_TOKEN="abcd"
 MME_NODE_ACCEPT_HEADER='application/vnd.ga4gh.matchmaker.v1.0+json'
 MME_CONTENT_TYPE_HEADER='application/x-www-form-urlencoded'
-MME_SERVER_HOST='http://localhost:8080'
+MME_PORT=9020
+MME_SERVER_HOST='http://localhost:' + MME_PORT
 MME_ADD_INDIVIDUAL_URL = MME_SERVER_HOST + '/patient/add'
 MME_DELETE_INDIVIDUAL_URL = MME_SERVER_HOST + '/patient/delete'
 MME_LOCAL_SEARCH_URL = MME_SERVER_HOST + '/match'
@@ -61,7 +62,7 @@ def start():
     """
     #insert patients
     test_patients=get_test_data()
-    #inserted_ids=insert_test_data_into_db(test_patients)
+    inserted_ids=insert_test_data_into_db(test_patients)
     if len(inserted_ids)==50:
         print "\n\ninsertion passed."
     else:
@@ -71,7 +72,7 @@ def start():
     searchTestPatients(test_patients)
     
     #clean up after tests
-    #deleted_ids=delete_test_data_in_db(inserted_ids)
+    deleted_ids=delete_test_data_in_db(inserted_ids)
     print "\n\n"
 
 def insert_test_data_into_db(patients):

@@ -61,4 +61,20 @@ public class GenomicFeatureMatch {
                 '}';
     }
 
+	/**
+	 * @return the queryFeature
+	 */
+	public GenomicFeature getQueryFeature() {
+		return queryFeature;
+	}
+
+	/**
+	 * @return the nodeFeature
+	 */
+	public GenomicFeature getNodeFeature() {
+		return nodeFeature;
+	}
+    
+    
+
 }

@@ -68,13 +68,15 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     }
 
     /**
+     * ------------------------------------DEPRACATED---------------------------
+     * 
      * Ranks a patient list by their genotype similarity to a query patient. Since Genotype
      * is half the score (other half is phenotype rank), this section can given a 0.5 as a perfect hit.
      *
      * @param queryPatient a target patient to rank against
      * @param nodePatients     a list of patients to rank
      * @return Sends back a list of scores for each patient based on genotype. Order matches input list
-     */
+    
     public List<GenotypeSimilarityScore> scoreGenotypes(Patient queryPatient, List<Patient> nodePatients) {
         List<GenotypeSimilarityScore> patientGenotypeRankingScores = new ArrayList<>();
         for (Patient nodePatient : nodePatients) {
@@ -84,7 +86,9 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         }
         return patientGenotypeRankingScores;
     }
+     */
 
+    
     /**
      * Calculates a metric on similarity. Returns 0.5 for a perfect match.
      *
@@ -102,7 +106,11 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         if (geneMatches.isEmpty()){
             return NO_GENOTYPE_MATCH;
         }
-    	findAlleFreq("dd");
+    	
+        this.findPopulationProbabilities(geneMatches);
+        //findAlleFreq("dd,"","","");
+        
+        
         //TODO: each GenomicFeatureMatch should have its own score based on the variant, zygosity and SO code (as per current implementation)
         //for the final GenotypeSimilarityScore we'll return the top-ranked individual score.
         double zygosityScore = calculateZygosityScore(geneMatches);
@@ -174,16 +182,56 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     
     
     /**
+     * Given a list of genomic feature matches, finds population frequencies of those combinations
+     * @param geneMatches a list of gene matches between a query patient and local-db patient
+     * @return An average of allele frequencies between query and local 
+     */
+    public double findPopulationProbabilities(List<GenomicFeatureMatch> geneMatches){
+    	Double localMatchAlleleFreq=0d;
+    	Double queryAlleleFreq=0d;
+    	List<Double> alleleFredAvgs = new ArrayList<Double>(); 
+    	for (GenomicFeatureMatch gFeatureMatch : geneMatches){
+    		localMatchAlleleFreq = this.findAlleFreq(
+    													gFeatureMatch.getNodeFeature().getVariant().getReferenceName(),
+    													gFeatureMatch.getNodeFeature().getVariant().getStart(),
+    													gFeatureMatch.getNodeFeature().getVariant().getReferenceBases(),
+    													gFeatureMatch.getNodeFeature().getVariant().getAlternateBases());  		
+    		queryAlleleFreq = this.findAlleFreq(
+														gFeatureMatch.getQueryFeature().getVariant().getReferenceName(),
+														gFeatureMatch.getQueryFeature().getVariant().getStart(),
+														gFeatureMatch.getQueryFeature().getVariant().getReferenceBases(),
+														gFeatureMatch.getQueryFeature().getVariant().getAlternateBases());
+    		alleleFredAvgs.add((localMatchAlleleFreq + queryAlleleFreq)/2);
+    	}
+    	double combined=0.0001d;  //a starting value
+    	for (Double freq: alleleFredAvgs){
+    		combined = combined * (double)freq;
+    	}
+    	return combined;
+    }
+    
+    
+    /**
      * Find the allele frequency of this variant
      * @param variant
      * @return
      */
-    public Double findAlleFreq(String variant){
-    	String payload = "{\"query\": \"query{variant(id:\\\"1-55516888-G-GA\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}";
-    	System.out.println(payload);
-    	String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org", payload);
+    public double findAlleFreq(String chromosome, Long variantPos, String refBase, String altBase){
+    	StringBuilder payload=new StringBuilder();
+    	payload.append("{\"query\": \"query{variant(id:\\\"");
+    	payload.append(chromosome);
+    	payload.append("-");
+    	payload.append(Long.toString(variantPos));
+    	payload.append("-");
+    	payload.append(refBase);
+    	payload.append("-");
+    	payload.append(altBase);
+    	payload.append("\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}");
+    	//String payload = "{\"query\": \"query{variant(id:\\\"1-55516888-G-GA\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}";
+    	System.out.println(payload.toString());
+    	String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org", payload.toString());
     	System.out.println(reply);
-    	return 0d;
+    	return 1d;
     }
 
     /**

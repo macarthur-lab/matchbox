@@ -92,8 +92,6 @@ public class MatchServiceImpl implements MatchService {
         for (MatchmakerResult result : nodePatientsWithVariantInSameGeneAsQuery){
         	results.add(new MatchmakerResult(result.getScore(), result.getPatient()));
         }
-        
-        
 
         results.sort(Comparator.comparingDouble(object -> {
             //yuk
