@@ -6,32 +6,16 @@ package org.broadinstitute.macarthurlab.matchbox.match;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
-import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.network.CertificateAdjustment;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
-
-import javax.net.ssl.HttpsURLConnection;
-
 import static java.util.stream.Collectors.toList;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 
 /**
  * @author harindra
@@ -42,7 +26,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     private static final Logger logger = LoggerFactory.getLogger(GenotypeSimilarityServiceImpl.class);
     //Returning 0.6 so as not to overly penalize these - maybe the phenotype score is high which could lead to a good match.
     private static final GenotypeSimilarityScore NO_GENOTYPE_MATCH = new GenotypeSimilarityScore(0.6, Collections.emptyList());
-    public static final double DEFAULT_MATCH_SCORE = 0.7;
+
 
     private final Map<String, String> geneSymbolToEnsemblId;
     private final Map<String, String> ensemblIdToGeneSymbol;
@@ -107,20 +91,12 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         if (geneMatches.isEmpty()){
             return NO_GENOTYPE_MATCH;
         }
-    	
-        double normPopulationProbabilities = this.findNormalPopulationProbabilities(geneMatches);
-        System.out.println(normPopulationProbabilities);
+        double inverseOfnormPopulationProbabilities = 1.0 /this.findNormalPopulationProbabilities(geneMatches);
         
-        //TODO: each GenomicFeatureMatch should have its own score based on the variant, zygosity and SO code (as per current implementation)
-        //for the final GenotypeSimilarityScore we'll return the top-ranked individual score.
-        double zygosityScore = calculateZygosityScore(geneMatches);
-        double typeScore = calculateVariantEffectScore(geneMatches);
-        double geneSimilarityScore = DEFAULT_MATCH_SCORE + zygosityScore + typeScore;
-        logger.debug("Gene similarity score: {} = (Gene symbol: {} + Zygosity: {} + Variant Effect: {})", geneSimilarityScore, DEFAULT_MATCH_SCORE, zygosityScore, typeScore);
-
-        //return a maximum of 1.0
-        double score = Math.min(geneSimilarityScore, 1.0);
-        return new GenotypeSimilarityScore(score, geneMatches);
+        logger.info("base genotype score: {})", inverseOfnormPopulationProbabilities );
+        //use sigmoid/logistic to scale between 0,1
+        double scaled = (1/( 1 + Math.pow(Math.E,(-1*inverseOfnormPopulationProbabilities))));
+        return new GenotypeSimilarityScore(scaled, geneMatches);
     }
 
     
@@ -164,12 +140,13 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     }
 
     /**
+     * ------------------------DEPRACATED---------------------------------
      * Access zygosity's affect on the score. If zygosity is the same in at least
      * one of the common genes, 0.5 is returned.
      *
      * @param genomicFeatureMatches the matching genomic features
      * @return A score (0.15 is returned if there is a match in zygositys)
-     */
+    
     private double calculateZygosityScore(List<GenomicFeatureMatch> genomicFeatureMatches) {
         for (GenomicFeatureMatch match : genomicFeatureMatches) {
             if (match.hasZygosityMatch()) {
@@ -179,6 +156,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         }
         return 0.0;
     }
+     */
     
     
     /**
@@ -263,15 +241,36 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     }
 
        
+    /** NON NEED TO DO THIS, CAN DO IT  ON THE FLY SINCE THESE FUNCTIONS EXIST IN MATCH OBJ
+     * Looks at variant position, zygosity, and type to for any similarities
+     * @param geneMatches	a list of matches
+     * @return a map of which attributes are the same between the query and node patient
+     
+    public Map<String,Boolean> findSimilarGenotypeAttributes(List<GenomicFeatureMatch> geneMatches){
+    	Map<String,Boolean> similarGenotypeAttributes = new HashMap<String,Boolean>();
+    	for(GenomicFeatureMatch gMatch:geneMatches){
+    		if (gMatch.hasTypeMatch()){similarGenotypeAttributes.put("SameType",true); }
+    		if (!gMatch.hasTypeMatch()){similarGenotypeAttributes.put("SameType",false); }
+    		
+    		if (gMatch.hasZygosityMatch()){similarGenotypeAttributes.put("SameZygosity",true); }
+    		if (!gMatch.hasZygosityMatch()){similarGenotypeAttributes.put("SameZygosity",false); }
+    		
+    		if (gMatch.hasSameVariantPosition()){similarGenotypeAttributes.put("SameVariantPosition",true); }
+    		if (!gMatch.hasSameVariantPosition()){similarGenotypeAttributes.put("SameVariantPosition",false); }
+    	}
+    	return similarGenotypeAttributes;
+    }
+    */
     
     /**
+     * ------------------------DEPRACATED---------------------------------
      * Generates a score based on variant positions inside a common gene.
      *
      * Returns a 0.15 if a perfect match
      *
      * @param genomicFeatureMatches patient in the node
      * @return Returns a representative metric
-     */
+  
     private double calculateVariantEffectScore(List<GenomicFeatureMatch> genomicFeatureMatches) {
         for (GenomicFeatureMatch match : genomicFeatureMatches) {
             logger.debug("Checking {} type {}", match.getGeneIdentifier(), match.getQuerySequenceOntologyId());
@@ -284,6 +283,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         // the gene match is weighted highest as it is the only mandatory field, the type and zygosity can be missing.
         return 0.0;
     }
+   */
 
 
     private String toGeneSymbol(String identifier) {

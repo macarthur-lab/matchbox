@@ -29,6 +29,44 @@ public class GenotypeSimilarityScore {
     public boolean hasCommonGene() {
         return !genomicFeatureMatches.isEmpty();
     }
+    
+    /**
+     * Checks if at least one match is the same zygosity
+     */
+    public boolean hasAtleastOneGeneInCommonWithSameZygosity(){
+    	for (GenomicFeatureMatch gMatch : this.getGenomicFeatureMatches() ){
+    		if (gMatch.hasZygosityMatch()){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    
+    /**
+     * Checks if at least one match is the same type
+     */
+    public boolean hasAtleastOneGeneInCommonWithSameType(){
+    	for (GenomicFeatureMatch gMatch : this.getGenomicFeatureMatches() ){
+    		if (gMatch.hasTypeMatch()){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    
+    /**
+     * Checks if at least one match is the same variant position
+     */
+    public boolean hasAtleastOneGeneInCommonWithSameVariantPosition(){
+    	for (GenomicFeatureMatch gMatch : this.getGenomicFeatureMatches() ){
+    		if (gMatch.hasSameVariantPosition()){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
 
     @Override
     public boolean equals(Object o) {
