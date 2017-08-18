@@ -14,12 +14,11 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import static java.util.stream.Collectors.toList;
 
-import java.math.BigDecimal;
+
 
 /**
  * @author harindra
@@ -34,6 +33,8 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     private final Map<String, String> geneSymbolToEnsemblId;
     private final Map<String, String> ensemblIdToGeneSymbol;
     
+    private static Map<String,Double> geneAlleleFreqCache;
+    
     /**
      * A set of tools to help with make a Http call to an external node
      */
@@ -47,6 +48,8 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     public GenotypeSimilarityServiceImpl(Map<String, String> geneSymbolToEnsemblId) {
         this.geneSymbolToEnsemblId = geneSymbolToEnsemblId;
         this.ensemblIdToGeneSymbol = new HashMap<>();
+        
+        GenotypeSimilarityServiceImpl.geneAlleleFreqCache = new HashMap<String,Double>();
 
         for (Map.Entry<String, String> entry : geneSymbolToEnsemblId.entrySet()) {
             String geneSymbol = entry.getKey();
@@ -138,19 +141,12 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	List<Double> alleleFredAvgs = new ArrayList<Double>(); 
     	for (GenomicFeatureMatch gFeatureMatch : geneMatches){
     		if (!gFeatureMatch.getNodeFeature().getVariant().isUnPopulated() && !gFeatureMatch.getNodeFeature().getVariant().isPartiallyPopulated()){
-	    		System.out.println("ssss");
     			localMatchAlleleFreq = this.findAlleFreqInNormPop(
 	    													gFeatureMatch.getNodeFeature().getVariant().getReferenceName(),
 	    													gFeatureMatch.getNodeFeature().getVariant().getStart(),
 	    													gFeatureMatch.getNodeFeature().getVariant().getReferenceBases(),
-	    													gFeatureMatch.getNodeFeature().getVariant().getAlternateBases());  		
-	    		queryAlleleFreq = this.findAlleFreqInNormPop(
-															gFeatureMatch.getQueryFeature().getVariant().getReferenceName(),
-															gFeatureMatch.getQueryFeature().getVariant().getStart(),
-															gFeatureMatch.getQueryFeature().getVariant().getReferenceBases(),
-															gFeatureMatch.getQueryFeature().getVariant().getAlternateBases()); 
-	    		//note: is there a better way to combine the two or do we have to?
-	    		alleleFredAvgs.add((localMatchAlleleFreq + queryAlleleFreq)/2);
+	    													gFeatureMatch.getNodeFeature().getVariant().getAlternateBases());
+	    		alleleFredAvgs.add(localMatchAlleleFreq);
     		}
     		//if unpopulated or for some reason gnomad search on variant went wrong, search on gene)
     		if (gFeatureMatch.getNodeFeature().getVariant().isUnPopulated() | gFeatureMatch.getNodeFeature().getVariant().isPartiallyPopulated() |
@@ -158,18 +154,15 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     			logger.info("skipping variant based gnomad search due to incomplete info, searching by gene name: {}",gFeatureMatch.getGeneIdentifier());
     			alleleFredAvgs.add(findAlleFreqInNormPop(gFeatureMatch.getGeneIdentifier()));
     		}
-
-    		
-
     	}
-    	double combined=0d;  //a starting value
+    	double combined=0d;
     	for (Double freq: alleleFredAvgs){
     		combined = combined + (double)freq;
     	}
     	return combined/alleleFredAvgs.size();
     }
     
-    
+        
     /**
      * TODO: uncomment
      * Find the allele frequency of this variant
@@ -177,6 +170,12 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return An allele frequency of this variant in a normal population
      */
     public double findAlleFreqInNormPop(String chromosome, Long variantPos, String refBase, String altBase){
+    	String cacheKey = chromosome + "." + variantPos.toString() + "." + refBase + "." + altBase;
+    	if(GenotypeSimilarityServiceImpl.geneAlleleFreqCache.containsKey(cacheKey)){
+    		double gInfo = (double)GenotypeSimilarityServiceImpl.geneAlleleFreqCache.get(cacheKey); 
+    		logger.info("using cache for variant allele info: {}",gInfo);
+    		return  gInfo;
+    	}
     	StringBuilder payload=new StringBuilder();
     	payload.append("{\"query\": \"query{variant(id:\\\"");
     	payload.append(chromosome);
@@ -196,6 +195,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	}
     	double normPopFreq = (Double.parseDouble(counts.get("allele_count")) / Double.parseDouble(counts.get("allele_num")));
     	logger.info("normal population allele frequency based on variant is: {}",normPopFreq);
+    	GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(cacheKey, normPopFreq);
     	return normPopFreq;
     }
     
@@ -207,6 +207,12 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return a probability representing disease causality
      */
     public double findAlleFreqInNormPop(String hgncGeneId){
+    	String cacheKey = hgncGeneId;
+    	if(GenotypeSimilarityServiceImpl.geneAlleleFreqCache.containsKey(cacheKey)){
+    		double gInfo = GenotypeSimilarityServiceImpl.geneAlleleFreqCache.get(cacheKey); 
+    		logger.info("using cache for gene (search by gene) allele info: {}",gInfo);
+    		return  gInfo;
+    	}
     	 StringBuilder payload = new StringBuilder();
     	 payload.append("{\"query\": \"query{gene(gene_name: \\\"");  
     	 payload.append(hgncGeneId);
@@ -214,6 +220,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	 String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org",payload.toString());
     	 double freq = parseGnomadGeneLookupReply(reply);
     	 logger.info("normal population allele frequency based on gene ID {} is: {}",hgncGeneId,freq);
+    	 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(cacheKey, freq);
     	 return freq;
     }
     
