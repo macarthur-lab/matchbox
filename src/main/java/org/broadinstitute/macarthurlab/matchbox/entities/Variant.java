@@ -66,6 +66,22 @@ public class Variant {
 		return false;
 	}
 	
+	
+	/**
+	 * Returns true if ALL fields are unpopulated
+	 */
+	public boolean isPartiallyPopulated(){
+		if (this.assembly.equals("") |
+				this.referenceName.equals("") |
+				this.start==-1 |
+				this.end==-1   |
+				this.referenceBases.equals("") |
+				this.alternateBases.equals("")){
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * @return the assembly
 	 */

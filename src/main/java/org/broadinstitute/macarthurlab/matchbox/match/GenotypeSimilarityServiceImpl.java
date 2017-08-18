@@ -8,14 +8,18 @@ import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import static java.util.stream.Collectors.toList;
+
+import java.math.BigDecimal;
 
 /**
  * @author harindra
@@ -24,10 +28,9 @@ import static java.util.stream.Collectors.toList;
 public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService {
 
     private static final Logger logger = LoggerFactory.getLogger(GenotypeSimilarityServiceImpl.class);
+    
     //Returning 0.6 so as not to overly penalize these - maybe the phenotype score is high which could lead to a good match.
     private static final GenotypeSimilarityScore NO_GENOTYPE_MATCH = new GenotypeSimilarityScore(0.6, Collections.emptyList());
-
-
     private final Map<String, String> geneSymbolToEnsemblId;
     private final Map<String, String> ensemblIdToGeneSymbol;
     
@@ -52,26 +55,6 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         }
     }
 
-    /**
-     * ------------------------------------DEPRACATED---------------------------
-     * 
-     * Ranks a patient list by their genotype similarity to a query patient. Since Genotype
-     * is half the score (other half is phenotype rank), this section can given a 0.5 as a perfect hit.
-     *
-     * @param queryPatient a target patient to rank against
-     * @param nodePatients     a list of patients to rank
-     * @return Sends back a list of scores for each patient based on genotype. Order matches input list
-    
-    public List<GenotypeSimilarityScore> scoreGenotypes(Patient queryPatient, List<Patient> nodePatients) {
-        List<GenotypeSimilarityScore> patientGenotypeRankingScores = new ArrayList<>();
-        for (Patient nodePatient : nodePatients) {
-            GenotypeSimilarityScore genotypeSimilarity = scoreGenotypes(queryPatient, nodePatient);
-            logger.debug("{}-{} genotype similarity score = {}", queryPatient.getId(), nodePatient.getId(), genotypeSimilarity);
-            patientGenotypeRankingScores.add(genotypeSimilarity);
-        }
-        return patientGenotypeRankingScores;
-    }
-     */
 
     
     /**
@@ -91,9 +74,9 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         if (geneMatches.isEmpty()){
             return NO_GENOTYPE_MATCH;
         }
-        double inverseOfnormPopulationProbabilities = 1.0 /this.findNormalPopulationProbabilities(geneMatches);
+        double inverseOfnormPopulationProbabilities = 1.0d / this.findNormalPopulationProbabilities(geneMatches);
         
-        logger.info("base genotype score: {})", inverseOfnormPopulationProbabilities );
+        logger.info("base genotype score (prescaled): {})", inverseOfnormPopulationProbabilities );
         //use sigmoid/logistic to scale between 0,1
         double scaled = (1/( 1 + Math.pow(Math.E,(-1*inverseOfnormPopulationProbabilities))));
         return new GenotypeSimilarityScore(scaled, geneMatches);
@@ -104,7 +87,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * Find matches arrising from genotype similarity
      * @param queryPatient patient queried with
      * @param nodePatient a patient from the local database
-     * @return
+     * @return matches based on genomic features
      */
     protected List<GenomicFeatureMatch> findGenomicFeatureMatches(Patient queryPatient, Patient nodePatient) {
 
@@ -132,35 +115,20 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         return matches;
     }
 
+    
+    /**
+     * Checking if the query is the same as the result patient
+     */
     private List<GenomicFeatureMatch> samePatientGenomicFeatureMatches(List<GenomicFeature> genomicFeatures) {
         return genomicFeatures.stream()
                 .filter(queryPatientGenomicFeature -> !toGeneSymbol(queryPatientGenomicFeature.getGene().get("id")).equals("UNKNOWN"))
                 .map(queryPatientGenomicFeature -> new GenomicFeatureMatch(queryPatientGenomicFeature, queryPatientGenomicFeature))
                 .collect(toList());
     }
-
-    /**
-     * ------------------------DEPRACATED---------------------------------
-     * Access zygosity's affect on the score. If zygosity is the same in at least
-     * one of the common genes, 0.5 is returned.
-     *
-     * @param genomicFeatureMatches the matching genomic features
-     * @return A score (0.15 is returned if there is a match in zygositys)
-    
-    private double calculateZygosityScore(List<GenomicFeatureMatch> genomicFeatureMatches) {
-        for (GenomicFeatureMatch match : genomicFeatureMatches) {
-            if (match.hasZygosityMatch()) {
-                logger.debug("Zygosity match: {}", match.hasZygosityMatch());
-                return 0.15;
-            }
-        }
-        return 0.0;
-    }
-     */
     
     
     /**
-     * Given a list of genomic feature matches, finds population frequencies of those combinations
+     * Given a list of genomic feature matches, finds population frequencies of those combinations using gnomad
      * @param geneMatches a list of gene matches between a query patient and local-db patient
      * @return An average of allele frequencies between query and local 
      */
@@ -169,8 +137,9 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	Double queryAlleleFreq=0d;
     	List<Double> alleleFredAvgs = new ArrayList<Double>(); 
     	for (GenomicFeatureMatch gFeatureMatch : geneMatches){
-    		if (!gFeatureMatch.getNodeFeature().getVariant().isUnPopulated()){
-	    		localMatchAlleleFreq = this.findAlleFreqInNormPop(
+    		if (!gFeatureMatch.getNodeFeature().getVariant().isUnPopulated() && !gFeatureMatch.getNodeFeature().getVariant().isPartiallyPopulated()){
+	    		System.out.println("ssss");
+    			localMatchAlleleFreq = this.findAlleFreqInNormPop(
 	    													gFeatureMatch.getNodeFeature().getVariant().getReferenceName(),
 	    													gFeatureMatch.getNodeFeature().getVariant().getStart(),
 	    													gFeatureMatch.getNodeFeature().getVariant().getReferenceBases(),
@@ -179,16 +148,25 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
 															gFeatureMatch.getQueryFeature().getVariant().getReferenceName(),
 															gFeatureMatch.getQueryFeature().getVariant().getStart(),
 															gFeatureMatch.getQueryFeature().getVariant().getReferenceBases(),
-															gFeatureMatch.getQueryFeature().getVariant().getAlternateBases());
+															gFeatureMatch.getQueryFeature().getVariant().getAlternateBases()); 
 	    		//note: is there a better way to combine the two or do we have to?
-	    		alleleFredAvgs.add((localMatchAlleleFreq + queryAlleleFreq)/2); 
+	    		alleleFredAvgs.add((localMatchAlleleFreq + queryAlleleFreq)/2);
     		}
+    		//if unpopulated or for some reason gnomad search on variant went wrong, search on gene)
+    		if (gFeatureMatch.getNodeFeature().getVariant().isUnPopulated() | gFeatureMatch.getNodeFeature().getVariant().isPartiallyPopulated() |
+    				localMatchAlleleFreq == -1 | queryAlleleFreq == -1){
+    			logger.info("skipping variant based gnomad search due to incomplete info, searching by gene name: {}",gFeatureMatch.getGeneIdentifier());
+    			alleleFredAvgs.add(findAlleFreqInNormPop(gFeatureMatch.getGeneIdentifier()));
+    		}
+
+    		
+
     	}
-    	double combined=0.0001d;  //a starting value
+    	double combined=0d;  //a starting value
     	for (Double freq: alleleFredAvgs){
-    		combined = combined * (double)freq;
+    		combined = combined + (double)freq;
     	}
-    	return combined;
+    	return combined/alleleFredAvgs.size();
     }
     
     
@@ -199,7 +177,6 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return An allele frequency of this variant in a normal population
      */
     public double findAlleFreqInNormPop(String chromosome, Long variantPos, String refBase, String altBase){
-    	/**
     	StringBuilder payload=new StringBuilder();
     	payload.append("{\"query\": \"query{variant(id:\\\"");
     	payload.append(chromosome);
@@ -210,84 +187,98 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	payload.append("-");
     	payload.append(altBase);
     	payload.append("\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}");
-    	**/
-    	String payload = "{\"query\": \"query{variant(id:\\\"1-55516888-G-GA\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}";
-    	//System.out.println(payload.toString());
+    	logger.info("normal population allele frequency variant query is: {}",payload.toString());
+    	//String payload = "{\"query\": \"query{variant(id:\\\"1-55516888-G-GA\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}";
     	String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org", payload.toString());
-    	Map<String,String> counts = this.parseGnomadReply(reply);
-    	return (Double.parseDouble(counts.get("allele_count")) / Double.parseDouble(counts.get("allele_num")));
+    	Map<String,String> counts = this.parseGnomadVariantReply(reply);
+    	if (counts.size()==0){
+    		return -1d;
+    	}
+    	double normPopFreq = (Double.parseDouble(counts.get("allele_count")) / Double.parseDouble(counts.get("allele_num")));
+    	logger.info("normal population allele frequency based on variant is: {}",normPopFreq);
+    	return normPopFreq;
     }
     
     
     /**
-     * Parses a reply from Gnomad service
+     * Given a gene ID (HGNC) return a metric based on allele frequencies of all variants present
+     * that represents the probability that variants in this gene may cause disease
+     * @param hgncGeneId
+     * @return a probability representing disease causality
+     */
+    public double findAlleFreqInNormPop(String hgncGeneId){
+    	 StringBuilder payload = new StringBuilder();
+    	 payload.append("{\"query\": \"query{gene(gene_name: \\\"");  
+    	 payload.append(hgncGeneId);
+    	 payload.append("\\\") {gene_name,exome_variants {allele_freq}}}\"}");
+    	 String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org",payload.toString());
+    	 double freq = parseGnomadGeneLookupReply(reply);
+    	 logger.info("normal population allele frequency based on gene ID {} is: {}",hgncGeneId,freq);
+    	 return freq;
+    }
+    
+    
+ 
+    /**
+     * Parses a reply from Gnomad gene service
+     * @param reply A string reply in JSON format
+     * @return a average of allele frequencies across the gene of various variants
+     */
+    private double parseGnomadGeneLookupReply(String reply) {
+    	double avrgAlleleFreqForGene= 0d;
+    	try{
+	    	JSONParser parser = new JSONParser();
+	    	JSONObject jsonObject = (JSONObject) parser.parse(reply);
+	    	JSONObject dataObj = (JSONObject)jsonObject.get("data");
+	    	JSONObject geneObj = (JSONObject)dataObj.get("gene");
+	    	JSONArray exomeVariantsObj = (JSONArray)geneObj.get("exome_variants");
+	    	double totalAlleleFreq =0d;
+	    	for (int i=0; i<exomeVariantsObj.size(); i++){
+				JSONObject exomeVarObj = (JSONObject)exomeVariantsObj.get(i);
+				try{
+				totalAlleleFreq += ((Double)exomeVarObj.get("allele_freq")).doubleValue();
+				}catch(Exception e){
+					e.getMessage();
+				}
+	    	}
+	    	avrgAlleleFreqForGene = totalAlleleFreq / exomeVariantsObj.size();
+    	}
+    	catch(Exception e){
+    		logger.error("error parsing gnomad gene based query reply: {} for reply: {}", e.getMessage(),reply);
+    	}
+    	return  avrgAlleleFreqForGene; 
+    }
+    
+    
+    
+    /**
+     * Parses a reply from Gnomad variant service
      * @param reply A string reply in JSON format
      * @return a map of values returned back from gnomad
      */
-    private Map<String,String> parseGnomadReply(String reply) {
+    private Map<String,String> parseGnomadVariantReply(String reply) {
     	Map<String,String> parsed = new HashMap<String,String>();
     	try{
 	    	JSONParser parser = new JSONParser();
 	    	JSONObject jsonObject = (JSONObject) parser.parse(reply);
 	    	JSONObject dataObj = (JSONObject)jsonObject.get("data");
 	    	JSONObject variantObj = (JSONObject)dataObj.get("variant");
+	    	if (variantObj == null){
+	    		logger.info("skipping parsing variant based gnomad query, results are unparsable: {}", reply);
+	    		return parsed;
+	    	}
 	    	parsed.put("allele_count",Long.toString((Long)variantObj.get("allele_count")));
 	    	parsed.put("allele_num",Long.toString((Long)variantObj.get("allele_num")));
     	}
     	catch(Exception e){
-    		logger.error("error parsing gnomad reply: {}", e.getMessage());
+    		logger.error("error parsing gnomad variant based reply: {}, the reply was: {}, skipping to gene based query", e.getMessage(),reply);
     	}
     	return parsed;
     }
 
-       
-    /** NON NEED TO DO THIS, CAN DO IT  ON THE FLY SINCE THESE FUNCTIONS EXIST IN MATCH OBJ
-     * Looks at variant position, zygosity, and type to for any similarities
-     * @param geneMatches	a list of matches
-     * @return a map of which attributes are the same between the query and node patient
-     
-    public Map<String,Boolean> findSimilarGenotypeAttributes(List<GenomicFeatureMatch> geneMatches){
-    	Map<String,Boolean> similarGenotypeAttributes = new HashMap<String,Boolean>();
-    	for(GenomicFeatureMatch gMatch:geneMatches){
-    		if (gMatch.hasTypeMatch()){similarGenotypeAttributes.put("SameType",true); }
-    		if (!gMatch.hasTypeMatch()){similarGenotypeAttributes.put("SameType",false); }
-    		
-    		if (gMatch.hasZygosityMatch()){similarGenotypeAttributes.put("SameZygosity",true); }
-    		if (!gMatch.hasZygosityMatch()){similarGenotypeAttributes.put("SameZygosity",false); }
-    		
-    		if (gMatch.hasSameVariantPosition()){similarGenotypeAttributes.put("SameVariantPosition",true); }
-    		if (!gMatch.hasSameVariantPosition()){similarGenotypeAttributes.put("SameVariantPosition",false); }
-    	}
-    	return similarGenotypeAttributes;
-    }
-    */
     
-    /**
-     * ------------------------DEPRACATED---------------------------------
-     * Generates a score based on variant positions inside a common gene.
-     *
-     * Returns a 0.15 if a perfect match
-     *
-     * @param genomicFeatureMatches patient in the node
-     * @return Returns a representative metric
-  
-    private double calculateVariantEffectScore(List<GenomicFeatureMatch> genomicFeatureMatches) {
-        for (GenomicFeatureMatch match : genomicFeatureMatches) {
-            logger.debug("Checking {} type {}", match.getGeneIdentifier(), match.getQuerySequenceOntologyId());
-            if (match.hasTypeMatch()) {
-                logger.debug("SO term match: {}", match.hasTypeMatch());
-                return 0.15;
-            }
-        }
-        // Removed most of this as I don't think this makes much sense. A good match should be a matching gene with the same zygosity and a variant with a similar variant effect.
-        // the gene match is weighted highest as it is the only mandatory field, the type and zygosity can be missing.
-        return 0.0;
-    }
-   */
-
-
     private String toGeneSymbol(String identifier) {
-//        id: A gene symbol or identifier (mandatory): gene symbol from the HGNC database OR ensembl gene ID OR entrez gene ID
+    	//id: A gene symbol or identifier (mandatory): gene symbol from the HGNC database OR ensembl gene ID OR entrez gene ID
         if (geneSymbolToEnsemblId.containsKey(identifier)) {
             return identifier;
         }
@@ -299,14 +290,14 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     }
 
     private String toEnsemblId(String identifier) {
-//      id: A gene symbol or identifier (mandatory): gene symbol from the HGNC database OR ensembl gene ID OR entrez gene ID
+    	//id: A gene symbol or identifier (mandatory): gene symbol from the HGNC database OR ensembl gene ID OR entrez gene ID
       if (geneSymbolToEnsemblId.containsKey(identifier)) {
     	  return geneSymbolToEnsemblId.get(identifier);
       }
       if (ensemblIdToGeneSymbol.containsKey(identifier)) {
     	  return identifier;
       }
-      //Entrez gene id? This is missing. TODO: make a GeneIdentifier class where these can be stored and compared.
+      	//Entrez gene id? This is missing. TODO: make a GeneIdentifier class where these can be stored and compared.
       return "UNKNOWN";
   }
 

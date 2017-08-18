@@ -29,6 +29,7 @@ public class MatchServiceImpl implements MatchService {
     private boolean ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES;
     
     private static double PHENOTYPE_MATCH_THRESHOLD=0.7;
+    private static double ZERO_PHENOTYPE_SCORE_FOR_GENE_MATCH_SCORE_PENALTY=0.001;
 
     private final GenotypeSimilarityService genotypeSimilarityService;
     private final PhenotypeSimilarityService phenotypeSimilarityService;
@@ -76,11 +77,11 @@ public class MatchServiceImpl implements MatchService {
             score.put("patient", 0d);//putting a placeholder "patient" score till we can calculate disease population probabilities after loop
             score.put("_genotypeScore", genotypeScore);
             score.put("_phenotypeScore", phenotypeScore);
-            logger.info("{}:{} genoScore: {} phenoScore: {}", patient.getId(), nodePatient.getId(), genotypeScore, phenotypeScore);
+            logger.info("{}:{} base scaled-genoScore: {} phenoScore: {}", patient.getId(), nodePatient.getId(), genotypeScore, phenotypeScore);
            
             
             if (this.ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES){
-            	if (genotypeSimilarityScore.hasCommonGene() || phenotypeScore >= this.PHENOTYPE_MATCH_THRESHOLD){
+            	if (genotypeSimilarityScore.hasCommonGene() || phenotypeScore >= MatchServiceImpl.PHENOTYPE_MATCH_THRESHOLD){
                 	candidateNodePatientsToReturn.put(nodePatient, score);
                 }
             }
@@ -97,10 +98,15 @@ public class MatchServiceImpl implements MatchService {
             	numPatientsWithGoodGenotypeMatch +=1;
             }
         }
+        logger.info("number of patients with good a genotypeMatch (without phenotype-only matches) {})", numPatientsWithGoodGenotypeMatch );
 
         for (Patient p : candidateNodePatientsToReturn.keySet()){
-        	results.add(new MatchmakerResult(calculateMatchScore(candidateNodePatientsToReturn.get(p),numPatientsWithGoodGenotypeMatch, patients.size()), 
-        									 p));
+        	results.add(new MatchmakerResult(calculateMatchScore(candidateNodePatientsToReturn.get(p),
+        														 numPatientsWithGoodGenotypeMatch, 
+        														 patients.size(), 
+        														 p,
+        														 patient),
+        														 p));
         }
 
         //sort by score
@@ -121,17 +127,43 @@ public class MatchServiceImpl implements MatchService {
      * @param candidateNodePatientsToReturn candidate patient matches
      * @return a new map of scores with updates merged score
      */
-    private  Map<String,Double> calculateMatchScore(final Map<String,Double> candidateNodePatientsToReturn,int numPatientsWithGoodGenotypeMatch,int patientPopSize) {
-    	double genotypeScore = candidateNodePatientsToReturn.get("_genotypeScore");
+    private  Map<String,Double> calculateMatchScore(final Map<String,Double> candidateNodePatientsToReturn,
+    												int numPatientsWithGoodGenotypeMatch,
+    												int patientPopSize,
+    												Patient nodePatient,
+    												Patient queryPatient) {
+    	double baseGenotypeScore = candidateNodePatientsToReturn.get("_genotypeScore");
     	double phenotypeScore = candidateNodePatientsToReturn.get("_phenotypeScore");
         
         Map<String,Double> merged = new HashMap<String,Double>();
-        merged.put("_genotypeScore", genotypeScore);
         merged.put("_phenotypeScore", phenotypeScore);
-        merged.put("patient", (genotypeScore * (1/((double)numPatientsWithGoodGenotypeMatch/(double)patientPopSize))) * phenotypeScore);
+        
+        double diseasePopulationProbability = ((double)numPatientsWithGoodGenotypeMatch/(double)patientPopSize);
+        double genotypeScore = baseGenotypeScore;
+        if (diseasePopulationProbability != 0){
+        	genotypeScore = baseGenotypeScore * diseasePopulationProbability;
+        }
+        merged.put("_genotypeScore", genotypeScore);
+        
+        double mergedScore=0d;
+        if (phenotypeScore !=0){
+        	mergedScore = genotypeScore * phenotypeScore;
+        }
+        else{
+        	//don't penalize merged score, simply one of the parties didn't give phenotypes
+        	if (nodePatient.getFeatures().size()==0 | queryPatient.getFeatures().size()==0){
+        		mergedScore = genotypeScore;
+        	}
+        	//phenotypes were given, and zero score, which means genotype match might be invalid, penalize
+        	if (nodePatient.getFeatures().size()!=0 && queryPatient.getFeatures().size()!=0){
+        		mergedScore = genotypeScore * MatchServiceImpl.ZERO_PHENOTYPE_SCORE_FOR_GENE_MATCH_SCORE_PENALTY;
+        	}	
+        }
+        merged.put("patient", mergedScore);
         return merged;
     }
 
+    
 	/**
 	 * @return the aLLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES
 	 */
