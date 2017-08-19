@@ -73,10 +73,16 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         }
         //here is list of gene-matches the query and this specific node patient had in common
         List<GenomicFeatureMatch> geneMatches = findGenomicFeatureMatches(queryPatient, nodePatient);
-
+        
         if (geneMatches.isEmpty()){
             return NO_GENOTYPE_MATCH;
         }
+        
+        //identical patients, perfect match (if they share the same # of genes as matches)
+        if (geneMatches.size() == queryPatient.getGenomicFeatures().size() && queryPatient.getGenomicFeatures().size() == nodePatient.getGenomicFeatures().size() ){
+        	return new GenotypeSimilarityScore(1.0d, geneMatches);
+        }
+
         double inverseOfnormPopulationProbabilities = 1.0d / this.findNormalPopulationProbabilities(geneMatches);
         
         logger.info("base genotype score (prescaled): {})", inverseOfnormPopulationProbabilities );

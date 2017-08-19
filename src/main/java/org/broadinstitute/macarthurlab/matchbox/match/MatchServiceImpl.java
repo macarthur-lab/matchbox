@@ -140,7 +140,8 @@ public class MatchServiceImpl implements MatchService {
         
         double diseasePopulationProbability = ((double)numPatientsWithGoodGenotypeMatch/(double)patientPopSize);
         double genotypeScore = baseGenotypeScore;
-        if (diseasePopulationProbability != 0){
+        //genotypeScore is 1.0 if it's a perfect match genotypically, no more scoring needed
+        if (genotypeScore != 1d && diseasePopulationProbability != 0){
         	genotypeScore = baseGenotypeScore * diseasePopulationProbability;
         }
         merged.put("_genotypeScore", genotypeScore);
