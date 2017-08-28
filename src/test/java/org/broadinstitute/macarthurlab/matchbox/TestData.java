@@ -103,6 +103,156 @@ public class TestData {
         );
         return p;
     }
+    
+    
+    /**
+     * Returns a complete test patient
+     *
+     * @return a test patient
+     */
+    public static Patient getTestPatientWithNoPhenotypes() {
+
+        //contact
+        Map<String, String> contact = new HashMap<String, String>();
+        contact.put("href", "http://www.ncbi.nlm.nih.gov/pubmed/23542699");
+        contact.put("institution", "Children's Hospital of Eastern Ontario");
+        contact.put("name", "Lijia Huang");
+
+        //disorders
+        List<Map<String, String>> disorders = new ArrayList<Map<String, String>>();
+        Map<String, String> disorder1 = new HashMap<String, String>();
+        disorder1.put("id", "MIM:614261");
+        disorders.add(disorder1);
+        Map<String, String> disorder2 = new HashMap<String, String>();
+        disorder2.put("label", "#614261 MICROCEPHALY-CAPILLARY MALFORMATION SYNDROME; MICCAP");
+        disorders.add(disorder2);
+
+        //features
+        List<PhenotypeFeature> features = new ArrayList<PhenotypeFeature>();
+
+        //genomic features
+        //GF1-gene
+        Map<String, String> gene1 = new HashMap<String, String>();
+        gene1.put("id", "STAMBP");
+        //GF1-type
+        Map<String, String> type1 = new HashMap<String, String>();
+        type1.put("id", "SO:0001583");
+        type1.put("label", "MISSENSE");
+        //GF1-variant
+        Variant variant1 = new Variant("GRCh37", "2", 74058108L, 0L, "", "");
+        GenomicFeature genomicFeature1 = new GenomicFeature(gene1, variant1, 0L, type1);
+
+        //GF2-gene
+        Map<String, String> gene2 = new HashMap<String, String>();
+        gene2.put("id", "STAMBP");
+        //GF2-type
+        Map<String, String> type2 = new HashMap<String, String>();
+        type2.put("id", "SO:0001587");
+        type2.put("label", "STOPGAIN");
+        //GF2-variant
+        Variant variant2 = new Variant("GRCh37", "2", 74074670L, 0L, "", "");
+        GenomicFeature genomicFeature2 = new GenomicFeature(gene2, variant2, 0L, type2);
+
+        List<GenomicFeature> genomicFeatures = new ArrayList<GenomicFeature>();
+        genomicFeatures.add(genomicFeature1);
+        genomicFeatures.add(genomicFeature2);
+
+        String id = "P0000083";
+        String label = "206_LR07-155a1";
+        String species = "";
+        String sex = "";
+        String ageOfOnset = "";
+        String inheritanceMode = "";
+        Patient p = new Patient(
+                id,
+                label,
+                contact,
+                species,
+                sex,
+                ageOfOnset,
+                inheritanceMode,
+                disorders,
+                features,
+                genomicFeatures
+        );
+        return p;
+    }
+    
+    
+    /**
+	 * a patient with phenotypes
+     */
+    public static Patient getTestPatientWithPhenotypes() {
+
+        //contact
+        Map<String, String> contact = new HashMap<String, String>();
+        contact.put("href", "http://www.ncbi.nlm.nih.gov/pubmed/23542699");
+        contact.put("institution", "Children's Hospital of Eastern Ontario");
+        contact.put("name", "Lijia Huang");
+
+        //disorders
+        List<Map<String, String>> disorders = new ArrayList<Map<String, String>>();
+        Map<String, String> disorder1 = new HashMap<String, String>();
+        disorder1.put("id", "MIM:614261");
+        disorders.add(disorder1);
+        Map<String, String> disorder2 = new HashMap<String, String>();
+        disorder2.put("label", "#614261 MICROCEPHALY-CAPILLARY MALFORMATION SYNDROME; MICCAP");
+        disorders.add(disorder2);
+
+        //features
+        List<PhenotypeFeature> features = new ArrayList<PhenotypeFeature>();
+        features.add(new PhenotypeFeature("HP:0100026", "yes", ""));
+        features.add(new PhenotypeFeature("HP:0003561", "yes", ""));
+        features.add(new PhenotypeFeature("HP:0011451", "yes", ""));
+
+        //genomic features
+        //GF1-gene
+        Map<String, String> gene1 = new HashMap<String, String>();
+        gene1.put("id", "STAMBP");
+        //GF1-type
+        Map<String, String> type1 = new HashMap<String, String>();
+        type1.put("id", "SO:0001583");
+        type1.put("label", "MISSENSE");
+        //GF1-variant
+        Variant variant1 = new Variant("GRCh37", "2", 74058108L, 0L, "", "");
+        GenomicFeature genomicFeature1 = new GenomicFeature(gene1, variant1, 0L, type1);
+
+        //GF2-gene
+        Map<String, String> gene2 = new HashMap<String, String>();
+        gene2.put("id", "STAMBP");
+        //GF2-type
+        Map<String, String> type2 = new HashMap<String, String>();
+        type2.put("id", "SO:0001587");
+        type2.put("label", "STOPGAIN");
+        //GF2-variant
+        Variant variant2 = new Variant("GRCh37", "2", 74074670L, 0L, "", "");
+        GenomicFeature genomicFeature2 = new GenomicFeature(gene2, variant2, 0L, type2);
+
+        List<GenomicFeature> genomicFeatures = new ArrayList<GenomicFeature>();
+        genomicFeatures.add(genomicFeature1);
+        genomicFeatures.add(genomicFeature2);
+
+        String id = "P0000083";
+        String label = "206_LR07-155a1";
+        String species = "";
+        String sex = "";
+        String ageOfOnset = "";
+        String inheritanceMode = "";
+        Patient p = new Patient(
+                id,
+                label,
+                contact,
+                species,
+                sex,
+                ageOfOnset,
+                inheritanceMode,
+                disorders,
+                features,
+                genomicFeatures
+        );
+        return p;
+    }
+    
 
     /**
      * Returns 2 test patients

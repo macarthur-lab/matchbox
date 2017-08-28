@@ -1,9 +1,9 @@
 package org.broadinstitute.macarthurlab.matchbox;
 
+import java.io.IOException;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.ImportResource;
 
 
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.ImportResource;
 @SpringBootApplication
 @ImportResource("file:config/config.xml")
 public class MatchBox {
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws IOException {
         System.out.println( "Starting matchbox server.." );
         SpringApplication.run(MatchBox.class, args);
     }
