@@ -37,6 +37,7 @@ usernames and passwords.
 		env MONGODB_PORT=27017
 		env MONGODB_USERNAME=username
 		env MONGODB_PASSWORD=pwd
+		env MONGODB_DATABASE=mme_primary
 	```
 	
 2. Then, from the matchbox docker directory, do a build (should take 6-10mins max)
