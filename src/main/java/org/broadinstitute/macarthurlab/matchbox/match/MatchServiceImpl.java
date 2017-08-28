@@ -3,7 +3,6 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.match;
 
-import org.apache.commons.math3.stat.inference.TTest;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
@@ -29,7 +28,7 @@ public class MatchServiceImpl implements MatchService {
     private boolean ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES;
     
     private static double PHENOTYPE_MATCH_THRESHOLD=0.7;
-    private static double ZERO_PHENOTYPE_SCORE_FOR_GENE_MATCH_SCORE_PENALTY=0.001;
+    private static double ZERO_PHENOTYPE_SCORE_FOR_GENE_MATCH_SCORE_PENALTY=0.01;
 
     private final GenotypeSimilarityService genotypeSimilarityService;
     private final PhenotypeSimilarityService phenotypeSimilarityService;
@@ -151,12 +150,14 @@ public class MatchServiceImpl implements MatchService {
         	mergedScore = genotypeScore * phenotypeScore;
         }
         else{
-        	//don't penalize merged score, simply one of the parties didn't give phenotypes
-        	if (nodePatient.getFeatures().size()==0 | queryPatient.getFeatures().size()==0){
-        		mergedScore = genotypeScore;
-        	}
-        	//phenotypes were given, and zero score, which means genotype match might be invalid, penalize
+        	//if BOTH patients HAD phenotypes, but got zero phenotype-score, 
+        	//which means genotype-score might be invalid, penalize more
         	if (nodePatient.getFeatures().size()!=0 && queryPatient.getFeatures().size()!=0){
+        		mergedScore = genotypeScore * (MatchServiceImpl.ZERO_PHENOTYPE_SCORE_FOR_GENE_MATCH_SCORE_PENALTY *4d);
+        	}
+        	//one or both of the parties didn't give phenotypes for whatever reason. Penalize less
+        	//than if both parties had phenotype and phenotype-score was still zero
+        	if (nodePatient.getFeatures().size()==0 | queryPatient.getFeatures().size()==0){
         		mergedScore = genotypeScore * MatchServiceImpl.ZERO_PHENOTYPE_SCORE_FOR_GENE_MATCH_SCORE_PENALTY;
         	}	
         }
