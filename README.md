@@ -110,13 +110,8 @@ OR
 		matchbox.connected-nodes=${user.dir}/config/nodes.json
 		
 		exomiser.data-directory=
-		###############################
-        #							  #
-        # IF YOU WANT TO ALLOW PHENO  #
-        # TYPE ONLY MATCHES WHERE	  #
-        # THERE WAS NO GENE IN COMMON #
-        #							  #
-        ###############################
+
+        #IF YOU WANT TO ALLOW PHENOTYPE ONLY MATCHES WHERE THERE WAS NO GENE IN COMMON
 		allow.no-gene-in-common.matches=false
 		```
 		
