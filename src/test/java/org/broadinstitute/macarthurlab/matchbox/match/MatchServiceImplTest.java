@@ -101,6 +101,22 @@ public class MatchServiceImplTest {
 
         assertThat(matchmakerResults.isEmpty(), is(true));
     }
+    
+    @Test
+    /**
+     * A perfect match should give a 1.0
+     */
+    public void testPerfectMatch() {
+        MatchService instance = new MatchServiceImpl(new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers()), new MockPhenotypeMatchService(1.0));
+
+        Patient patient = TestData.getTestPatient();
+        List<Patient> patients = new ArrayList<Patient>();
+        patients.add(patient);
+        List<MatchmakerResult> matchmakerResults = instance.match(patient, patients);
+        for (MatchmakerResult matchmakerResult: matchmakerResults){
+        	assertThat(matchmakerResult.getScore().get("patient"), equalTo(1.0));
+        }
+    }
 
     @Test
     /**
@@ -122,7 +138,6 @@ public class MatchServiceImplTest {
 	        assertThat(matchmakerResults.size(), equalTo(patients.size()));
 	
 	        for (MatchmakerResult matchmakerResult : matchmakerResults) {
-	            System.out.println(matchmakerResult);
 	            assertThat(matchmakerResult.getScore().get("patient"), equalTo(noGenotypeScore * phenotypeCutoffScore));
 	        }
     	}
@@ -160,10 +175,8 @@ public class MatchServiceImplTest {
         List<Patient> patients = new ArrayList<Patient>();
         patients.add(patient);
         patients.add(patient);
-        System.out.println(patients);
         List<MatchmakerResult> matchmakerResults = instance.match(patient, patients);
         for (MatchmakerResult matchmakerResult : matchmakerResults) {
-            System.out.println("--------"+matchmakerResult.getScore().get("patient"));
             assertThat(matchmakerResult.getScore().get("patient"), equalTo(0.01));
         }
     }
