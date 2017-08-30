@@ -12,13 +12,13 @@ usernames and passwords.
 
 2. Reference data for the Exomiser dependency fetched from:
 	```
-	Please note, this is a ~20G file, that expands into ~50G. In the recent future we will
-	reduce this to about ~10G uncompressed with a ~5G compressed file.
+	Please note, this is a ~9.37G file, that expands into ~38.79G. In the near future we will
+	reduce this to about ~0.5G compressed (~5G uncompressed) file.
 	
-	https://storage.googleapis.com/seqr-hail/reference_data/exomiser/data.tar.gz
+	https://storage.googleapis.com/seqr-hail/reference_data/exomiser/exomiser-cli-8.0.0.tar.gz
 	
 	Once you download this file, please uncompress it and remember the file path. For example,
-	/reference_data/exomiser-cli-7.2.1/data
+	/reference_data/exomiser-cli-8.0.0/data
 	
 	Also make sure this directory is accessible to your docker daemon since it needs to be mounted
 	via the -v option at docker "run command"
@@ -37,6 +37,7 @@ usernames and passwords.
 		env MONGODB_PORT=27017
 		env MONGODB_USERNAME=username
 		env MONGODB_PASSWORD=pwd
+		env MONGODB_DATABASE=mme_primary
 	```
 	
 2. Then, from the matchbox docker directory, do a build (should take 6-10mins max)
@@ -46,18 +47,17 @@ usernames and passwords.
 	
 3. Assuming,
 
-	* You have already downloaded the necessary reference data for Exomiser (for example to /reference_data/exomiser-cli-7.2.1/data) 
+	* You have already downloaded the necessary reference data for Exomiser (for example to /reference_data/exomiser-cli-8.0.0/data) 
 	
 	* And it is accessible to Docker daemon, 
 	
-	* And you have a MongoDB instance running and you have added its credentials and details to the Dockerfile before
-the build step, 
+	* And you have a MongoDB instance running and you have added its credentials and details to the Dockerfile before the build step, 
 
 
 4. You should now be able to start matchbox with (for example, using the image "matchbox-docimg" we built ealier),
 
 	```
-		docker run -ti -p 9020:9020 -v "/reference_data/exomiser-cli-7.2.1/data":/Exomiser/matchbox/data/data matchbox-docimg 
+		docker run -ti -p 9020:9020 -v "/reference_data/exomiser-cli-8.0.0/data":/Exomiser/matchbox/data/data matchbox-docimg 
 	``` 
 
 

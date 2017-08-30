@@ -79,7 +79,7 @@ OR
 		
 		Provide the path of the above untar'ed "data" directory to the "exomiser.data-directory=" field, for example,
 		```
-			exomiser.data-directory==/Users/john/Documents/exomiser-cli-7.2.1/data
+			exomiser.data-directory==/Users/john/Documents/exomiser-cli-8.0.0/data
 		```
 		
 		A full example would look like,
@@ -110,6 +110,9 @@ OR
 		matchbox.connected-nodes=${user.dir}/config/nodes.json
 		
 		exomiser.data-directory=
+
+        #IF YOU WANT TO ALLOW PHENOTYPE ONLY MATCHES WHERE THERE WAS NO GENE IN COMMON
+		allow.no-gene-in-common.matches=false
 		```
 		
 	- Now build source files. 
