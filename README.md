@@ -1,8 +1,4 @@
-#<img align="left" width="100" src="https://raw.githubusercontent.com/macarthur-lab/matchbox/dev/aux-files/Matchbox-logo_RGB.png">
-
-<p align="center">
-  <img width="240" src="https://raw.githubusercontent.com/macarthur-lab/matchbox/dev/aux-files/Matchbox-logo_RGB.png">
-</p>
+<img align="left" width="180" src="https://raw.githubusercontent.com/macarthur-lab/matchbox/dev/aux-files/Matchbox-logo_RGB.png">
 
 # <i>matchbox</i>
 
