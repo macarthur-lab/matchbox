@@ -30,7 +30,7 @@ You can build <i>matchbox</i> via two methods.
 
 OR
 
-2. Using Docker (https://www.docker.com/) [Detailed Docker build instructions](deploy/docker/README.md)
+2. Using [Docker](https://www.docker.com/) [Detailed Docker build instructions](deploy/docker/README.md)
 
 
 ## General overview:
