@@ -1,4 +1,4 @@
-<p align="center"><img width="160" src="aux-files/Matchbox-logo_RGB.svg"></p>
+<p align="center"><img width="160" src="aux-files/matchbox-logo.png"></p>
 
 # <i>matchbox</i>
 
