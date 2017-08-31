@@ -1,6 +1,6 @@
 ## Build directly via Maven:
 
-<i>matchbox</i> relies on a modified version of Exomiser (https://github.com/exomiser/Exomiser), its reference data and libraries for the phenotype matching algorithm. Given that these libraries are currently not in a maven repository, we obtain this dependency via first building Exomiser and then followed by <i>matchbox</i>.  By building Exomiser first, we put its jars in the local maven repository, where the <i>matchbox</i> build is able to see and use them.
+To build directly via Maven, the following steps are needed. <i>matchbox</i> relies on a modified version of Exomiser (https://github.com/exomiser/Exomiser), its reference data and libraries for the phenotype matching algorithm. Given that these libraries are currently not in a maven repository, we obtain this dependency via first building Exomiser and then followed by <i>matchbox</i>.  By building Exomiser first, we put its jars in the local maven repository, where the <i>matchbox</i> build is able to see and use them.
 
 * Clone the Exomiser package
 	- Make sure you have a settings.xml file in your ~/.m2/ directory with the following entry (to activate a local repsitory for Maven to use)
@@ -14,7 +14,7 @@
 
 	- Clone the repository
 
-		```git clone -b development https://github.com/exomiser/Exomiser```
+		```git clone https://github.com/exomiser/Exomiser```
 
 	- Build the source files
 
@@ -37,15 +37,17 @@
 		- The "exomiser.data-directory=" field is required by Exomiser for phenotype matching. This reference data can be fetched by,
 		
 		```
-			wget https://storage.googleapis.com/pub/gsutil.tar.gz
+			wget https://storage.googleapis.com/seqr-hail/reference_data/exomiser/exomiser-cli-8.0.0.tar.gz
 			
-			tar -xvzf gsutil.tar.gz
 		```
 		
 		Provide the path of the above untar'ed "data" directory to the "exomiser.data-directory=" field, for example,
 		```
 			exomiser.data-directory==/Users/john/Documents/exomiser-cli-8.0.0/data
 		```
+		
+		
+		Next, populate the MongoDB connection fields.
 		
 		A full example would look like,
 		
