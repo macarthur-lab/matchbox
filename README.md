@@ -1,4 +1,4 @@
-![matchbox logo](https://raw.githubusercontent.com/macarthur-lab/matchbox/dev/aux-files/Matchbox-logo_RGB.png =250x)
+![matchbox logo](https://raw.githubusercontent.com/macarthur-lab/matchbox/dev/aux-files/Matchbox-logo_RGB.png)
 
 # <i>matchbox</i>
 
