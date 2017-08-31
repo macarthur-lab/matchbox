@@ -147,7 +147,7 @@ variable ```SERVER_PORT``` or add the argument ```--server.port``` after the ```
 The top-level docker directory has the necessary files and instructions to build a docker image of matchbox. Please refer
 to that README for details.
 
-[Detailed Docker build instructions](https://github.com/macarthur-lab/matchbox/blob/master/docker/README.md)
+[Detailed Docker build instructions](https://github.com/macarthur-lab/matchbox/blob/master/deploy/docker/README.md)
 
   
 ## General overview:
