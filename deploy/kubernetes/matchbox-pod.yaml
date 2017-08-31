@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: matchbox-pod
+spec:
+  containers:
+  - image: mdocker
+    name: matchbox-container
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+    - mountPath: /Exomiser/matchbox/data/data
+      name: test-volume
+  volumes:
+  - name: exomiser-ref-data-volume
+    hostPath:
+      # directory location on host
+      path: /path/to/data/exomiser-cli-7.2.1/data
