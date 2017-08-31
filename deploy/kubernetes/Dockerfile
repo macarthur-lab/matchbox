@@ -49,7 +49,7 @@ RUN wget https://storage.googleapis.com/pub/gsutil.tar.gz \
 #----now get the data and untar it
 
 WORKDIR data
-RUN /root/gsutils_dir/gsutil/gsutil -m -o GSUtil:parallel_composite_upload_threshold=150M cp gs://seqr-hail/reference_data/exomiser/data.tar.gz data.local.tar.gz \
+RUN /root/gsutils_dir/gsutil/gsutil -m -o GSUtil:parallel_composite_upload_threshold=150M cp gs://seqr-hail/reference_data/exomiser/exomiser-cli-8.0.0.tar.gz data.local.tar.gz \
  && tar -xzf data.local.tar.gz \
  && rm data.local.tar.gz \
  && pwd \
