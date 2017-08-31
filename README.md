@@ -1,3 +1,5 @@
+[](aux-files/Matchbox-logo_RGB.png)
+
 # <i>matchbox</i>
 
 <i>matchbox</i> was originally developed at the MacArthur Lab for the Broad Center for Mendelian Genomics. Its purpose was to function as a bridge to the Matchmaker Exchange. It was then shared as open source software under the BSD License. 
@@ -30,7 +32,7 @@ You can build <i>matchbox</i> via two methods.
 
 OR
 
-2. Using [Docker](https://www.docker.com/) [Detailed Docker build instructions](deploy/docker/README.md)
+2. Using [Docker](https://www.docker.com/). [Detailed Docker build instructions](deploy/docker/README.md)
 
 
 ## General overview:
