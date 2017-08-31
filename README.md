@@ -1,4 +1,4 @@
-[](aux-files/Matchbox-logo_RGB.png)
+![matchbox logo](https://raw.githubusercontent.com/macarthur-lab/matchbox/dev/aux-files/Matchbox-logo_RGB.png)
 
 # <i>matchbox</i>
 
