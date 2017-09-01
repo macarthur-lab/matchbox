@@ -4,14 +4,19 @@ metadata:
   name: matchbox-pod
 spec:
   containers:
-  - image: mdocker
+  - image: matchbox-docimg
     name: matchbox-container
     imagePullPolicy: IfNotPresent
-    volumeMounts:
-    - mountPath: /Exomiser/matchbox/data/data
-      name: test-volume
-  volumes:
-  - name: exomiser-ref-data-volume
-    hostPath:
-      # directory location on host
-      path: /path/to/data/exomiser-cli-7.2.1/data
+    env: 
+    - name: EXOMISER_DATA_DIR
+      value: "/Exomiser/matchbox/data/exomiser-cli-8.0.0/data"
+    - name: MONGODB_HOSTNAME
+      value: ""
+    - name: MONGODB_PORT
+      value: "27017"
+    - name: MONGODB_USERNAME
+      value: ""
+    - name: MONGODB_PASSWORD
+      value: ""
+    - name: MONGODB_DATABASE
+      value: "mme_primary"
