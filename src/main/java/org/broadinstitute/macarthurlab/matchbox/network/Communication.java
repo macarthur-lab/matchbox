@@ -159,7 +159,7 @@ public class Communication {
 		    connection.setDoOutput(true);	    
 
 		    //write POST data
-		    logger.info("fetchhing data from: " + urlToPost);
+		    logger.info("fetching data from: " + urlToPost);
 		    DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
 		    wr.writeBytes(dataPayLoad);
 		    wr.close();

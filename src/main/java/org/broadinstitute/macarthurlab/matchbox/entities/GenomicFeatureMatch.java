@@ -27,8 +27,8 @@ public class GenomicFeatureMatch {
     }
 
     public boolean hasTypeMatch() {
-//        type: the effect of the mutation. This enables describing the broad category of cDNA effect predicted to result from a mutation to improve matchmaking, without necessarily disclosing the actual mutation. (optional)
-//                id: a Sequence Ontology term identifier ("SO:#######"). This will usually (but not necessarily) be a descendant of SO:0001576 [transcript variant]. (mandatory, if type is provided)
+    	//type: the effect of the mutation. This enables describing the broad category of cDNA effect predicted to result from a mutation to improve matchmaking, without necessarily disclosing the actual mutation. (optional)
+    	//id: a Sequence Ontology term identifier ("SO:#######"). This will usually (but not necessarily) be a descendant of SO:0001576 [transcript variant]. (mandatory, if type is provided)
         String querySoTermId = queryFeature.getType().getOrDefault("id", "");
         String nodeSoTermId = nodeFeature.getType().getOrDefault("id", "");
 
@@ -37,6 +37,18 @@ public class GenomicFeatureMatch {
 
     public String getQuerySequenceOntologyId() {
         return queryFeature.getType().getOrDefault("id", "");
+    }
+    
+    
+    /**
+     * Checks is same variant (mutation is at same position in gene)
+     * @return true if positions are the same, false otherwise
+     */
+    public boolean hasSameVariantPosition(){
+    	if (this.getNodeFeature().getVariant().getStart() == this.getQueryFeature().getVariant().getStart()){
+    		return true;
+    	}
+    	return false;
     }
 
     @Override
@@ -60,5 +72,21 @@ public class GenomicFeatureMatch {
                 ", nodeFeature=" + nodeFeature +
                 '}';
     }
+
+	/**
+	 * @return the queryFeature
+	 */
+	public GenomicFeature getQueryFeature() {
+		return queryFeature;
+	}
+
+	/**
+	 * @return the nodeFeature
+	 */
+	public GenomicFeature getNodeFeature() {
+		return nodeFeature;
+	}
+    
+    
 
 }

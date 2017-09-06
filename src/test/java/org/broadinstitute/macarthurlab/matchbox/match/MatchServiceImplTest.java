@@ -6,7 +6,9 @@ import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeSimilarityScore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,6 +20,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author Jules Jacobsen <j.jacobsen@qmul.ac.uk>
  */
 public class MatchServiceImplTest {
+	
+    
+    @Value("${allow.no-gene-in-common.matches}")
+    private boolean ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES;
 
     @Test
     public void testMatchWithEmptyDatabase() {
@@ -61,20 +67,26 @@ public class MatchServiceImplTest {
 
     @Test
     public void testMatchWithNoGeneMatchPerfectPhenoMatch() {
-        MatchService instance = new MatchServiceImpl(new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers()), new MockPhenotypeMatchService(1.0));
-
-        Patient patient = TestData.getTestPatient();
-        patient.getGenomicFeatures().clear();
-        List<Patient> patients = TestData.getTwoTestPatients();
-
-        List<MatchmakerResult> matchmakerResults = instance.match(patient, patients);
-
-        assertThat(matchmakerResults.size(), equalTo(patients.size()));
-
-        for (MatchmakerResult matchmakerResult : matchmakerResults) {
-            System.out.println(matchmakerResult);
-            assertThat(matchmakerResult.getScore().get("patient"), equalTo(0.6));
-        }
+    	if (this.getALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES()){	    	
+	        MatchService instance = new MatchServiceImpl(new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers()), new MockPhenotypeMatchService(1.0));
+	
+	        Patient patient = TestData.getTestPatient();
+	        patient.getGenomicFeatures().clear();
+	        List<Patient> patients = TestData.getTwoTestPatients();
+	
+	        List<MatchmakerResult> matchmakerResults = instance.match(patient, patients);
+	
+	        assertThat(matchmakerResults.size(), equalTo(patients.size()));
+	
+	        for (MatchmakerResult matchmakerResult : matchmakerResults) {
+	            System.out.println(matchmakerResult);
+	            assertThat(matchmakerResult.getScore().get("patient"), equalTo(0.6));
+	        }
+    	}
+    	else{
+    		//dummy assertion to since in this case test is NA
+    		assertThat(1, equalTo(1));
+    	}
     }
 
     @Test
@@ -89,42 +101,86 @@ public class MatchServiceImplTest {
 
         assertThat(matchmakerResults.isEmpty(), is(true));
     }
-
+    
     @Test
-    public void testMatchWithNoGeneMatchPhenoMatchAtCutoffReturnsResults() {
-        double noGenotypeScore = 0.6;
-        double phenotypeCutoffScore = 0.7;
-
-        MatchService instance = new MatchServiceImpl(new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers()), new MockPhenotypeMatchService(phenotypeCutoffScore));
+    /**
+     * A perfect match should give a 1.0
+     */
+    public void testPerfectMatch() {
+        MatchService instance = new MatchServiceImpl(new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers()), new MockPhenotypeMatchService(1.0));
 
         Patient patient = TestData.getTestPatient();
-        patient.getGenomicFeatures().clear();
-        List<Patient> patients = TestData.getTwoTestPatients();
-
+        List<Patient> patients = new ArrayList<Patient>();
+        patients.add(patient);
         List<MatchmakerResult> matchmakerResults = instance.match(patient, patients);
-
-        assertThat(matchmakerResults.size(), equalTo(patients.size()));
-
-        for (MatchmakerResult matchmakerResult : matchmakerResults) {
-            System.out.println(matchmakerResult);
-            assertThat(matchmakerResult.getScore().get("patient"), equalTo(noGenotypeScore * phenotypeCutoffScore));
+        for (MatchmakerResult matchmakerResult: matchmakerResults){
+        	assertThat(matchmakerResult.getScore().get("patient"), equalTo(1.0));
         }
     }
 
     @Test
+    /**
+     * Do this test only if matches with gene in common setting is on
+     */
+    public void testMatchWithNoGeneMatchPhenoMatchAtCutoffReturnsResults() {
+    	if (this.getALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES()){
+	        double noGenotypeScore = 0.6;
+	        double phenotypeCutoffScore = 0.7;
+	
+	        MatchService instance = new MatchServiceImpl(new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers()), new MockPhenotypeMatchService(phenotypeCutoffScore));
+	
+	        Patient patient = TestData.getTestPatient();
+	        patient.getGenomicFeatures().clear();
+	        List<Patient> patients = TestData.getTwoTestPatients();
+	
+	        List<MatchmakerResult> matchmakerResults = instance.match(patient, patients);
+	
+	        assertThat(matchmakerResults.size(), equalTo(patients.size()));
+	
+	        for (MatchmakerResult matchmakerResult : matchmakerResults) {
+	            assertThat(matchmakerResult.getScore().get("patient"), equalTo(noGenotypeScore * phenotypeCutoffScore));
+	        }
+    	}
+    }
+
+    @Test
+    /**
+     * given 2 patients who have a variant (any position) in the same gene, and if ONE (or BOTH) of them
+     * have no phenotypes and resulting in a zero phenotype score. 
+     */
     public void testMatchWithPerfectGeneMatchNoPhenoMatch() {
         MatchService instance = new MatchServiceImpl(new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers()), new MockPhenotypeMatchService(0.0));
 
-        Patient patient = TestData.getTestPatient();
-        List<Patient> patients = TestData.getTwoTestPatients();
-
-        List<MatchmakerResult> matchmakerResults = instance.match(patient, patients);
-
+        Patient patientWithHpos =  TestData.getTestPatientWithPhenotypes();
+        List<Patient> patients = new ArrayList<Patient>();
+        patients.add(patientWithHpos);
+        patients.add(TestData.getTestPatient());
+        
+        List<MatchmakerResult> matchmakerResults = instance.match(patientWithHpos, patients);
         for (MatchmakerResult matchmakerResult : matchmakerResults) {
-            System.out.println(matchmakerResult);
-            assertThat(matchmakerResult.getScore().get("patient"), equalTo(0.0));
+            assertThat(matchmakerResult.getScore().get("patient"), equalTo(0.04));
         }
     }
+    
+    
+    @Test
+    /**
+     * given 2 identical (perfect genotype match)patients who have a variant (any position) in the same gene, 
+     * and if BOTH of them have no phenotypes resulting in a zero phenotype score. 
+     */
+    public void testMatchWithPerfectGeneMatchWithNoPhenotypesGiven() {
+        MatchService instance = new MatchServiceImpl(new GenotypeSimilarityServiceImpl(TestData.geneIdentifiers()), new MockPhenotypeMatchService(0.0));
+
+        Patient patient = TestData.getTestPatientWithNoPhenotypes();
+        List<Patient> patients = new ArrayList<Patient>();
+        patients.add(patient);
+        patients.add(patient);
+        List<MatchmakerResult> matchmakerResults = instance.match(patient, patients);
+        for (MatchmakerResult matchmakerResult : matchmakerResults) {
+            assertThat(matchmakerResult.getScore().get("patient"), equalTo(0.01));
+        }
+    }
+    
 
     @Test
     public void testMatchWithPerfectGeneMatchPerfectPhenoMatch() {
@@ -198,5 +254,20 @@ public class MatchServiceImplTest {
             return new PhenotypeSimilarityScore(returnScore, Collections.emptyList());
         }
     }
+    
+	/**
+	 * @return the aLLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES
+	 */
+	public boolean getALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES() {
+		return ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES;
+	}
+
+	/**
+	 * @param aLLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES the aLLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES to set
+	 */
+	public void setALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES(String aLLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES) {
+		ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES = Boolean.valueOf(ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES);
+	}
+    
 
 }
