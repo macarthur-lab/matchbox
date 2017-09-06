@@ -73,7 +73,7 @@ RUN git clone -b 8.0.0 --depth 1 https://github.com/exomiser/Exomiser
 WORKDIR Exomiser
 RUN $MVN -DskipTests=true clean install
 
-#now matchbox (and it will see Exomisor in local maven repo)
+#now matchbox (and it will see Exomiser in local maven repo)
 #---------------------------------------------------------------------------
 
 RUN git clone https://github.com/macarthur-lab/matchbox
