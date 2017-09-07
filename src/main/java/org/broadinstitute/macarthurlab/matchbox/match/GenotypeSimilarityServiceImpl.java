@@ -30,6 +30,14 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     
     //Returning 0.6 so as not to overly penalize these - maybe the phenotype score is high which could lead to a good match.
     private static final GenotypeSimilarityScore NO_GENOTYPE_MATCH = new GenotypeSimilarityScore(0.6, Collections.emptyList());
+    
+    //Same gene matches, but variants not matching
+    private static final GenotypeSimilarityScore GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS = new GenotypeSimilarityScore(0.9, Collections.emptyList());
+
+    //Perfect genotype match at the variant level and gene level
+    private static final GenotypeSimilarityScore PERFECT_GENOTYPE_MATCH = new GenotypeSimilarityScore(1.0d, Collections.emptyList());
+ 
+    
     private final Map<String, String> geneSymbolToEnsemblId;
     private final Map<String, String> ensemblIdToGeneSymbol;
     
@@ -77,10 +85,23 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         if (geneMatches.isEmpty()){
             return NO_GENOTYPE_MATCH;
         }
-        
-        //identical patients, perfect match (if they share the same # of genes as matches)
+
         if (geneMatches.size() == queryPatient.getGenomicFeatures().size() && queryPatient.getGenomicFeatures().size() == nodePatient.getGenomicFeatures().size() ){
-        	return new GenotypeSimilarityScore(1.0d, geneMatches);
+        	boolean allVariantsSame=true;
+        	for (GenomicFeatureMatch gfMatch : geneMatches){
+        		if(!gfMatch.hasZygosityMatch() || 
+        		   !gfMatch.hasTypeMatch()  || 
+        		   !gfMatch.hasSameVariantPosition() ||
+        		   !gfMatch.hasVariantMatch()
+        		   ){
+        			allVariantsSame=false;
+        		}	
+        	}
+        	if (allVariantsSame){
+        		return PERFECT_GENOTYPE_MATCH;
+        	}
+        	//genes are in common, but at the variant level, there is a mismatch
+        	return GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS;
         }
 
         double inverseOfnormPopulationProbabilities = 1.0d / this.findNormalPopulationProbabilities(geneMatches);
@@ -170,7 +191,6 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     
         
     /**
-     * TODO: uncomment
      * Find the allele frequency of this variant
      * @param variant
      * @return An allele frequency of this variant in a normal population
@@ -341,4 +361,51 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         return codes;
     }
 
+
+
+	/**
+	 * @return the noGenotypeMatch
+	 */
+	static GenotypeSimilarityScore getNoGenotypeMatch() {
+		return NO_GENOTYPE_MATCH;
+	}
+
+
+
+	/**
+	 * @return the genotypeMatchWithDissimilarVariants
+	 */
+	static GenotypeSimilarityScore getGenotypeMatchWithDissimilarVariants() {
+		return GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS;
+	}
+
+
+
+	/**
+	 * @return the perfectGenotypeMatch
+	 */
+	static GenotypeSimilarityScore getPerfectGenotypeMatch() {
+		return PERFECT_GENOTYPE_MATCH;
+	}
+
+
+
+	/**
+	 * @return the httpCommunication
+	 */
+	Communication getHttpCommunication() {
+		return httpCommunication;
+	}
+
+
+
+	/**
+	 * @param httpCommunication the httpCommunication to set
+	 */
+	public void setHttpCommunication(Communication httpCommunication) {
+		this.httpCommunication = httpCommunication;
+	}
+
+	
+    
 }

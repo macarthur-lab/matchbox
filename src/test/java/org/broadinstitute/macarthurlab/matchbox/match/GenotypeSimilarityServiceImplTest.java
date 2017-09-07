@@ -6,6 +6,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
+import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.junit.Test;
 
 import java.util.*;
@@ -85,6 +86,9 @@ public class GenotypeSimilarityServiceImplTest {
     }
 
     @Test
+    /**
+     * Test score when genes are in common but zygosity is not the same
+     */
     public void testGeneSymbolMatchNoZygosityNoSoTerms() {
         long unintialisedZygosityValue = -1L;
         Variant variantOne = new Variant("7", "GRCh37", 64438667L, 64438667L, "G", "A");
@@ -104,7 +108,7 @@ public class GenotypeSimilarityServiceImplTest {
 
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
 
-        assertThat(genotypeSimilarityScore.getScore(), equalTo(0.7));
+        assertThat(genotypeSimilarityScore.getScore(), equalTo(GenotypeSimilarityServiceImpl.getGenotypeMatchWithDissimilarVariants().getScore()));
     }
 
     @Test
@@ -126,7 +130,7 @@ public class GenotypeSimilarityServiceImplTest {
 
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
 
-        assertThat(genotypeSimilarityScore.getScore(), equalTo(0.85));
+        assertThat(genotypeSimilarityScore.getScore(), equalTo(GenotypeSimilarityServiceImpl.getGenotypeMatchWithDissimilarVariants().getScore()));
     }
 
     @Test
@@ -134,10 +138,10 @@ public class GenotypeSimilarityServiceImplTest {
         GenomicFeature geneOneSymbolOnly = new GenomicFeature(Collections.singletonMap("id", "ENSG00000152926"), new Variant(), -1L, Collections.emptyMap());
         Patient queryPatient = new Patient("queryPatient", "queryPatient", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneOneSymbolOnly));
 
-        Variant variantOne = new Variant("7", "GRCh37", 64438667L, 64438667L, "G", "A");
+        Variant variantOne = new Variant("GRCh37","7", 64438667L, 64438667L, "G", "A");
         GenomicFeature geneOne = new GenomicFeature(Collections.singletonMap("id", "ENSG00000152926"), variantOne, 2L, Collections.emptyMap());
 
-        Variant variantTwo = new Variant("18", "GRCh37", 25616451L, 25616451L, "A", "T");
+        Variant variantTwo = new Variant("GRCh37","18", 25616451L, 25616451L, "A", "T");
         GenomicFeature geneTwo = new GenomicFeature(Collections.singletonMap("id", "ENSG00000170558"), variantTwo, 2L, Collections.emptyMap());
         Patient nodePatient = new Patient("nodePatient", "nodePatient", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneTwo, geneOne));
 
@@ -146,7 +150,8 @@ public class GenotypeSimilarityServiceImplTest {
         geneIdentifiers.put("GENE2", "ENSG00000170558");
 
         GenotypeSimilarityService genotypeSimilarityService = new GenotypeSimilarityServiceImpl(geneIdentifiers);
-
+        genotypeSimilarityService.setHttpCommunication(new Communication());
+        
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(queryPatient, nodePatient);
 
         assertThat(genotypeSimilarityScore.getScore(), equalTo(0.7));
@@ -155,7 +160,7 @@ public class GenotypeSimilarityServiceImplTest {
     @Test
     public void testGeneSymbolMatchOnly() {
         long unintialisedZygosityValue = -1L;
-        Variant variantOne = new Variant("7", "GRCh37", 64438667L, 64438667L, "G", "A");
+        Variant variantOne = new Variant("GRCh37","7", 64438667L, 64438667L, "G", "A");
         Map<String, String> soTerm = new HashMap<>();
         soTerm.put("id", "SO:0001587");
         soTerm.put("label", "STOPGAIN");
@@ -172,7 +177,8 @@ public class GenotypeSimilarityServiceImplTest {
         geneIdentifiers.put("GENE2", "ENSG00000170558");
 
         GenotypeSimilarityService genotypeSimilarityService = new GenotypeSimilarityServiceImpl(geneIdentifiers);
-
+        genotypeSimilarityService.setHttpCommunication(new Communication());
+        
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
 
         assertThat(genotypeSimilarityScore.getScore(), equalTo(0.85));
