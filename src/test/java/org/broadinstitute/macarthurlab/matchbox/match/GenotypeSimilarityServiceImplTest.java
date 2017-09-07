@@ -9,6 +9,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.junit.Test;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
@@ -153,8 +154,9 @@ public class GenotypeSimilarityServiceImplTest {
         genotypeSimilarityService.setHttpCommunication(new Communication());
         
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(queryPatient, nodePatient);
-
-        assertThat(genotypeSimilarityScore.getScore(), equalTo(0.7));
+        DecimalFormat df = new DecimalFormat("#.##");
+        
+        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.74"));
     }
 
     @Test
@@ -181,7 +183,8 @@ public class GenotypeSimilarityServiceImplTest {
         
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
 
-        assertThat(genotypeSimilarityScore.getScore(), equalTo(0.85));
+        DecimalFormat df = new DecimalFormat("#.##");
+        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.74"));
     }
 
     @Test
