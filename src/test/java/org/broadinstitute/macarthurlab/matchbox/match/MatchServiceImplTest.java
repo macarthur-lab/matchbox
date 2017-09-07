@@ -228,6 +228,7 @@ public class MatchServiceImplTest {
             return new GenotypeSimilarityScore(returnScore, Collections.emptyList());
         }
 
+        
 		@Override
 		public void setHttpCommunication(Communication httpCommunication) {
 		}
