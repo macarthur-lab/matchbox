@@ -55,32 +55,26 @@ public class Variant {
 	 * Returns true if ALL fields are unpopulated
 	 */
 	public boolean isUnPopulated(){
-		if (this.assembly.equals("") &&
-				this.referenceName.equals("") &&
-				this.start==-1 &&
-				this.end==-1   &&
-				this.referenceBases.equals("") &&
-				this.alternateBases.equals("")){
-			return true;
-		}
-		return false;
-	}
+        return this.assembly.equals("") &&
+                this.referenceName.equals("") &&
+                this.start == -1 &&
+                this.end == -1 &&
+                this.referenceBases.equals("") &&
+                this.alternateBases.equals("");
+    }
 	
 	
 	/**
-	 * Returns true if ALL fields are unpopulated
+	 * Returns true if at least one field is unpopulated
 	 */
 	public boolean isPartiallyPopulated(){
-		if (this.assembly.equals("") |
-				this.referenceName.equals("") |
-				this.start==-1 |
-				this.end==-1   |
-				this.referenceBases.equals("") |
-				this.alternateBases.equals("")){
-			return true;
-		}
-		return false;
-	}
+        return this.assembly.equals("") ||
+                this.referenceName.equals("") ||
+                this.start == -1 ||
+                this.end == -1 ||
+                this.referenceBases.equals("") ||
+                this.alternateBases.equals("");
+    }
 	
 	/**
 	 * @return the assembly
