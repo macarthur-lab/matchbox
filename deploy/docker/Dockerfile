@@ -15,7 +15,7 @@ env MVN=mvn
 #first get Exomiser built in the local maven for matchbox to import in
 #---------------------------------------------------------------------------
 
-RUN git clone -b development https://github.com/exomiser/Exomiser
+RUN git clone https://github.com/exomiser/Exomiser
 WORKDIR Exomiser
 RUN $MVN clean install package
 
