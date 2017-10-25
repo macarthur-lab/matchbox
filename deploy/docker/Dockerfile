@@ -75,8 +75,8 @@ env MONGODB_DATABASE=
 
 #############################################
 #                                           #
-# Default server port is 9020, this will	#
-# be overwritten if you chose HTTPS below	#
+# Default server port is 9020, this will    #
+# be overwritten if you chose HTTPS below   #
 #                                           #
 #############################################
 env USE_HTTPS=false
@@ -84,15 +84,15 @@ env SERVER_PORT=9020
 
 
 #########################################################################
-#                                           							#
-# MME REQUIRES HTTPS IF YOUR SERVER IS NOT PROXIED BEHIND HTTPS.		#
-# You can activate HTTPS by,                          					#
-#                                           							#
-# 1. UNCOMMENT ALL the following			 							#
-# 2. SET variable USE_HTTPS	to be true									#
-#                                           							#
-# You can override sever port here										#
-#                                           							#
+#                                           				#
+# MME REQUIRES HTTPS IF YOUR SERVER IS NOT PROXIED BEHIND HTTPS.	#
+# You can activate HTTPS by,                          			#
+#                                           				#
+# 1. UNCOMMENT ALL the following			 		#
+# 2. SET variable USE_HTTPS	to be true				#
+#                                           				#
+# You can override sever port here					#
+#                                           				#
 #########################################################################
 #env USE_HTTPS=true
 #env SERVER_PORT=8443
@@ -110,21 +110,21 @@ env SERVER_PORT=9020
 
 #############################################
 #                                           #
-# This port is exposed by container			#
+# This port is exposed by container	    #
 #                                           #
 #############################################
 EXPOSE $SERVER_PORT
 
 
-#########################################################################
-# IN PRODUCTION, PLEASE MANAGE THESE FILES EXTREMELY CAREFULLY AS THEY	#
-# WILL CONTAIN SENSITIVE ACCESS TO YOUR, AND OTHER NODES!				#
-#                                           							#
-# These files govern/contain,											#
-#	1. Tokens that gives OTHER NODES, access to matchbox (config.xml)	#
-#	2. Tokens that gives MATCHBOX, access to other nodes (nodes.json)	#								
-#                                           							#
-#########################################################################
+###########################################################################
+# IN PRODUCTION, PLEASE MANAGE THESE FILES EXTREMELY CAREFULLY AS THEY	  #
+# WILL CONTAIN SENSITIVE ACCESS TO YOUR, AND OTHER NODES!		  #
+#                                           				  #
+# These files govern/contain,						  #
+#	1. Tokens that gives OTHER NODES, access to matchbox (config.xml) #
+#	2. Tokens that gives MATCHBOX, access to other nodes (nodes.json) # #									  #
+#                                           				  #
+###########################################################################
 ADD config.xml $MATCHBOX_DEPLOYMENT_CONFIG_DIR
 ADD nodes.json $MATCHBOX_DEPLOYMENT_CONFIG_DIR
 
