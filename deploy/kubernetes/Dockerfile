@@ -69,7 +69,7 @@ env MVN=mvn
 #---------------------------------------------------------------------------
 # _n.b._ check that the tag here is the same as the exomiser.version declared in the pom
 
-RUN git clone -b 8.0.0 --depth 1 https://github.com/exomiser/Exomiser
+RUN git clone https://github.com/exomiser/Exomiser
 WORKDIR Exomiser
 RUN $MVN -DskipTests=true clean install
 

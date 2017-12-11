@@ -8,6 +8,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,9 @@ import java.util.*;
 public class BaseMetric {
 	private static final Logger logger = LoggerFactory.getLogger(BaseMetric.class);
 	
+	@Value("${matchbox.gene-symbol-to-id-mappings}")
+	private String geneSymbolToEnsemnlIdFileName;
+	
     @Autowired
 	MongoOperations operator;
     
@@ -33,9 +37,7 @@ public class BaseMetric {
 	public BaseMetric() {
 		this.geneSymbolToEnsemblId = new HashMap<String,String>();	
 		try{
-			String geneSymbolToEnsemnlId = System.getProperty("user.dir") + "/config/gene_symbol_to_ensembl_id_map.txt";
-			
-			File geneSymbolToEnsemnlIdFile = new File(geneSymbolToEnsemnlId);
+			File geneSymbolToEnsemnlIdFile = new File(this.getGeneSymbolToEnsemnlIdFileName());
 			BufferedReader reader = new BufferedReader(new FileReader(geneSymbolToEnsemnlIdFile));
 			while (true) {
 				String line = reader.readLine();
@@ -284,5 +286,24 @@ public class BaseMetric {
 		}
 		return counts;
 	}
+
+	
+	
+	/**
+	 * @return the geneSymbolToEnsemnlIdFileName
+	 */
+	String getGeneSymbolToEnsemnlIdFileName() {
+		return geneSymbolToEnsemnlIdFileName;
+	}
+
+	/**
+	 * @param geneSymbolToEnsemnlIdFileName the geneSymbolToEnsemnlIdFileName to set
+	 */
+	void setGeneSymbolToEnsemnlIdFileName(String geneSymbolToEnsemnlIdFileName) {
+		this.geneSymbolToEnsemnlIdFileName = geneSymbolToEnsemnlIdFileName;
+	}
+	
+	
+	
 
 }
