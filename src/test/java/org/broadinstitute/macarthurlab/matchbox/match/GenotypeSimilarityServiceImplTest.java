@@ -1,7 +1,11 @@
 package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.TestData;
-import org.broadinstitute.macarthurlab.matchbox.entities.*;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
+import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
+import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
+import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.junit.Test;
 
@@ -82,53 +86,6 @@ public class GenotypeSimilarityServiceImplTest {
         assertThat(matches, equalTo(expected));
     }
 
-    @Test
-    /**
-     * Test score when genes are in common but zygosity is not the same
-     */
-    public void testGeneSymbolMatchNoZygosityNoSoTerms() {
-        long unintialisedZygosityValue = -1L;
-        Variant variantOne = new Variant("7", "GRCh37", 64438667L, 64438667L, "G", "A");
-        GenomicFeature geneOne = new GenomicFeature(Collections.singletonMap("id", "ENSG00000152926"), variantOne, unintialisedZygosityValue, Collections.emptyMap());
-
-        Variant variantTwo = new Variant("18", "GRCh37", 25616451L, 25616451L, "A", "T");
-        GenomicFeature geneTwo = new GenomicFeature(Collections.singletonMap("id", "ENSG00000170558"), variantTwo, unintialisedZygosityValue, Collections.emptyMap());
-
-        Patient patient1 = new Patient("patient1", "patient1", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneOne, geneTwo));
-        Patient patient2 = new Patient("patient2", "patient2", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneTwo, geneOne));
-
-        Map<String, String> geneIdentifiers = new HashMap<>();
-        geneIdentifiers.put("GENE1", "ENSG00000152926");
-        geneIdentifiers.put("GENE2", "ENSG00000170558");
-
-        GenotypeSimilarityService genotypeSimilarityService = new GenotypeSimilarityServiceImpl(geneIdentifiers);
-
-        GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
-
-        assertThat(genotypeSimilarityScore.getScore(), equalTo(0.9));
-    }
-
-    @Test
-    public void testMatchingGeneSymbolMatchingZygosityNoSoTerms() {
-        Variant variantOne = new Variant("7", "GRCh37", 64438667L, 64438667L, "G", "A");
-        GenomicFeature geneOne = new GenomicFeature(Collections.singletonMap("id", "ENSG00000152926"), variantOne, 2L, Collections.emptyMap());
-
-        Variant variantTwo = new Variant("18", "GRCh37", 25616451L, 25616451L, "A", "T");
-        GenomicFeature geneTwo = new GenomicFeature(Collections.singletonMap("id", "ENSG00000170558"), variantTwo, 2L, Collections.emptyMap());
-
-        Patient patient1 = new Patient("patient1", "patient1", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneOne, geneTwo));
-        Patient patient2 = new Patient("patient2", "patient2", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneTwo, geneOne));
-
-        Map<String, String> geneIdentifiers = new HashMap<>();
-        geneIdentifiers.put("GENE1", "ENSG00000152926");
-        geneIdentifiers.put("GENE2", "ENSG00000170558");
-
-        GenotypeSimilarityService genotypeSimilarityService = new GenotypeSimilarityServiceImpl(geneIdentifiers);
-
-        GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
-
-        assertThat(genotypeSimilarityScore.getScore(), equalTo(0.9));
-    }
 
     @Test
     public void testMatchingGeneSymbolOnlyNodeMatchHigerSpecified() {
