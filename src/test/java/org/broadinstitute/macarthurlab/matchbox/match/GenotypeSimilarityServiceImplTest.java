@@ -1,11 +1,7 @@
 package org.broadinstitute.macarthurlab.matchbox.match;
 
 import org.broadinstitute.macarthurlab.matchbox.TestData;
-import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
-import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeatureMatch;
-import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore;
-import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
-import org.broadinstitute.macarthurlab.matchbox.entities.Variant;
+import org.broadinstitute.macarthurlab.matchbox.entities.*;
 import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.junit.Test;
 
@@ -109,7 +105,7 @@ public class GenotypeSimilarityServiceImplTest {
 
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
 
-        assertThat(genotypeSimilarityScore.getScore(), equalTo(GenotypeSimilarityServiceImpl.getGenotypeMatchWithDissimilarVariants().getScore()));
+        assertThat(genotypeSimilarityScore.getScore(), equalTo(0.9));
     }
 
     @Test
@@ -131,7 +127,7 @@ public class GenotypeSimilarityServiceImplTest {
 
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
 
-        assertThat(genotypeSimilarityScore.getScore(), equalTo(GenotypeSimilarityServiceImpl.getGenotypeMatchWithDissimilarVariants().getScore()));
+        assertThat(genotypeSimilarityScore.getScore(), equalTo(0.9));
     }
 
     @Test
