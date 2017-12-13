@@ -14,12 +14,13 @@ env MVN=mvn
 
 #first get Exomiser built in the local maven for matchbox to import in
 #---------------------------------------------------------------------------
+# _n.b._ check that the tag here is the same as the exomiser.version declared in the pom
 
 RUN git clone https://github.com/exomiser/Exomiser
 WORKDIR Exomiser
-RUN $MVN clean install package
+RUN $MVN -DskipTests=true clean install
 
-#now matchbox (and it will see Exomisor in local maven repo)
+#now matchbox (and it will see Exomiser in local maven repo)
 #---------------------------------------------------------------------------
 
 RUN git clone https://github.com/macarthur-lab/matchbox
@@ -47,6 +48,7 @@ RUN cp -rf $MATCHBOX_CONFIG_DIR . \
 #                                           #
 #############################################
 env EXOMISER_DATA_DIR=/Exomiser/matchbox/data/data
+env EXOMISER_PHENOTYPE_DATA_VERSION=1711
 
 
 #############################################
@@ -84,15 +86,15 @@ env SERVER_PORT=9020
 
 
 #########################################################################
-#                                           				#
-# MME REQUIRES HTTPS IF YOUR SERVER IS NOT PROXIED BEHIND HTTPS.	#
-# You can activate HTTPS by,                          			#
-#                                           				#
-# 1. UNCOMMENT ALL the following			 		#
-# 2. SET variable USE_HTTPS	to be true				#
-#                                           				#
-# You can override sever port here					#
-#                                           				#
+#                                                                       #
+# MME REQUIRES HTTPS IF YOUR SERVER IS NOT PROXIED BEHIND HTTPS.        #
+# You can activate HTTPS by,                                            #
+#                                                                       #
+# 1. UNCOMMENT ALL the following                                        #
+# 2. SET variable USE_HTTPS	to be true                                  #
+#                                                                       #
+# You can override sever port here                                      #
+#                                                                       #
 #########################################################################
 #env USE_HTTPS=true
 #env SERVER_PORT=8443
@@ -110,7 +112,7 @@ env SERVER_PORT=9020
 
 #############################################
 #                                           #
-# This port is exposed by container	    #
+# This port is exposed by container         #
 #                                           #
 #############################################
 EXPOSE $SERVER_PORT
@@ -118,12 +120,12 @@ EXPOSE $SERVER_PORT
 
 ###########################################################################
 # IN PRODUCTION, PLEASE MANAGE THESE FILES EXTREMELY CAREFULLY AS THEY	  #
-# WILL CONTAIN SENSITIVE ACCESS TO YOUR, AND OTHER NODES!		  #
-#                                           				  #
-# These files govern/contain,						  #
-#	1. Tokens that gives OTHER NODES, access to matchbox (config.xml) #
-#	2. Tokens that gives MATCHBOX, access to other nodes (nodes.json) # #									  #
-#                                           				  #
+# WILL CONTAIN SENSITIVE ACCESS TO YOUR, AND OTHER NODES!		          #
+#                                           				              #
+# These files govern/contain,						                      #
+#	1. Tokens that gives OTHER NODES, access to matchbox (config.xml)     #
+#	2. Tokens that gives MATCHBOX, access to other nodes (nodes.json)     #
+#                                           				              #
 ###########################################################################
 ADD config.xml $MATCHBOX_DEPLOYMENT_CONFIG_DIR
 ADD nodes.json $MATCHBOX_DEPLOYMENT_CONFIG_DIR

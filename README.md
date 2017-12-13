@@ -2,7 +2,11 @@
 
 # <i>matchbox</i>
 
-<i>matchbox</i> was originally developed at the MacArthur Lab for the Broad Center for Mendelian Genomics. Its purpose was to function as a bridge to the Matchmaker Exchange. It was then shared as open source software under the BSD License. 
+<i>matchbox</i> was originally developed at the MacArthur Lab for the Broad Center for Mendelian Genomics with the goal of functioning as a portable bridge to the Matchmaker Exchange. It was then shared as open source software under the BSD License. 
+
+<i>matchbox</i> uses the [Human Phenotype Ontology](http://human-phenotype-ontology.github.io/) for recording and analyzing phenotype data. Design of the phenotype matching algorithm is led by the [Monarch Initiative](https://monarchinitiative.org/).
+
+[<i>matchbox</i>](https://seqr.broadinstitute.org/matchmaker/matchbox) is in production at the [Broad Center for Mendelian Genomics at the Broad Institute](https://cmg.broadinstitute.org/).
 
 A major challenge faced by rare disease investigators is the difficulty of finding more than one individual with the same genetic disorder. This complicates the identification of causal variants and novel gene discovery. The Matchmaker Exchange (MME) provides a decentralized federated network of genomic centers with collections of rare disease cases. MME allows you to find similar individuals based on genotype, phenotype -and soon other types of data-, globally and at scale. 
 

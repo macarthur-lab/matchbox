@@ -13,13 +13,12 @@ Please also remember to change any default passwords built into system before pr
 
 2. Reference data for the Exomiser dependency fetched from:
 	```
-	Please note, this is a ~9.37G file, that expands into ~38.79G. In the near future we will
-	reduce this to about ~0.5G compressed (~5G uncompressed) file.
+	Please note, this is a large file
 	
-	https://storage.googleapis.com/seqr-hail/reference_data/exomiser/exomiser-cli-8.0.0.tar.gz
+	wget https://storage.googleapis.com/matchbox-mounted-bucket/exomiser/1711_phenotype.tar.gz
 	
-	Once you download this file, please uncompress it and remember the file path. For example,
-	/reference_data/exomiser-cli-<version>/data
+	Once you download this file, please uncompress it, and two other zip files inside it, and remember the file path. For example,
+	/data/reference_data/
 	
 	Also make sure this directory is accessible to your docker daemon since it needs to be mounted
 	via the -v option at docker "run command"
@@ -57,6 +56,7 @@ Please also remember to change any default passwords built into system before pr
 						-storepass $HTTPS_SSL_KEY_STORE_PASSWORD \
 						-keypass $HTTPS_SSL_KEY_PASSWORD
 	```
+
 	
 2. In the deploy/docker directory there are two files that should be handled extra carefully in production given that they will contain tokens and access information for your instance and other nodes.
 	```
@@ -64,7 +64,7 @@ Please also remember to change any default passwords built into system before pr
 	nodes,json : this JSON file contains tokens that give your matchbox instance access to other MME nodes
 	``` 
 	
-	Using guidence from the example data inside them, populate as needed. 
+	Using guidance from the example data inside them, populate as needed. 
 	
 	Please remember to remove default values before production!
 	
@@ -78,18 +78,16 @@ Please also remember to change any default passwords built into system before pr
 	
 4. Assuming,
 
-	* You have already downloaded the necessary reference data for Exomiser (for example to /reference_data/exomiser-cli/data) 
+	* You have already downloaded the necessary reference data for Exomiser (for example to /data/reference_data/) 
 	
 	* And reference data directory is accessible to Docker daemon, 
 	
 	* And you have a MongoDB instance running and you have added its credentials and details to the Dockerfile before the build step, 
 
 
-5. You should now be able to start matchbox with one of the (for example, using the image "matchbox-docimg" we built ealier) below. Make sure the port, and exposed-port, you used in the Dockerfile match the "-p 9020:9020" argument.
-
 	For example, if you are using the default HTTP settings and didn't change any port numbers:
 	```
-		docker run -ti -p 9020:9020 -v "/reference_data/exomiser-cli/data":/Exomiser/matchbox/data/data matchbox-docimg 
+		docker run -ti -p 9020:9020 -v "/data/reference_data/":/Exomiser/matchbox/data/data matchbox-docimg 
 	``` 
 	
 	OR

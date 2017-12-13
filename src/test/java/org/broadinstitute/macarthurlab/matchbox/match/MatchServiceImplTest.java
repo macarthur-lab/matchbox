@@ -5,6 +5,7 @@ import org.broadinstitute.macarthurlab.matchbox.entities.GenotypeSimilarityScore
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeSimilarityScore;
+import org.broadinstitute.macarthurlab.matchbox.network.Communication;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -226,6 +227,11 @@ public class MatchServiceImplTest {
         public GenotypeSimilarityScore scoreGenotypes(Patient queryPatient, Patient nodePatient) {
             return new GenotypeSimilarityScore(returnScore, Collections.emptyList());
         }
+
+        
+		@Override
+		public void setHttpCommunication(Communication httpCommunication) {
+		}
     }
 
     private class MockPhenotypeMatchService implements PhenotypeSimilarityService {

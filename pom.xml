@@ -17,7 +17,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <exomiser.version>8.0.1</exomiser.version>
+        <exomiser.version>9.0.0</exomiser.version>
     </properties>
 
     <dependencies>
@@ -57,12 +57,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.monarchinitiative</groupId>
+            <groupId>org.monarchinitiative.exomiser</groupId>
             <artifactId>exomiser-spring-boot-starter</artifactId>
             <version>${exomiser.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.monarchinitiative</groupId>
+            <groupId>org.monarchinitiative.exomiser</groupId>
             <artifactId>exomiser-spring-boot-test</artifactId>
             <version>${exomiser.version}</version>
             <scope>test</scope>

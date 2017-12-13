@@ -37,50 +37,25 @@ To build directly via Maven, the following steps are needed. <i>matchbox</i> rel
 		- The "exomiser.data-directory=" field is required by Exomiser for phenotype matching. This reference data can be fetched by,
 		
 		```
-			wget https://storage.googleapis.com/seqr-hail/reference_data/exomiser/exomiser-cli-8.0.0.tar.gz
+			wget https://storage.googleapis.com/matchbox-mounted-bucket/exomiser/1711_phenotype.tar.gz
 			
 		```
 		
-		Provide the path of the above untar'ed "data" directory to the "exomiser.data-directory=" field, for example,
+		Then unzip the file, cd into into it, and unzip two more zip files within it.
+		
+		Provide the path of the above untar'ed "data" directory to the "exomiser.data-directory="  and "exomiser.phenotype.data-version" fields 
+		
+		For example, if your reference data was unzipped into,
+		/dev/apps/ref_data/1711_phenotype
+		
+		You would populate the fields as such (note: the "1711_phenotype" in not in the path),
+		
 		```
-			exomiser.data-directory==/Users/john/Documents/exomiser-cli-8.0.0/data
+			exomiser.data-directory=/dev/apps/ref_data
+			exomiser.phenotype.data-version=1711
 		```
 		
-		
-		Next, populate the MongoDB connection fields.
-		
-		A full example would look like,
-		
-
-		```
-		spring.application.name=matchbox
-		logging.file=logs/matchbox.log
-		
-		spring.http.encoding.force=false
-		
-		#Enable these as required for any specific MongoDB setup.
-		#spring.data.mongodb.host=
-		#spring.data.mongodb.port=
-		#spring.data.mongodb.username=
-		#spring.data.mongodb.password=
-		#spring.data.mongodb.database=mme_primary
-		
-		#Enable the following to be HTTPS (REQUIRED by MME if server is not proxied)
-		#thanks to https://www.drissamri.be/blog/java/enable-https-in-spring-boot/
-		#keyTrustStore=<your_KeyStore.jks>
-		#server.port=8443
-		#server.ssl.key-store=file:<path-to-JKS-file>
-		#server.ssl.key-store-password=<your-password>
-		#server.ssl.key-password=<you-jks-domain>
-		
-		matchbox.gene-symbol-to-id-mappings=${user.dir}/config/gene_symbol_to_ensembl_id_map.txt
-		matchbox.connected-nodes=${user.dir}/config/nodes.json
-		
-		exomiser.data-directory=
-
-        #IF YOU WANT TO ALLOW PHENOTYPE ONLY MATCHES WHERE THERE WAS NO GENE IN COMMON
-		allow.no-gene-in-common.matches=false
-		```
+		Next, populate the MongoDB connection fields as per your MongoDB installation.
 		
 	- Now build source files. 
 		

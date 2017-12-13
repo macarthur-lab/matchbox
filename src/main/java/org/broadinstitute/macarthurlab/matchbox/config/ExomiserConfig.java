@@ -1,8 +1,7 @@
 package org.broadinstitute.macarthurlab.matchbox.config;
 
-import com.google.common.collect.ImmutableList;
-import de.charite.compbio.jannovar.data.JannovarData;
-import de.charite.compbio.jannovar.reference.HG19RefDictBuilder;
+import org.mockito.Mockito;
+import org.monarchinitiative.exomiser.core.genome.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,9 +11,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ExomiserConfig {
 
+    /**
+     * This is a stub bean - we're not using this aspect of the Exomiser so this will act as a placeholder for the
+     * context to load.
+     *
+     * @return a placeholder GenomeAnalysisService
+     */
     @Bean
-    public JannovarData jannovarData() {
-        //return an empty transcript list - we're not using it and it adds time to start-up.
-        return new JannovarData(HG19RefDictBuilder.build(), ImmutableList.of());
+    public GenomeAnalysisService genomeAnalysisService() {
+        return new GenomeAnalysisServiceImpl(GenomeAssembly.HG19,
+                Mockito.mock(GenomeAnalysisService.class),
+                Mockito.mock(VariantDataService.class),
+                Mockito.mock(VariantFactory.class));
     }
+
 }

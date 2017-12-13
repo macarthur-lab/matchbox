@@ -34,6 +34,25 @@ public class GenomicFeatureMatch {
 
         return !querySoTermId.isEmpty() && querySoTermId.equals(nodeSoTermId);
     }
+    
+    /**
+     * Checks if variants are the same
+     * @return true if the vairant positions are the same, false otherwise
+     */
+    public boolean hasVariantMatch() {
+    	Variant queryVariant = queryFeature.getVariant();
+        Variant nodVariant = nodeFeature.getVariant();
+        if (
+        		queryVariant.getAlternateBases().equals(nodVariant.getAlternateBases()) &&
+        		queryVariant.getAlternateBases().equals(nodVariant.getReferenceBases()) &&
+        		queryVariant.getAssembly().equals(nodVariant.getAssembly()) &&
+        		queryVariant.getReferenceName().equals(nodVariant.getReferenceName()) &&
+        		queryVariant.getStart() == nodVariant.getStart() &&
+        		queryVariant.getEnd() == nodVariant.getEnd()){
+        	return true;
+        }
+        return false;
+    }
 
     public String getQuerySequenceOntologyId() {
         return queryFeature.getType().getOrDefault("id", "");
@@ -41,7 +60,7 @@ public class GenomicFeatureMatch {
     
     
     /**
-     * Checks is same variant (mutation is at same position in gene)
+     * Checks if same variant (mutation is at same position in gene)
      * @return true if positions are the same, false otherwise
      */
     public boolean hasSameVariantPosition(){
