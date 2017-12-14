@@ -15,9 +15,9 @@ Please also remember to change any default passwords built into system before pr
 	```
 	Please note, this is a large file
 	
-	wget https://storage.googleapis.com/matchbox-mounted-bucket/exomiser/1711_phenotype.tar.gz
+	wget https://storage.googleapis.com/seqr-reference-data/1711_phenotype.tar.gz
 	
-	Once you download this file, please uncompress it, and two other zip files inside it, and remember the file path. For example,
+	Once you download this file, please uncompress it, and remember the file path. For example,
 	/data/reference_data/
 	
 	Also make sure this directory is accessible to your docker daemon since it needs to be mounted

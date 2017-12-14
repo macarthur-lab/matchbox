@@ -37,13 +37,13 @@ To build directly via Maven, the following steps are needed. <i>matchbox</i> rel
 		- The "exomiser.data-directory=" field is required by Exomiser for phenotype matching. This reference data can be fetched by,
 		
 		```
-			wget https://storage.googleapis.com/matchbox-mounted-bucket/exomiser/1711_phenotype.tar.gz
+			wget https://storage.googleapis.com/seqr-reference-data/1711_phenotype.tar.gz
 			
 		```
 		
-		Then unzip the file, cd into into it, and unzip two more zip files within it.
+		Then unzip the file.
 		
-		Provide the path of the above untar'ed "data" directory to the "exomiser.data-directory="  and "exomiser.phenotype.data-version" fields 
+		Provide the path of the above untar'ed directory to the "exomiser.data-directory="  and "exomiser.phenotype.data-version" fields 
 		
 		For example, if your reference data was unzipped into,
 		/dev/apps/ref_data/1711_phenotype
