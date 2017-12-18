@@ -3,7 +3,7 @@ FROM openjdk:8-jdk
 RUN apt-get update \
  && apt-get install -y wget \
  && apt-get install -y git \
- && apt-get install -y maven
+ && apt-get install -y maven \
  && apt-get install -y python \
  && apt-get install -y gcc  \
  && apt-get install -y python-dev \
@@ -52,7 +52,7 @@ RUN wget https://storage.googleapis.com/pub/gsutil.tar.gz \
 #----now get the data and untar it
 
 WORKDIR data
-RUN /root/gsutils_dir/gsutil/gsutil -m -o GSUtil:parallel_composite_upload_threshold=150M cp https://storage.googleapis.com/seqr-reference-data/1711_phenotype.tar.gz data.local.tar.gz \
+RUN /root/gsutils_dir/gsutil/gsutil -m -o GSUtil:parallel_composite_upload_threshold=150M cp gs://seqr-reference-data/1711_phenotype.tar.gz data.local.tar.gz \
  && tar -xzf data.local.tar.gz \
  && rm data.local.tar.gz \
  && pwd \
@@ -98,7 +98,7 @@ env ALLOW_NO_GENE_IN_COMMON_MATCHES=false
 #                                           #
 #############################################
 env MONGODB_HOSTNAME=
-env MONGODB_PORT=
+env MONGODB_PORT=27017
 env MONGODB_USERNAME=
 env MONGODB_PASSWORD=
 env MONGODB_DATABASE=
@@ -120,7 +120,7 @@ env SERVER_PORT=9020
 # You can activate HTTPS by,                                            #
 #                                                                       #
 # 1. UNCOMMENT ALL the following                                        #
-# 2. SET variable USE_HTTPS	to be true                                  #
+# 2. SET variable USE_HTTPS	to be true                              #
 #                                                                       #
 # You can override sever port here                                      #
 #                                                                       #
@@ -149,12 +149,12 @@ EXPOSE $SERVER_PORT
 
 ###########################################################################
 # IN PRODUCTION, PLEASE MANAGE THESE FILES EXTREMELY CAREFULLY AS THEY	  #
-# WILL CONTAIN SENSITIVE ACCESS TO YOUR, AND OTHER NODES!		          #
-#                                           				              #
-# These files govern/contain,						                      #
-#	1. Tokens that gives OTHER NODES, access to matchbox (config.xml)     #
-#	2. Tokens that gives MATCHBOX, access to other nodes (nodes.json)     #
-#                                           				              #
+# WILL CONTAIN SENSITIVE ACCESS TO YOUR, AND OTHER NODES!                 #
+#                                           				  #
+# These files govern/contain,						  #
+#	1. Tokens that gives OTHER NODES, access to matchbox (config.xml) #
+#	2. Tokens that gives MATCHBOX, access to other nodes (nodes.json) #
+#                                           				  #
 ###########################################################################
 ADD config.xml $MATCHBOX_DEPLOYMENT_CONFIG_DIR
 ADD nodes.json $MATCHBOX_DEPLOYMENT_CONFIG_DIR
