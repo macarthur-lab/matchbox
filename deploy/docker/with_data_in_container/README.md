@@ -10,20 +10,6 @@ Please also remember to change any default passwords built into system before pr
 ## To use this docker build, you will need:
 
 1. Docker (https://www.docker.com/)
-
-2. Reference data for the Exomiser dependency fetched from:
-	```
-	Please note, this is a large file
-	
-	wget https://storage.googleapis.com/seqr-reference-data/1711_phenotype.tar.gz
-	
-	Once you download this file, please uncompress it, and remember the file path. For example,
-	/data/reference_data/
-	
-	Also make sure this directory is accessible to your docker daemon since it needs to be mounted
-	via the -v option at docker "run command"
-	```
-	
 	
 
 ## Build process:
@@ -77,24 +63,20 @@ Please also remember to change any default passwords built into system before pr
 	```
 	
 4. Assuming,
-
-	* You have already downloaded the necessary reference data for Exomiser (for example to /data/reference_data/) 
-	
-	* And reference data directory is accessible to Docker daemon, 
 	
 	* And you have a MongoDB instance running and you have added its credentials and details to the Dockerfile before the build step, 
 
 
 	For example, if you are using the default HTTP settings and didn't change any port numbers:
 	```
-		docker run -ti -p 9020:9020 -v "/data/reference_data/":/Exomiser/matchbox/data/data matchbox-docimg 
+		docker run -ti -p 9020:9020 matchbox-docimg 
 	``` 
 	
 	OR
 	
 	For example, if you uncommented the HTTPS settings and didn't change any HTTPS port numbers:
 	```
-		docker run -ti -p 8443:8443 -v "/reference_data/exomiser-cli/data":/Exomiser/matchbox/data/data matchbox-docimg 
+		docker run -ti -p 8443:8443 matchbox-docimg 
 	``` 
 
 
