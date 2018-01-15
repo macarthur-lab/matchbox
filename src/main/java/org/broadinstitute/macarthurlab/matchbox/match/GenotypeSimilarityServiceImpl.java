@@ -31,12 +31,18 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     //Returning 0.0 here. If there are phenotypes, ans only-phenotype matches are allowed, that score will be the only/final used; otherwise no match anyway
     private static final GenotypeSimilarityScore NO_GENOTYPE_MATCH = new GenotypeSimilarityScore(0.0, Collections.emptyList());
     
-    //Same gene matches, but variants not matching
-    //private static final GenotypeSimilarityScore GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS = new GenotypeSimilarityScore(0.9, Collections.emptyList());
-
     //Perfect genotype match at the variant level and gene level
     private static final GenotypeSimilarityScore PERFECT_GENOTYPE_MATCH = new GenotypeSimilarityScore(1.0d, Collections.emptyList());
-     
+    
+    //http://www.sequenceontology.org/browser/current_svn/term/SO:0001583
+    private static final String MISSENSE_VARIANT_SOCCODE = "SO:0001583";
+    
+    //http://www.sequenceontology.org/browser/current_svn/term/SO:0001819
+    private static final String SYNNONYMOUS_VARIANT_SOCCODE = "SO:0001819";
+    
+    //http://www.sequenceontology.org/browser/current_svn/term/SO:0002054
+    private static final String LOSS_OF_FUNCTION_VARIANT_SOCCODE = "SO:0002054";
+    
     private final Map<String, String> geneSymbolToEnsemblId;
     private final Map<String, String> ensemblIdToGeneSymbol;
     
@@ -83,7 +89,8 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
             return NO_GENOTYPE_MATCH;
         }
 
-        if (geneMatches.size() == queryPatient.getGenomicFeatures().size() && queryPatient.getGenomicFeatures().size() == nodePatient.getGenomicFeatures().size() ){
+        if (geneMatches.size() == queryPatient.getGenomicFeatures().size() && 
+        				queryPatient.getGenomicFeatures().size() == nodePatient.getGenomicFeatures().size() ){
         	boolean allVariantsSame=true;
         	for (GenomicFeatureMatch gfMatch : geneMatches){
         		if(!gfMatch.hasZygosityMatch() || 
@@ -97,10 +104,6 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         	if (allVariantsSame){
         		return PERFECT_GENOTYPE_MATCH;
         	}
-        	
-        	//DEPRACETD: should return a score here based on gnomad
-        	//genes are in common, but at the variant level, there is a mismatch
-        	//return GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS;
         }
 
         double inverseOfnormPopulationProbabilities = 1.0d / this.findNormalPopulationProbabilities(geneMatches);
@@ -162,7 +165,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return An average of allele frequencies between query and local 
      */
     private double findNormalPopulationProbabilities(List<GenomicFeatureMatch> geneMatches) {
-        List<Double> alleleFredAvgs = new ArrayList<>();
+    	List<Double> alleleFredAvgs = new ArrayList<>();
         for (GenomicFeatureMatch gFeatureMatch : geneMatches) {
             Double localMatchAlleleFreq = 0d;
             Variant variant = gFeatureMatch.getNodeFeature().getVariant();
@@ -174,11 +177,13 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
                         variant.getAlternateBases());
                 alleleFredAvgs.add(localMatchAlleleFreq);
             }
-            //if unpopulated or for some reason gnomad search on variant went wrong, search on gene)
+            //if variant information is un-populated or for some reason gnomad search on variant failed (localMatchAlleleFreq is -1 in that case), 
+            //search on only gene name or id(ENSG preferred)
             if (variant.isUnPopulated() || variant.isPartiallyPopulated() || localMatchAlleleFreq == -1) {
-                logger.info("skipping variant based gnomad search due to incomplete info, searching by gene name: {}", gFeatureMatch
-                        .getGeneIdentifier());
-                alleleFredAvgs.add(findAlleFreqInNormPop(gFeatureMatch.getGeneIdentifier()));
+                logger.info("skipping variant based gnomad search due to incomplete info, searching by gene name: {}", 
+                																			gFeatureMatch.getGeneIdentifier());
+                //using the local/node match patients type since external nodes do not always give this.	
+                alleleFredAvgs.add(findFreqInNormPop(gFeatureMatch.getGeneIdentifier(),gFeatureMatch.getNodeFeature().getType().get("id")));
             }
         }
 
@@ -223,76 +228,77 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     
     
     /**
-     * TODO: use ENSG here instead of HGNC due to ambigeouity of HGNC
-     * Given a gene ID (HGNC) return a metric based on allele frequencies of all variants present
-     * that represents the probability that variants in this gene may cause disease
-     * @param hgncGeneId
-     * @return a probability representing disease causality
+     * Given a gene ID (HGNC or ENSG) return a metric based constraint scores of that gene. It is assumed that
+     * we do not have variant level information, and only gene name/id.
+     * SO code information:
+     * http://www.sequenceontology.org/browser/current_svn/term/SO:0001583
+     * @param HGNC name or ENSG or ID (method differentiates automatically between the two)
+     * @param variant type as SO code
+     * @return an appropriate constraint score
      */
-    private double findAlleFreqInNormPop(String gene){
+    private double findFreqInNormPop(String gene, String typeAsSOCode){
         if(GenotypeSimilarityServiceImpl.geneAlleleFreqCache.containsKey(gene)){
     		double gInfo = GenotypeSimilarityServiceImpl.geneAlleleFreqCache.get(gene);
     		logger.info("using cache for gene (search by gene) allele info: {}",gInfo);
     		return  gInfo;
     	}
     	 StringBuilder payload = new StringBuilder();
-    	 //payload.append("{\"query\": \"query{gene(gene_name: \\\"");  
-    	 //payload.append(hgncGeneId);
-    	 //payload.append("\\\") {gene_name,exome_variants {allele_freq}}}\"}");
-
     	 if (gene.indexOf("ENSG")==0){
     		 payload.append("{\"query\": \"query{gene(gene_id: \\\"");
     	 }
     	 else{
     		 payload.append("{\"query\": \"query{gene(gene_name: \\\"");
     	 }
-    	   
-    	 //payload.append("PCSK9");
     	 payload.append(gene);
     	 payload.append("\\\")");
     	 payload.append("{exacv1_constraint {pLI,syn_z,mis_z}}");
     	 payload.append("}\"}");
-    	 
-    	 System.out.println(">>>>>>>>"+payload.toString());
-    	 logger.info("query used for getting allele frequency based on gene:  {}",payload.toString());
+    	 logger.info("query used for getting allele frequency based on gene:  {}, for type: {} : {}",gene, typeAsSOCode,payload.toString());
     	 String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org",payload.toString());
-    	 System.out.println(">>>>>>>>"+ reply);
-    	 double freq = parseGnomadGeneLookupReply(reply);
-    	 logger.info("normal population allele frequency based on gene ID {} is: {}",gene,freq);
-    	 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq);
-    	 return freq;
+    	 Map<String,Double> freq = parseGnomadGeneLookupReply(reply);
+    	 logger.info("normal population constraint scores based on gene ID {} are:{} , {} , {}",gene, freq.get("pLI"),freq.get("syn_z"),freq.get("mis_z"));
+    	 
+    	 if (typeAsSOCode.equals(MISSENSE_VARIANT_SOCCODE)){
+    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("mis_z"));
+    		 return freq.get("mis_z");
+    	 }
+    	 else if(typeAsSOCode.equals(SYNNONYMOUS_VARIANT_SOCCODE)){
+    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("syn_z"));
+    		 return freq.get("syn_z");
+    	 }
+    	 else if(typeAsSOCode.equals(LOSS_OF_FUNCTION_VARIANT_SOCCODE)){
+    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("pLI"));
+    		 return freq.get("pLI");
+    	 }
+    	 else{
+    		 //if no type is given OR other type is given, we are going to use missense, and value is not cached
+    		 return freq.get("mis_z");
+    	 }
     }
     
     
  
     /**
      * Parses a reply from Gnomad gene service
-     * @param reply A string reply in JSON format
-     * @return a average of allele frequencies across the gene of various variants
+     * @param reply from gnomad API: A string reply in JSON format
+     * @return a parsed map of constraint values from Gnomad API
      */
-    private double parseGnomadGeneLookupReply(String reply) {
-    	double avrgAlleleFreqForGene= 0d;
+    private Map<String,Double> parseGnomadGeneLookupReply(String reply) {
+    	Map<String,Double> constraintScore= new HashMap<>();
     	try{
 	    	JSONParser parser = new JSONParser();
 	    	JSONObject jsonObject = (JSONObject) parser.parse(reply);
 	    	JSONObject dataObj = (JSONObject)jsonObject.get("data");
 	    	JSONObject geneObj = (JSONObject)dataObj.get("gene");
-	    	JSONArray exomeVariantsObj = (JSONArray)geneObj.get("exome_variants");
-            double totalAlleleFreq = 0d;
-            for (int i = 0; i < exomeVariantsObj.size(); i++) {
-                JSONObject exomeVarObj = (JSONObject) exomeVariantsObj.get(i);
-                try {
-                    totalAlleleFreq += ((Double) exomeVarObj.get("allele_freq"));
-                } catch (Exception e) {
-                    e.getMessage();
-                }
-            }
-            avrgAlleleFreqForGene = totalAlleleFreq / exomeVariantsObj.size();
+	    	JSONObject exomeVariantsObj = (JSONObject)geneObj.get("exacv1_constraint");
+            constraintScore.put("pLI", (Double)exomeVariantsObj.get("pLI"));
+            constraintScore.put("syn_z", (Double)exomeVariantsObj.get("syn_z"));
+            constraintScore.put("mis_z", (Double)exomeVariantsObj.get("mis_z"));
         }
     	catch(Exception e){
     		logger.error("error parsing gnomad gene based query reply: {} for reply: {}", e.getMessage(),reply);
     	}
-    	return  avrgAlleleFreqForGene; 
+    	return constraintScore;
     }
     
     
