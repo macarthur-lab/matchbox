@@ -30,7 +30,7 @@ public class GenotypeSimilarityServiceImplTest {
                 .map(GenotypeSimilarityScore::getScore)
                 .collect(toList());
 
-        List<Double> expected = Arrays.asList(0.6, 0.6);
+        List<Double> expected = Arrays.asList(0.0, 0.0);
         assertThat(matches, equalTo(expected));
     }
 
@@ -46,7 +46,7 @@ public class GenotypeSimilarityServiceImplTest {
                 .map(nodePatient -> genotypeSimilarityService.scoreGenotypes(queryPatientWithoutGenomicFeatures, nodePatient))
                 .map(GenotypeSimilarityScore::getScore)
                 .collect(toList());
-        List<Double> expected = Arrays.asList(0.6, 0.6);
+        List<Double> expected = Arrays.asList(0.0, 0.0);
         assertThat(matches, equalTo(expected));
     }
 
@@ -62,7 +62,7 @@ public class GenotypeSimilarityServiceImplTest {
                 .map(nodePatient -> genotypeSimilarityService.scoreGenotypes(queryPatientWithoutGenomicFeatures, nodePatient))
                 .map(GenotypeSimilarityScore::getScore)
                 .collect(toList());
-        List<Double> expected = Arrays.asList(0.6, 0.6);
+        List<Double> expected = Arrays.asList(0.0, 0.0);
         assertThat(matches, equalTo(expected));
     }
 

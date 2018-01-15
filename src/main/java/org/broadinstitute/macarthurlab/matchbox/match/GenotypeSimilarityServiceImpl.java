@@ -28,16 +28,15 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
 
     private static final Logger logger = LoggerFactory.getLogger(GenotypeSimilarityServiceImpl.class);
     
-    //Returning 0.6 so as not to overly penalize these - maybe the phenotype score is high which could lead to a good match.
-    private static final GenotypeSimilarityScore NO_GENOTYPE_MATCH = new GenotypeSimilarityScore(0.6, Collections.emptyList());
+    //Returning 0.0 here. If there are phenotypes, ans only-phenotype matches are allowed, that score will be the only/final used; otherwise no match anyway
+    private static final GenotypeSimilarityScore NO_GENOTYPE_MATCH = new GenotypeSimilarityScore(0.0, Collections.emptyList());
     
     //Same gene matches, but variants not matching
-    private static final GenotypeSimilarityScore GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS = new GenotypeSimilarityScore(0.9, Collections.emptyList());
+    //private static final GenotypeSimilarityScore GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS = new GenotypeSimilarityScore(0.9, Collections.emptyList());
 
     //Perfect genotype match at the variant level and gene level
     private static final GenotypeSimilarityScore PERFECT_GENOTYPE_MATCH = new GenotypeSimilarityScore(1.0d, Collections.emptyList());
- 
-    
+     
     private final Map<String, String> geneSymbolToEnsemblId;
     private final Map<String, String> ensemblIdToGeneSymbol;
     
@@ -98,8 +97,10 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         	if (allVariantsSame){
         		return PERFECT_GENOTYPE_MATCH;
         	}
+        	
+        	//DEPRACETD: should return a score here based on gnomad
         	//genes are in common, but at the variant level, there is a mismatch
-        	return GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS;
+        	//return GENOTYPE_MATCH_WITH_DISSIMILAR_VARIANTS;
         }
 
         double inverseOfnormPopulationProbabilities = 1.0d / this.findNormalPopulationProbabilities(geneMatches);
@@ -161,8 +162,6 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
      * @return An average of allele frequencies between query and local 
      */
     private double findNormalPopulationProbabilities(List<GenomicFeatureMatch> geneMatches) {
-        //TODO: queryAlleleFreq isn't used.
-        Double queryAlleleFreq = 0d;
         List<Double> alleleFredAvgs = new ArrayList<>();
         for (GenomicFeatureMatch gFeatureMatch : geneMatches) {
             Double localMatchAlleleFreq = 0d;
@@ -175,9 +174,8 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
                         variant.getAlternateBases());
                 alleleFredAvgs.add(localMatchAlleleFreq);
             }
-            //TODO: sort this logic out should be logical OR '||', not bitwise or '|' (https://www.securecoding.cert.org/confluence/display/c/EXP46-C.+Do+not+use+a+bitwise+operator+with+a+Boolean-like+operand)
             //if unpopulated or for some reason gnomad search on variant went wrong, search on gene)
-            if (variant.isUnPopulated() | variant.isPartiallyPopulated() | localMatchAlleleFreq == -1 | queryAlleleFreq == -1) {
+            if (variant.isUnPopulated() || variant.isPartiallyPopulated() || localMatchAlleleFreq == -1) {
                 logger.info("skipping variant based gnomad search due to incomplete info, searching by gene name: {}", gFeatureMatch
                         .getGeneIdentifier());
                 alleleFredAvgs.add(findAlleFreqInNormPop(gFeatureMatch.getGeneIdentifier()));
@@ -189,7 +187,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     
         
     /**
-     * Find the allele frequency of this variant
+     * Find the allele frequency of this variant, when complete variant information are given
      * @param variant
      * @return An allele frequency of this variant in a normal population
      */
@@ -212,7 +210,6 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	payload.append(altBase);
     	payload.append("\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}");
     	logger.info("normal population allele frequency variant query is: {}", payload.toString());
-    	//String payload = "{\"query\": \"query{variant(id:\\\"1-55516888-G-GA\\\", source: \\\"exome\\\"){allele_count,allele_num}}\"}";
     	String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org", payload.toString());
     	Map<String,String> counts = this.parseGnomadVariantReply(reply);
     	if (counts.size()==0){
@@ -226,25 +223,43 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     
     
     /**
+     * TODO: use ENSG here instead of HGNC due to ambigeouity of HGNC
      * Given a gene ID (HGNC) return a metric based on allele frequencies of all variants present
      * that represents the probability that variants in this gene may cause disease
      * @param hgncGeneId
      * @return a probability representing disease causality
      */
-    private double findAlleFreqInNormPop(String hgncGeneId){
-        if(GenotypeSimilarityServiceImpl.geneAlleleFreqCache.containsKey(hgncGeneId)){
-    		double gInfo = GenotypeSimilarityServiceImpl.geneAlleleFreqCache.get(hgncGeneId);
+    private double findAlleFreqInNormPop(String gene){
+        if(GenotypeSimilarityServiceImpl.geneAlleleFreqCache.containsKey(gene)){
+    		double gInfo = GenotypeSimilarityServiceImpl.geneAlleleFreqCache.get(gene);
     		logger.info("using cache for gene (search by gene) allele info: {}",gInfo);
     		return  gInfo;
     	}
     	 StringBuilder payload = new StringBuilder();
-    	 payload.append("{\"query\": \"query{gene(gene_name: \\\"");  
-    	 payload.append(hgncGeneId);
-    	 payload.append("\\\") {gene_name,exome_variants {allele_freq}}}\"}");
+    	 //payload.append("{\"query\": \"query{gene(gene_name: \\\"");  
+    	 //payload.append(hgncGeneId);
+    	 //payload.append("\\\") {gene_name,exome_variants {allele_freq}}}\"}");
+
+    	 if (gene.indexOf("ENSG")==0){
+    		 payload.append("{\"query\": \"query{gene(gene_id: \\\"");
+    	 }
+    	 else{
+    		 payload.append("{\"query\": \"query{gene(gene_name: \\\"");
+    	 }
+    	   
+    	 //payload.append("PCSK9");
+    	 payload.append(gene);
+    	 payload.append("\\\")");
+    	 payload.append("{exacv1_constraint {pLI,syn_z,mis_z}}");
+    	 payload.append("}\"}");
+    	 
+    	 System.out.println(">>>>>>>>"+payload.toString());
+    	 logger.info("query used for getting allele frequency based on gene:  {}",payload.toString());
     	 String reply = this.httpCommunication.postToNonAuthenticatedHttpUrl("http://gnomad-api.broadinstitute.org",payload.toString());
+    	 System.out.println(">>>>>>>>"+ reply);
     	 double freq = parseGnomadGeneLookupReply(reply);
-    	 logger.info("normal population allele frequency based on gene ID {} is: {}",hgncGeneId,freq);
-    	 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(hgncGeneId, freq);
+    	 logger.info("normal population allele frequency based on gene ID {} is: {}",gene,freq);
+    	 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq);
     	 return freq;
     }
     
