@@ -329,17 +329,94 @@ public class Patient{
 		asJson.append("}");
 		return asJson.toString();
 	}
-	
-	/**
-	private String getDisclaimer(){
-		StringBuilder disclaimer=new StringBuilder();
-		disclaimer.append("The data in Matchmaker Exchange is provided for research use only. ");
-		disclaimer.append("Broad Institute provides the data in Matchmaker Exchange 'as is'. Broad Institute makes no representations or warranties of any kind concerning the data, express or implied, including without limitation, warranties of merchantability, fitness for a particular purpose, noninfringement, or the absence of latent or other defects, whether or not discoverable. Broad will not be liable to the user or any third parties claiming through user, for any loss or damage suffered through the use of Matchmaker Exchange. In no event shall Broad Institute or its respective directors, officers, employees, affiliated investigators and affiliates be liable for indirect, special, incidental or consequential damages or injury to property and lost profits, regardless of whether the foregoing have been advised, shall have other reason to know, or in fact shall know of the possibility of the foregoing. ");
-		disclaimer.append("Prior to using Broad Institute data in a publication, the user will contact the owner of the matching dataset to assess the integrity of the match. If the match is validated, the user will offer appropriate recognition of the data owner's contribution, in accordance with academic standards and custom. Proper acknowledgment shall be made for the contributions of a party to such results being published or otherwise disclosed, which may include co-authorship. ");
-		disclaimer.append("If Broad Institute contributes to the results being published, the authors must acknowledge Broad Institute using the following wording: 'This study makes use of data shared through the Broad Institute matchbox repository. Funding for the Broad Institute was provided in part by National Institutes of Health grant UM1 HG008900 to Daniel MacArthur and Heidi Rehm.' ");
-		disclaimer.append("User will not attempt to use the data or Matchmaker Exchange to establish the individual identities of any of the subjects from whom the data were obtained. This applies to matches made within Broad Institute or with any other database included in the Matchmaker Exchange. ");
-		return disclaimer.toString();
+
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((ageOfOnset == null) ? 0 : ageOfOnset.hashCode());
+		result = prime * result + ((contact == null) ? 0 : contact.hashCode());
+		result = prime * result + ((disorders == null) ? 0 : disorders.hashCode());
+		result = prime * result + ((features == null) ? 0 : features.hashCode());
+		result = prime * result + ((genomicFeatures == null) ? 0 : genomicFeatures.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((inheritanceMode == null) ? 0 : inheritanceMode.hashCode());
+		result = prime * result + ((label == null) ? 0 : label.hashCode());
+		result = prime * result + ((sex == null) ? 0 : sex.hashCode());
+		result = prime * result + ((species == null) ? 0 : species.hashCode());
+		return result;
 	}
-	*/
+
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Patient other = (Patient) obj;
+		if (ageOfOnset == null) {
+			if (other.ageOfOnset != null)
+				return false;
+		} else if (!ageOfOnset.equals(other.ageOfOnset))
+			return false;
+		if (contact == null) {
+			if (other.contact != null)
+				return false;
+		} else if (!contact.equals(other.contact))
+			return false;
+		if (disorders == null) {
+			if (other.disorders != null)
+				return false;
+		} else if (!disorders.equals(other.disorders))
+			return false;
+		if (features == null) {
+			if (other.features != null)
+				return false;
+		} else if (!features.equals(other.features))
+			return false;
+		if (genomicFeatures == null) {
+			if (other.genomicFeatures != null)
+				return false;
+		} else if (!genomicFeatures.equals(other.genomicFeatures))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (inheritanceMode == null) {
+			if (other.inheritanceMode != null)
+				return false;
+		} else if (!inheritanceMode.equals(other.inheritanceMode))
+			return false;
+		if (label == null) {
+			if (other.label != null)
+				return false;
+		} else if (!label.equals(other.label))
+			return false;
+		if (sex == null) {
+			if (other.sex != null)
+				return false;
+		} else if (!sex.equals(other.sex))
+			return false;
+		if (species == null) {
+			if (other.species != null)
+				return false;
+		} else if (!species.equals(other.species))
+			return false;
+		return true;
+	}
 	
 }
