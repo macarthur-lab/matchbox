@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -31,7 +30,6 @@ public class MatchServiceImpl implements MatchService {
     private boolean ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES;
     
     private static double PHENOTYPE_MATCH_THRESHOLD=0.7;
-    private static double ZERO_PHENOTYPE_SCORE_FOR_GENE_MATCH_SCORE_PENALTY=0.01;
 
     private final GenotypeSimilarityService genotypeSimilarityService;
     private final PhenotypeSimilarityService phenotypeSimilarityService;
