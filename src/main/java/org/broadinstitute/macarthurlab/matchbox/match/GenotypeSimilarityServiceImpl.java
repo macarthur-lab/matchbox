@@ -84,7 +84,6 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         }
         //here is list of gene-matches the query and this specific node patient had in common
         List<GenomicFeatureMatch> geneMatches = findGenomicFeatureMatches(queryPatient, nodePatient);
-        
         if (geneMatches.isEmpty()){
             return NO_GENOTYPE_MATCH;
         }
@@ -243,8 +242,8 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     
     
     /**
-     * Given a gene ID (HGNC or ENSG) return a metric based constraint scores of that gene. It is assumed that
-     * we do not have variant level information, and only gene name/id.
+     * Given a gene ID (HGNC or ENSG) return a metric based constraint scores of that gene. 
+     * If no constraint score are found: 1.0 is returned so it doesn't affect any other calculations downstream TODO check this!
      * SO code information:
      * http://www.sequenceontology.org/browser/current_svn/term/SO:0001583
      * @param HGNC name or ENSG or ID (method differentiates automatically between the two)
@@ -273,28 +272,32 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	 Map<String,Double> freq = parseGnomadGeneLookupReply(reply);
     	 logger.info("normal population constraint scores based on gene ID {} are:{} , {} , {}",gene, freq.get("pLI"),freq.get("syn_z"),freq.get("mis_z"));
     	 
-    	 if (typeAsSOCode.equals(MISSENSE_VARIANT_SOCCODE)){
-    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("mis_z"));
-    		 return freq.get("mis_z");
+    	 if (freq.size()>0){
+	    	 if (typeAsSOCode.equals(MISSENSE_VARIANT_SOCCODE)){
+	    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("mis_z"));
+	    		 return freq.get("mis_z");
+	    	 }
+	    	 else if(typeAsSOCode.equals(SYNNONYMOUS_VARIANT_SOCCODE)){
+	    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("syn_z"));
+	    		 return freq.get("syn_z");
+	    	 }
+	    	 else if(typeAsSOCode.equals(LOSS_OF_FUNCTION_VARIANT_SOCCODE)){
+	    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("pLI"));
+	    		 return freq.get("pLI");
+	    	 }
+	    	 else{
+	    		 //if no type is given OR other type is given, we are going to use missense, and value is not cached
+	    		 return freq.get("mis_z");
+	    	 }
     	 }
-    	 else if(typeAsSOCode.equals(SYNNONYMOUS_VARIANT_SOCCODE)){
-    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("syn_z"));
-    		 return freq.get("syn_z");
-    	 }
-    	 else if(typeAsSOCode.equals(LOSS_OF_FUNCTION_VARIANT_SOCCODE)){
-    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("pLI"));
-    		 return freq.get("pLI");
-    	 }
-    	 else{
-    		 //if no type is given OR other type is given, we are going to use missense, and value is not cached
-    		 return freq.get("mis_z");
-    	 }
+    	 logger.info("no constrain information was found, so simply not using it via equaling it to '1.0d'");
+    	 return 1.0d; //sentinel placeholder when information is missing in gnomad
     }
     
     
  
     /**
-     * Parses a reply from Gnomad gene service
+     * Parses a reply from Gnomad gene service and returns empty map if no values are returned from Gnomad API
      * @param reply from gnomad API: A string reply in JSON format
      * @return a parsed map of constraint values from Gnomad API
      */
@@ -306,9 +309,11 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
 	    	JSONObject dataObj = (JSONObject)jsonObject.get("data");
 	    	JSONObject geneObj = (JSONObject)dataObj.get("gene");
 	    	JSONObject exomeVariantsObj = (JSONObject)geneObj.get("exacv1_constraint");
-            constraintScore.put("pLI", (Double)exomeVariantsObj.get("pLI"));
-            constraintScore.put("syn_z", (Double)exomeVariantsObj.get("syn_z"));
-            constraintScore.put("mis_z", (Double)exomeVariantsObj.get("mis_z"));
+	    	if (exomeVariantsObj != null){
+	            constraintScore.put("pLI", (Double)exomeVariantsObj.get("pLI"));
+	            constraintScore.put("syn_z", (Double)exomeVariantsObj.get("syn_z"));
+	            constraintScore.put("mis_z", (Double)exomeVariantsObj.get("mis_z"));
+	    	}
         }
     	catch(Exception e){
     		logger.error("error parsing gnomad gene based query reply: {} for reply: {}", e.getMessage(),reply);
