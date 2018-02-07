@@ -18,6 +18,6 @@ Please also remember to change any default passwords built into system before pr
 
 1. [Build via having the reference data mounted into the container](with_data_mounted_to_container/README.md)
 
-2. [Rely on Docker to get the reference data into the container](with_data_in_container/README.md)
+2. [Rely on Docker to get the reference data into the container (Easiest)](with_data_in_container/README.md)
 
  
