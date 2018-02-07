@@ -20,13 +20,6 @@ MME has gained international support via the GA4GH and currently has many member
 
 A significant amount of development is typically required to join the MME; this has a detrimental effect on network growth. To address this and facilitate growth, we developed <i>matchbox</i> to be completely portable and easily usable in any center wishing to join the MME.
 
-## To use <i>matchbox</i>, you will need:
-
-* Java 1.8
-
-* Maven 3.1 (available from https://maven.apache.org/)   
-
-* An authenticated MongoDB instance (available from https://www.mongodb.org/). This application requires a password protected MongoDB instance for tests and build to succeed (you can build without tests and MongoDB and configure MongoDB later if required as described below).
 
 ## Build:
 
