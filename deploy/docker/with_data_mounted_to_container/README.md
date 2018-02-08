@@ -23,8 +23,9 @@ Please also remember to change any default passwords built into system before pr
 	Also make sure this directory is accessible to your docker daemon since it needs to be mounted
 	via the -v option at docker "run command"
 	```
-	
-	
+
+3. An authenticated (ideally) MongoDB instance (https://www.mongodb.com/)
+
 
 ## Build process:
 
