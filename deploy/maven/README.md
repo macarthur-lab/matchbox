@@ -6,6 +6,8 @@
 
 * Maven 3.1 (available from https://maven.apache.org/)
 
+* An authenticated (ideally) MongoDB instance (https://www.mongodb.com/)
+
 ###  Process:
 
 <i>matchbox</i> relies on a modified version of Exomiser (https://github.com/exomiser/Exomiser), its reference data and libraries for the phenotype matching algorithm. Given that these libraries are currently not in a maven repository, we obtain this dependency via first building Exomiser and then followed by <i>matchbox</i>.  By building Exomiser first, we put its jars in the local maven repository, where the <i>matchbox</i> build is able to see and use them.

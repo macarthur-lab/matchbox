@@ -11,6 +11,8 @@ Please also remember to change any default passwords built into system before pr
 
 1. Docker (https://www.docker.com/)
 
+2. An authenticated (ideally) MongoDB instance (https://www.mongodb.com/)
+
 
 ## Build:
 
