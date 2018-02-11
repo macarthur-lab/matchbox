@@ -110,7 +110,6 @@ env MONGODB_DATABASE=
 # be overwritten if you chose HTTPS below   #
 #                                           #
 #############################################
-env USE_HTTPS=false
 env SERVER_PORT=9020
 
 
@@ -125,7 +124,7 @@ env SERVER_PORT=9020
 # You can override sever port here                                      #
 #                                                                       #
 #########################################################################
-#env USE_HTTPS=true
+env USE_HTTPS=false
 #env SERVER_PORT=8443
 #env HTTPS_SSL_KEY_STORE=matchbox_keystore
 #env HTTPS_SSL_KEY_STORE_PASSWORD=changeit
