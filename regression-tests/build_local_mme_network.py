@@ -1,0 +1,129 @@
+'''
+ Builds a local pseudo MME network using 2 matchbox systems
+'''
+
+import subprocess
+import sys
+import datetime
+import time
+import os
+
+__all__ = []
+__version__ = 0.1
+
+
+def main(argv=None):
+    """
+    Starts application
+  """
+    num_instances=2
+    root_path = os.path.dirname(os.path.realpath(__file__))
+    timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d')
+    local_ip_address = find_local_ip()
+    for instance,directories in buid_dir_struct(root_path,timestamp,num_instances).iteritems():
+        start_instance(local_ip_address,instance,directories)
+        os.chdir(root_path)
+     
+
+
+def start_instance(local_ip_address,instance,directories):
+    '''
+    Starts a mongodb instance and its matchbox instance
+    '''
+    print 'working on:',directories['prefix'],directories
+    err=None
+    os.chdir(directories['matchbox_dir'])
+    if not os.path.exists('matchbox'):
+        p = subprocess.Popen(['git','clone','-b','dev','https://github.com/macarthur-lab/matchbox'],stdout=subprocess.PIPE)
+        (output, err) = p.communicate()
+    else:
+        print '----WARNING:','that repo already exists, not cloning a new copy:',directories['matchbox_dir']
+    if err is None:
+            mongo_port = start_dockerized_mongodb(instance,directories)
+            start_dockerized_matchbox(mongo_port,instance,directories)
+
+    return
+
+
+def start_dockerized_matchbox(mongo_port,instance,directories):
+    '''
+    Starts a single HTTPS matchbox instance
+    Args:
+        mongo_port: the port of the MongoDB instance slated for this matchbox instance
+        instance: int representing this instance
+        dictories: information on path and prefixes for this instance
+    '''
+    with open('matchbox/deploy/docker/with_data_in_container/Dockerfile','r') as di:
+        with open ('matchbox/deploy/docker/with_data_in_container/Dockerfile.net','w') as do:
+            for line in di:
+                print line
+        do.close();
+    di.close();
+
+
+
+
+def start_dockerized_mongodb(instance,directories):
+    '''
+    Starts a mongodb instance
+    Args:
+        instance: an int representing the instance number
+        directories: a dictionary of various related dirs to this instance
+    Returns:
+        The mongo port this instance runs on
+    '''
+    if instance > 9:
+        print "----WARNING:","skipping instance (too high!):",instance
+        return 
+    mongo_port='2701'+str(instance)
+    mongo_prefix=directories['prefix']+'_mongo'
+    cmd = ['docker','run','--name',mongo_prefix,'-d','-p',mongo_port+':27017', '-v',directories['mongo_data_dir'].split('/')[-1]+':/data/db','mongo']
+    p = subprocess.Popen(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (output, err) = p.communicate()
+    if not err:
+        return mongo_port
+    if "Conflict" in err and mongo_prefix in err:
+        print "----WARNING:","skipping creating new mongo container, looks like one is still up:",mongo_prefix
+        return mongo_port
+    return None
+
+
+def buid_dir_struct(root_path,timestamp,num_instances):
+    '''
+    Build a directory structure for network
+     -for mongodb data directory
+   -for matchbox instance 
+    '''
+    directories={}
+    for i in xrange(0,num_instances):
+        prefix = 'matchbox_' + str(i) 
+        matchbox_dir= timestamp + '/' + prefix
+        mongo_data_dir= matchbox_dir + '/mongo_data_dir_'+prefix 
+        directories[i]={'matchbox_dir':matchbox_dir, 'mongo_data_dir':mongo_data_dir,"prefix":prefix,"root_path":root_path}
+        if not os.path.exists(matchbox_dir):
+            os.makedirs(matchbox_dir)
+        else:
+            print "----WARNING:",matchbox_dir,"exists, skipping directory creation" 
+        if not os.path.exists(mongo_data_dir):
+            os.makedirs(mongo_data_dir)
+        else:
+            print "----WARNING:",mongo_data_dir,"exists, skipping directory creation" 
+    return directories
+
+
+def find_local_ip():
+    '''
+    Find the IP address of the loca machine
+    '''
+    p = subprocess.Popen(['ifconfig'],stdout=subprocess.PIPE)
+    (output, err) = p.communicate()
+    for line in output.split('\n'):
+        if 'inet' in line and 'broadcast' in line:
+            return line.split(' ')[1]
+
+
+
+
+  
+if __name__ == "__main__":
+    sys.exit(main())
