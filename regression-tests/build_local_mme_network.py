@@ -40,12 +40,12 @@ def start_instance(local_ip_address,instance,directories):
         print '----WARNING:','that repo already exists, not cloning a new copy:',directories['matchbox_dir']
     if err is None:
             mongo_port = start_dockerized_mongodb(instance,directories)
-            start_dockerized_matchbox(mongo_port,instance,directories)
+            start_dockerized_matchbox(local_ip_address,mongo_port,instance,directories)
 
     return
 
 
-def start_dockerized_matchbox(mongo_port,instance,directories):
+def start_dockerized_matchbox(local_ip_address,mongo_port,instance,directories):
     '''
     Starts a single HTTPS matchbox instance
     Args:
@@ -54,11 +54,33 @@ def start_dockerized_matchbox(mongo_port,instance,directories):
         dictories: information on path and prefixes for this instance
     '''
     with open('matchbox/deploy/docker/with_data_in_container/Dockerfile','r') as di:
-        with open ('matchbox/deploy/docker/with_data_in_container/Dockerfile.net','w') as do:
-            for line in di:
-                print line
-        do.close();
-    di.close();
+        dockerfile_lines = di.readlines()
+    di.close()
+    with open ('matchbox/deploy/docker/with_data_in_container/Dockerfile.net','w') as do:
+        l=0
+        while l<len(dockerfile_lines):
+            line=dockerfile_lines[l]
+            if "env MONGODB_HOSTNAME" in line:
+                do.write(line.strip()+local_ip_address)
+            elif "MONGODB_DATABASE" in line:
+                do.write(line.strip()+"mme_primary")
+            elif "env MONGODB_PORT" in line:
+                do.write(line.strip().split("=")[0]+'='+mongo_port)
+            elif "env USE_HTTPS" in line:
+                do.write(line.strip().split("=")[0]+'='+'true\n')
+                l+=1
+                while "keypass $HTTPS_SSL_KEY_PASSWORD" not in dockerfile_lines[l]:
+                    do.write(dockerfile_lines[l].replace("#",""))
+                    l+=1
+                do.write(dockerfile_lines[l].replace("#",""))
+            else:
+                do.write(line.strip())
+            do.write('\n')
+            l+=1
+    do.close()
+
+        
+
 
 
 
