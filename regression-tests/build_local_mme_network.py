@@ -20,10 +20,25 @@ def main(argv=None):
     root_path = os.path.dirname(os.path.realpath(__file__))
     timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d')
     local_ip_address = find_local_ip()
+    '''
+    setup the HTTPS MME nodes that mimic a MME network
+    '''
     for instance,directories in buid_dir_struct(root_path,timestamp,num_instances).iteritems():
         start_instance(local_ip_address,instance,directories)
         os.chdir(root_path)
+    '''
+    start a local HTTP instance (HTTP is easier to curl, and good enough for test) 
+    and point to HTTPS instances we just created
+    '''
+    start_local_master_node()
      
+
+def start_local_master_node():
+    '''
+    Master node to act as our local gateway to the MME network that was created
+    '''
+    pass
+
 
 
 def start_instance(local_ip_address,instance,directories):
@@ -41,7 +56,6 @@ def start_instance(local_ip_address,instance,directories):
     if err is None:
             mongo_port = start_dockerized_mongodb(instance,directories)
             start_dockerized_matchbox(local_ip_address,mongo_port,instance,directories)
-
     return
 
 
@@ -53,10 +67,13 @@ def start_dockerized_matchbox(local_ip_address,mongo_port,instance,directories):
         instance: int representing this instance
         dictories: information on path and prefixes for this instance
     '''
-    with open('matchbox/deploy/docker/with_data_in_container/Dockerfile','r') as di:
+    instance_port = 8443 + instance
+    existing_dockerfile = 'matchbox/deploy/docker/with_data_in_container/Dockerfile'
+    updated_dockerfile = 'matchbox/deploy/docker/with_data_in_container/Dockerfile.net'
+    with open(existing_dockerfile,'r') as di:
         dockerfile_lines = di.readlines()
     di.close()
-    with open ('matchbox/deploy/docker/with_data_in_container/Dockerfile.net','w') as do:
+    with open (updated_dockerfile,'w') as do:
         l=0
         while l<len(dockerfile_lines):
             line=dockerfile_lines[l]
@@ -70,7 +87,10 @@ def start_dockerized_matchbox(local_ip_address,mongo_port,instance,directories):
                 do.write(line.strip().split("=")[0]+'='+'true\n')
                 l+=1
                 while "keypass $HTTPS_SSL_KEY_PASSWORD" not in dockerfile_lines[l]:
-                    do.write(dockerfile_lines[l].replace("#",""))
+                    if "env SERVER_PORT" in dockerfile_lines[l]:
+                        do.write(dockerfile_lines[l].replace("#","").split('=')[0]+'='+str(instance_port)+'\n')
+                    else:
+                        do.write(dockerfile_lines[l].replace("#",""))
                     l+=1
                 do.write(dockerfile_lines[l].replace("#",""))
             else:
@@ -78,6 +98,12 @@ def start_dockerized_matchbox(local_ip_address,mongo_port,instance,directories):
             do.write('\n')
             l+=1
     do.close()
+    image_name = directories['prefix'] + '_img' 
+    os.chdir('matchbox/deploy/docker/with_data_in_container/')
+    p = subprocess.Popen(['docker','build','-t',image_name,'-f',updated_dockerfile.split('/')[-1],'.'],stdout=subprocess.PIPE)
+    (output, err) = p.communicate()
+    print output,err
+    return
 
         
 
