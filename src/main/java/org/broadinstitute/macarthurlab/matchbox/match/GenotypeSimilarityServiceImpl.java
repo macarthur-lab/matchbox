@@ -104,13 +104,19 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
         		return PERFECT_GENOTYPE_MATCH;
         	}
         }
-        double gnomadFrequency=this.findNormalPopulationProbabilitiesFromGnomad(geneMatches);
-        //we are getting the inverse here to get across the inverse relationship to the strength of the match
-        double inverseOfnormPopulationProbabilities = Math.pow(gnomadFrequency,-1);
+
+        /**
+         * when full variant information is known, we get the inverse of the allele frequency 
+         * of that variant. If only the gene name is given, we pick the appropriate (using SOcode)
+         * constraint Z score of the gene given (since we cannot say which varaint AF to use)
+         */
+        double gnomadMetric=this.findNormalPopulationProbabilitiesFromGnomad(geneMatches);
         
-        logger.info("base genotype score (prescaled): {})", inverseOfnormPopulationProbabilities );
-        //use sigmoid/logistic to scale between 0,1
-        double scaled = (1/( 1 + Math.pow(Math.E,(-1*inverseOfnormPopulationProbabilities))));
+        logger.info("base genotype score (prescaled): {})", gnomadMetric );
+        /**
+         * use sigmoid/logistic to scale between 0,1
+         */
+        double scaled = (1/( 1 + Math.pow(Math.E,(-1*gnomadMetric))));
         
         logger.info("final genotype score is: {}", scaled);
         return new GenotypeSimilarityScore(scaled, geneMatches);
@@ -180,7 +186,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
                         variant.getStart(),
                         variant.getReferenceBases(),
                         variant.getAlternateBases());
-                alleleFreqs.add(localMatchAlleleFreq * constraintScore);
+                alleleFreqs.add(Math.pow(localMatchAlleleFreq,-1));
             }
             //if variant information is un-populated or for some reason gnomad search on variant failed (localMatchAlleleFreq is -1 in that case), 
             //search on only gene name or id(ENSG preferred)
@@ -272,7 +278,7 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
     	 Map<String,Double> freq = parseGnomadGeneLookupReply(reply);
     	 logger.info("normal population constraint scores based on gene ID {} are:{} , {} , {}",gene, freq.get("pLI"),freq.get("syn_z"),freq.get("mis_z"));
     	 
-    	 if (freq.size()>0){
+    	 if (freq.size()>0 && typeAsSOCode != null){
 	    	 if (typeAsSOCode.equals(MISSENSE_VARIANT_SOCCODE)){
 	    		 GenotypeSimilarityServiceImpl.geneAlleleFreqCache.put(gene, freq.get("mis_z"));
 	    		 return freq.get("mis_z");
@@ -289,6 +295,9 @@ public class GenotypeSimilarityServiceImpl implements GenotypeSimilarityService 
 	    		 //if no type is given OR other type is given, we are going to use missense, and value is not cached
 	    		 return freq.get("mis_z");
 	    	 }
+    	 }
+    	 if (freq.containsKey("mis_z") && typeAsSOCode == null){
+    		 return freq.get("mis_z");
     	 }
     	 logger.info("no constrain information was found, so simply not using it via equaling it to '1.0d'");
     	 return 1.0d; //sentinel placeholder when information is missing in gnomad

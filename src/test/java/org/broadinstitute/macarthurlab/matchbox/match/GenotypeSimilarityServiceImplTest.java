@@ -137,6 +137,28 @@ public class GenotypeSimilarityServiceImplTest {
     }
 
     @Test
+    public void testGeneSymbolWithNoVariantInfoMatchOnly() {
+        long unintialisedZygosityValue = -1L;
+        Variant variantOne = new Variant();
+        Map<String, String> soTerm = new HashMap<>();
+        GenomicFeature geneOne = new GenomicFeature(Collections.singletonMap("id", "ENSG00000069667"), variantOne, unintialisedZygosityValue, soTerm);
+
+        Patient patient1 = new Patient("patient1", "patient1", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneOne));
+        Patient patient2 = new Patient("patient2", "patient2", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneOne));
+
+        Map<String, String> geneIdentifiers = new HashMap<>();
+        geneIdentifiers.put("GENE1", "ENSG00000069667");
+
+        GenotypeSimilarityService genotypeSimilarityService = new GenotypeSimilarityServiceImpl(geneIdentifiers);
+        genotypeSimilarityService.setHttpCommunication(new Communication());
+        
+        GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
+
+        DecimalFormat df = new DecimalFormat("#.##");
+        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.94"));
+    }
+    
+    @Test
     public void testFindGenomicFeatureMatches() {
         List<Patient> testPatients = TestData.getTwoTestPatients();
         Patient testP1 = testPatients.get(0);
