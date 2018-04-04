@@ -334,6 +334,7 @@ You can use the top-level config/nodes.json file to give external nodes access t
 }
 ```
 
+
 The "nodes" object here is a list of such nodes. You can add any number of nodes ({..}) to this list and followed by a server restart for <i>matchbox</i> to start giving them access.
 
 
