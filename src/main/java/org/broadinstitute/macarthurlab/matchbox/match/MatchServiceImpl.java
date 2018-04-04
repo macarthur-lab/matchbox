@@ -79,19 +79,28 @@ public class MatchServiceImpl implements MatchService {
             score.put("_phenotypeScore", phenotypeScore);
             logger.info("{}:{} base scaled-genoScore: {} phenoScore: {}", queryPatient.getId(), nodePatient.getId(), genotypeScore, phenotypeScore);
             
-            if (this.ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES){
+            /**
+             * Two situations where we return a patient matched ONLY-ON phenotypes
+             * 1. If the switch to allow that feature is turned on OR
+             * 2. If no genotypes were given. Then we return matches bases on phenotypes
+             */
+            if (this.ALLOW_NO_GENE_IN_COMMON_PHENOTYPE_MATCHES || queryPatient.getGenomicFeatures().isEmpty()){
             	if (genotypeSimilarityScore.hasCommonGene() || phenotypeScore >= MatchServiceImpl.PHENOTYPE_MATCH_THRESHOLD){
                 	candidateNodePatientsToReturn.put(nodePatient, score);
                 }
             }
             else{
-            	//default logic is that we return any query-patient combination with at least one gene in common
+            	/**
+            	 * default logic is that we return any query-patient combination with at least one gene in common
+            	 */
             	if (genotypeSimilarityScore.hasCommonGene()){
                 	candidateNodePatientsToReturn.put(nodePatient, score);
                 }
             }
             
-            //numPatientsWithGoodGenotypeMatch var is to help figure out population frequencies within matchbox
+            /*
+             * numPatientsWithGoodGenotypeMatch variable is to help figure out population frequencies within matchbox
+             */
             if (genotypeSimilarityScore.hasCommonGene() 
             				  && (genotypeSimilarityScore.hasAtleastOneGeneInCommonWithSameType()
             				  ||  genotypeSimilarityScore.hasAtleastOneGeneInCommonWithSameZygosity() 
@@ -107,7 +116,9 @@ public class MatchServiceImpl implements MatchService {
         														 patients.size()),
         				localNodePatient));
         	}
-        //sort by score
+        /**
+         * sort by score
+         */
         results.sort(Comparator.comparingDouble(object -> {
             MatchmakerResult matchmakerResult = (MatchmakerResult) object;
             return matchmakerResult.getScore().get("patient");
@@ -137,7 +148,9 @@ public class MatchServiceImpl implements MatchService {
         merged.put("_phenotypeScore", phenotypeScore);
         
         double matchboxPopulationProbability = ((double)numPatientsWithGoodGenotypeMatch/(double)matchboxPatientPopSize);
-        //genotypeScore is 1.0 if it's a perfect match genotypically, no more scoring needed
+        /*
+         * genotypeScore is 1.0 if it's a perfect match genotypically, no more scoring needed
+         */
         if (baseGenotypeScore == 1d){
         	merged.put("_genotypeScore", baseGenotypeScore);
         	merged.put("patient", 1d);
