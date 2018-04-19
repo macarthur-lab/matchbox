@@ -58,7 +58,6 @@ public class MatchController {
         Patient queryPatient = null;
         try {
             String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
-            // TODO figure out why there is a = at the end of JSON string
             String inputData = decodedRequestString;
             if ('=' == inputData.charAt(decodedRequestString.length() - 1)) {
                 inputData = decodedRequestString.substring(0, decodedRequestString.length() - 1);
@@ -73,8 +72,8 @@ public class MatchController {
                 msg.append(originMatchmakerNodeName);
                 logger.warn(msg.toString());
             } else {
-                logger.warn("input data invalid:" + inputData.toString());
-                return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+                logger.warn("input data invalid: {}",inputData.toString());
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
             logger.error("error parsing patient in /match :" + e.toString() + " : " + e.getMessage());
@@ -96,8 +95,7 @@ public class MatchController {
 
 
     /**
-     * Controller for individual/match POST end-point (as per Matchmaker spec)
-     * ONLY SEARCHES IN EXTERNAL NODES and NOT in local node
+     * ONLY SEARCHES IN EXTERNAL MME NODES, and NOT in local node. This is really a MME client
      *
      * @param patient A patient structure sent as JSON through the API
      * @return A list of result patients found in the other MME nodes in the
@@ -111,7 +109,6 @@ public class MatchController {
         try {
             String decodedRequestString = java.net.URLDecoder.decode(requestString, "UTF-8");
             String inputData = decodedRequestString;
-            //TODO figure out why there is a = at the end of JSON string when non-curled
             if ('=' == inputData.charAt(decodedRequestString.length() - 1)) {
                 inputData = decodedRequestString.substring(0, decodedRequestString.length() - 1);
             }
@@ -119,7 +116,7 @@ public class MatchController {
             if (inputDataValid) {
                 patient = patientUtility.parsePatientInformation(inputData);
             } else {
-                return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             List<String> matchmakerResults = searcher.searchInExternalMatchmakerNodesOnly(patient);
             StringBuilder resultsBuilder = new StringBuilder();
@@ -132,7 +129,6 @@ public class MatchController {
             resultsBuilder.append("}");
             return new ResponseEntity<>(resultsBuilder.toString(), httpHeaders, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("error occurred in match controller :" + e.toString() + " : " + e.toString());
             return new ResponseEntity<>("{\"message\":\"error occurred searching external nodes\"}", httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
         }
