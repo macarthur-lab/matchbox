@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ImportResource;
 
 
 /**
- * Entry point to application. Application starts here.
+ * Entry point to application.
  *
  */
 @SpringBootApplication
