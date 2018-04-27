@@ -123,12 +123,12 @@ public class Communication {
 					allResults.add(new MatchmakerResult(extMathscore,parsedPatient));
 				} else {
 					logger.error("error parsing patient from external source (required fields missing):"+
-													matchmakerNode.getName() + " : " + result.toString());
+													matchmakerNode.getName() + " : " + result);
 				}
 				
 		    }		 
 		  } catch (Exception e) {
-			  logger.error("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e.getMessage());    
+			  logger.error("error connecting to: " + matchmakerNode.getName() + ", moving on.. : "+e);    
 		  } finally {
 		    if(connection != null) {
 		      connection.disconnect(); 
@@ -175,7 +175,8 @@ public class Communication {
 		    rd.close();
 		 
 		  } catch (Exception e) {
-			  logger.error("error connecting to: " + urlToPost + ": "+e.getMessage());    
+			  logger.error("error connecting to: {} error: {}", urlToPost,e); 
+
 		  } finally {
 		    if(connection != null) {
 		      connection.disconnect(); 
