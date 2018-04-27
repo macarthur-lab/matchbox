@@ -155,7 +155,7 @@ public class GenotypeSimilarityServiceImplTest {
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
 
         DecimalFormat df = new DecimalFormat("#.##");
-        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.94"));
+        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.73"));
     }
     
     @Test
