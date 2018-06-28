@@ -66,8 +66,8 @@ public class PatientController {
 				StringBuilder msg = new StringBuilder();
 				msg.append("add to MME request has invalid JSON data:");
 				msg.append(decodedRequestString);
-				System.out.println(msg.toString());
-				return new ResponseEntity<String>(msg.toString(),HttpStatus.BAD_REQUEST);
+				this.getLogger().info(" {} ",msg);
+				return new ResponseEntity<>(msg.toString(),HttpStatus.BAD_REQUEST);
 			}
 			//if the patient doesn't exist already, add them
 			patient = this.getPatientUtility().parsePatientInformation(inputData);
@@ -77,20 +77,19 @@ public class PatientController {
 				this.getLogger().info("inserting new patient for the first time: " + patient.toString());
 			} else {
 				//let's delete the existing record and add in the new one.
-				//#TODO add an audit here for external users who don't use seqr to audit this
 				this.patientMongoRepository.delete(recordInDb);
 				this.patientMongoRepository.insert(patient);
-				this.getLogger().info("deleting existing patient record and inserting new patient record: " + patient.toString());
+				this.getLogger().info("deleting existing patient record and inserting new patient record: {} ",patient);
 				jsonMessage = "{\"message\":\"That patient record (specifically that ID) had already been submitted in the past, it  already exists in Broad system. We are deleting that record and updating it with this new submission\",\"status_code\":200}";
-				return new ResponseEntity<String>(jsonMessage, HttpStatus.CONFLICT);
+				return new ResponseEntity<>(jsonMessage, HttpStatus.CONFLICT);
 			}
 		} catch (Exception e) {
 			this.getLogger().error(e.getMessage());
 			jsonMessage = "{\"message\":\"unable to insert, an unknown error occurred.\",\"status_code\":442, \"error_message\":\""
 					+ e.getMessage() + "\"}";
-			return new ResponseEntity<String>(jsonMessage, HttpStatus.SERVICE_UNAVAILABLE);
+			return new ResponseEntity<>(jsonMessage, HttpStatus.SERVICE_UNAVAILABLE);
 		}
-		return new ResponseEntity<String>(jsonMessage, HttpStatus.OK);
+		return new ResponseEntity<>(jsonMessage, HttpStatus.OK);
 	}
 	
 	
