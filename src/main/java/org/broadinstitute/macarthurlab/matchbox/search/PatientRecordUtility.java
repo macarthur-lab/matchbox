@@ -42,7 +42,7 @@ public class PatientRecordUtility {
 			String id = (String)patient.get("id");
 		}
 		else{
-			logger.error("Error-areAllRequiredFieldsPresent: id missing, failing requirements!: "+patientJsonString);
+			logger.error("Error-areAllRequiredFieldsPresent: id missing, failing requirements!: {}",patientJsonString);
 			verdict=false;
 		}
 		//Contact
@@ -129,7 +129,8 @@ public class PatientRecordUtility {
 							  -1L, 
 							  -1L, 
 							  "",
-							  "");
+							  "",
+							  true);
 					if (genomicFeature.containsKey("variant")){
 						JSONObject variantGenomicFeature  = (JSONObject)genomicFeature.get("variant"); 
 						//REQUIRED
@@ -154,12 +155,19 @@ public class PatientRecordUtility {
 							alternateBases = (String)variantGenomicFeature.get("alternateBases");
 						}
 						
+						//New addition, so  all patients may not have this. Sharing by default for transparency
+						boolean shareVariantLevelData =true;
+						if (variantGenomicFeature.containsKey("_share")){
+							shareVariantLevelData = (boolean)variantGenomicFeature.get("_share");
+						}
+						
 						variant = new Variant(assembly, 
 													  referenceName, 
 													  start, 
 													  end, 
 													  referenceBases,
-													  alternateBases);
+													  alternateBases,
+													  shareVariantLevelData);
 					}
 					
 					//OPTIONAL
@@ -246,7 +254,7 @@ public class PatientRecordUtility {
 					genomicFeaturesDets);
 		}
 		catch(Exception e){
-			e.printStackTrace();
+			this.logger.error("{}",e);
 		}
 		return new Patient();
 	}
