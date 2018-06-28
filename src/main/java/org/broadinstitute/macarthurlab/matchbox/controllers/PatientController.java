@@ -74,7 +74,7 @@ public class PatientController {
 			Patient recordInDb = this.patientMongoRepository.findOne(patient.getId());
 			if (null == recordInDb) {
 				this.patientMongoRepository.insert(patient);
-				this.getLogger().info("inserting new patient for the first time: " + patient.toString());
+				this.getLogger().info("inserting new patient for the first time: {}", patient);
 			} else {
 				//let's delete the existing record and add in the new one.
 				this.patientMongoRepository.delete(recordInDb);
@@ -126,16 +126,16 @@ public class PatientController {
 			}
 			if (numDeleted==0){
 				jsonMessage = "{\"message\":\"no patients were deleted, are you sure that ID was valid?\",\"status_code\":400\"}";
-				return new ResponseEntity<String>(jsonMessage, HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(jsonMessage, HttpStatus.BAD_REQUEST);
 			}
 		}
 		catch(Exception e){
 			jsonMessage = "{\"message\":\"unable to delete, an unknown error occurred.\",\"status_code\":442, \"error_message\":\""
 					+ e.getMessage() + "\"}";
 			this.getLogger().error(e.getMessage());
-			return new ResponseEntity<String>(jsonMessage, HttpStatus.MULTI_STATUS);
+			return new ResponseEntity<>(jsonMessage, HttpStatus.MULTI_STATUS);
 		}
-		return new ResponseEntity<String>(jsonMessage, HttpStatus.OK);
+		return new ResponseEntity<>(jsonMessage, HttpStatus.OK);
     }
 	
 	
