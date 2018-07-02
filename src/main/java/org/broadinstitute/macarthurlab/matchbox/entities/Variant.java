@@ -131,7 +131,7 @@ public class Variant {
 	@Override
 	public String toString() {
 		return "Variant [assembly=" + assembly + ", referenceName=" + referenceName + ", start=" + start + ", end="
-				+ end + ", referenceBases=" + referenceBases + ", alternateBases=" + alternateBases + "]";
+				+ end + ", referenceBases=" + referenceBases + ", alternateBases=" + alternateBases + ", shareVariantLevelData=" + shareVariantLevelData + "]";
 	}
 	
 	

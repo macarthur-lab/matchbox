@@ -65,7 +65,7 @@ public class TestData {
         type1.put("id", "SO:0001583");
         type1.put("label", "MISSENSE");
         //GF1-variant
-        Variant variant1 = new Variant("GRCh37", "2", 74058108L, 0L, "", "");
+        Variant variant1 = new Variant("GRCh37", "2", 74058108L, 0L, "", "",true);
         GenomicFeature genomicFeature1 = new GenomicFeature(gene1, variant1, 0L, type1);
 
         //GF2-gene
@@ -76,7 +76,7 @@ public class TestData {
         type2.put("id", "SO:0001587");
         type2.put("label", "STOPGAIN");
         //GF2-variant
-        Variant variant2 = new Variant("GRCh37", "2", 74074670L, 0L, "", "");
+        Variant variant2 = new Variant("GRCh37", "2", 74074670L, 0L, "", "",true);
         GenomicFeature genomicFeature2 = new GenomicFeature(gene2, variant2, 0L, type2);
 
         List<GenomicFeature> genomicFeatures = new ArrayList<GenomicFeature>();
@@ -139,7 +139,7 @@ public class TestData {
         type1.put("id", "SO:0001583");
         type1.put("label", "MISSENSE");
         //GF1-variant
-        Variant variant1 = new Variant("GRCh37", "2", 74058108L, 0L, "", "");
+        Variant variant1 = new Variant("GRCh37", "2", 74058108L, 0L, "", "",true);
         GenomicFeature genomicFeature1 = new GenomicFeature(gene1, variant1, 0L, type1);
 
         //GF2-gene
@@ -150,7 +150,7 @@ public class TestData {
         type2.put("id", "SO:0001587");
         type2.put("label", "STOPGAIN");
         //GF2-variant
-        Variant variant2 = new Variant("GRCh37", "2", 74074670L, 0L, "", "");
+        Variant variant2 = new Variant("GRCh37", "2", 74074670L, 0L, "", "",true);
         GenomicFeature genomicFeature2 = new GenomicFeature(gene2, variant2, 0L, type2);
 
         List<GenomicFeature> genomicFeatures = new ArrayList<GenomicFeature>();
@@ -214,7 +214,7 @@ public class TestData {
         type1.put("id", "SO:0001583");
         type1.put("label", "MISSENSE");
         //GF1-variant
-        Variant variant1 = new Variant("GRCh37", "2", 74058108L, 0L, "", "");
+        Variant variant1 = new Variant("GRCh37", "2", 74058108L, 0L, "", "",true);
         GenomicFeature genomicFeature1 = new GenomicFeature(gene1, variant1, 0L, type1);
 
         //GF2-gene
@@ -225,7 +225,7 @@ public class TestData {
         type2.put("id", "SO:0001587");
         type2.put("label", "STOPGAIN");
         //GF2-variant
-        Variant variant2 = new Variant("GRCh37", "2", 74074670L, 0L, "", "");
+        Variant variant2 = new Variant("GRCh37", "2", 74074670L, 0L, "", "",true);
         GenomicFeature genomicFeature2 = new GenomicFeature(gene2, variant2, 0L, type2);
 
         List<GenomicFeature> genomicFeatures = new ArrayList<GenomicFeature>();

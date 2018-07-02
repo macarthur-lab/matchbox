@@ -158,7 +158,7 @@ public class PatientRecordUtility {
 						//New addition, so  all patients may not have this. Sharing by default for transparency
 						boolean shareVariantLevelData =true;
 						if (variantGenomicFeature.containsKey("_share")){
-							shareVariantLevelData = (boolean)variantGenomicFeature.get("_share");
+							shareVariantLevelData = ((Boolean)variantGenomicFeature.get("_share")).booleanValue();
 						}
 						
 						variant = new Variant(assembly, 
