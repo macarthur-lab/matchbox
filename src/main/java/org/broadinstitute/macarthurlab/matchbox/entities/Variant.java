@@ -120,7 +120,7 @@ public class Variant {
 	/**
 	 * @return the shareVariantLevelData
 	 */
-	private boolean isShareVariantLevelData() {
+	public boolean shareVariantLevelData() {
 		return shareVariantLevelData;
 	}
 

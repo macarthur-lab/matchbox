@@ -103,7 +103,7 @@ public class MatchmakerSearchImpl implements SearchService {
             }
         }
         
-        /**
+        /**************************************************
          *  persist for logging and metrics and tracking of data sent out. Persist the
          *  incoming query ONLY if a match is made, otherwise don't keep any of the
          *  information that is sent in, which is only fair.
@@ -124,6 +124,7 @@ public class MatchmakerSearchImpl implements SearchService {
                     queryPatient.getContact().get("institution"),
                     false);
         }
+        //**************************************************
         operator.save(externalQueryMatch);
         return scrubbedResults;
     }
