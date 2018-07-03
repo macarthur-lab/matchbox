@@ -125,19 +125,6 @@ public class MatchmakerSearchImpl implements SearchService {
                     false);
         }
         operator.save(externalQueryMatch);
-        
-        /*
-         * Send an email alert to local data owners where there is a match returned
-         */
-        if (scrubbedResults.size()>0){
-	        //System.out.println(scrubbedResults);
-	        //HtmlEmail email = new HtmlEmail();
-	        //email.setHostName("smtp.gmail.com");
-	        //email.setSmtpPort(465);
-	        //email.setSSLOnConnect(true);
-	        //email.setAuthentication("your-account-name@gmail.com", "your-password");
-        }
-        
         return scrubbedResults;
     }
 
