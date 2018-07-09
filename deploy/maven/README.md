@@ -1,5 +1,8 @@
 ## Build directly via Maven:
 
+###  Please note we do not support installation through Maven anymore. Please consider these pages deprecated
+
+
 ###  You will need:
 
 * Java 1.8
