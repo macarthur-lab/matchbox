@@ -45,14 +45,14 @@ def start_instance(local_ip_address,instance,directories):
     '''
     Starts a mongodb instance and its matchbox instance
     '''
-    print 'working on:',directories['prefix'],directories
+    print ('working on: %s, %s' % (directories['prefix'],directories))
     err=None
     os.chdir(directories['matchbox_dir'])
     if not os.path.exists('matchbox'):
         p = subprocess.Popen(['git','clone','-b','dev','https://github.com/macarthur-lab/matchbox'],stdout=subprocess.PIPE)
         (output, err) = p.communicate()
     else:
-        print '----WARNING:','that repo already exists, not cloning a new copy:',directories['matchbox_dir']
+        print ('----WARNING: that repo already exists, not cloning a new copy: %s' % directories['matchbox_dir'])
     if err is None:
             mongo_port = start_dockerized_mongodb(instance,directories)
             start_dockerized_matchbox(local_ip_address,mongo_port,instance,directories)
