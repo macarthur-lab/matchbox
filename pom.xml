@@ -17,7 +17,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <exomiser.version>10.0.1</exomiser.version>
+        <exomiser.version>10.1.0</exomiser.version>
     </properties>
 
     <dependencies>
