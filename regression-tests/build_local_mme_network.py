@@ -84,6 +84,7 @@ def start_dockerized_matchbox(local_ip_address,instance,directories):
             eo.write(line)
             l+=1
     eo.close()
+    os.chmod(updated_entrypointfile, 777)
     
     #----------------update Docker file
     existing_dockerfile = 'matchbox/deploy/docker/with_data_in_container/Dockerfile'
