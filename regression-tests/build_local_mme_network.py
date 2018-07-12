@@ -43,7 +43,7 @@ def start_local_master_node():
 
 def start_instance(local_ip_address,instance,directories):
     '''
-    Starts a mongodb instance and its matchbox instance
+    Starts a matchbox instance
     '''
     print ('working on: %s, %s' % (directories['prefix'],directories))
     err=None
@@ -54,7 +54,6 @@ def start_instance(local_ip_address,instance,directories):
     else:
         print ('----WARNING: that repo already exists, not cloning a new copy: %s' % directories['matchbox_dir'])
     if err is None:
-            #mongo_port = start_dockerized_mongodb(instance,directories)
             start_dockerized_matchbox(local_ip_address,instance,directories)
     return
 
@@ -71,7 +70,7 @@ def start_dockerized_matchbox(local_ip_address,instance,directories):
     
     #----------------update entrypoint file
     existing_entrypointfile = 'matchbox/deploy/docker/with_data_in_container/entrypoint.sh'
-    updated_entrypointfile = 'matchbox/deploy/docker/with_data_in_container/entrypoint.net.sh'
+    updated_entrypointfile = 'matchbox/deploy/docker/with_data_in_container/entrypoint_updated.sh'
     with open(existing_entrypointfile,'r') as ei:
         entrypointfile_lines = ei.readlines()
     ei.close()
@@ -115,7 +114,7 @@ def start_dockerized_matchbox(local_ip_address,instance,directories):
             elif "entrypoint.sh" in line:
                 do.write('RUN apt-get -y install mongodb')
                 do.write('\n')
-                do.write(line.replace("entrypoint.sh", "entrypoint.net.sh"))
+                do.write(line.replace("entrypoint.sh", "entrypoint_updated.sh"))
             else:
                 do.write(line.strip())
             do.write('\n')
@@ -128,7 +127,6 @@ def start_dockerized_matchbox(local_ip_address,instance,directories):
     print ("build output: %s, build error(if any):%s " % (output,build_err))
     if not build_err:
           print (' '.join(['docker','run','-ti','-p', str(instance_port)+":"+str(instance_port),image_name]))
-          sys.exit()
           p = subprocess.Popen(['docker','run','-ti','-p', str(instance_port)+":"+str(instance_port),image_name],stdout=subprocess.PIPE)
           (output, run_err) = p.communicate()
           print ("image run output: %s, run error(if any): %s " % (output,run_err)) 
@@ -138,34 +136,6 @@ def start_dockerized_matchbox(local_ip_address,instance,directories):
 
 
 
-
-'''
-def start_dockerized_mongodb(instance,directories):
-    
-    Starts a mongodb instance
-    Args:
-        instance: an int representing the instance number
-        directories: a dictionary of various related dirs to this instance
-    Returns:
-        The mongo port this instance runs on
-  
-    if instance > 9:
-        print ("----WARNING:","skipping instance (too high!): %s" % instance)
-        return 
-    mongo_port='2701'+str(instance)
-    mongo_prefix=directories['prefix']+'_mongo'
-    cmd = ['docker','run','--name',mongo_prefix,'-d','-p',mongo_port+':27017', '-v',directories['mongo_data_dir'].split('/')[-1]+':/data/db','mongo']
-    p = subprocess.Popen(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (output, err) = p.communicate()
-    if err:
-        print ("mongo error : %s",err) 
-    if not err:
-        return mongo_port
-    if "Conflict" in err and mongo_prefix in err:
-        print ("----WARNING:","skipping creating new mongo container, looks like one is still up: %s" % mongo_prefix)
-        return mongo_port
-    return None
-  '''
 
 def buid_dir_struct(root_path,timestamp,num_instances):
     '''
