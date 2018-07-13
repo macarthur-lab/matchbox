@@ -127,8 +127,8 @@ def start_dockerized_matchbox(local_ip_address,instance,directories):
     (output, build_err) = p.communicate()
     print ("build output: %s, build error(if any):%s " % (output,build_err))
     if not build_err:
-          print (' '.join(['docker','run','-ti','-p', str(instance_port)+":"+str(instance_port),image_name]))
-          p = subprocess.Popen(['docker','run','-ti','-p', str(instance_port)+":"+str(instance_port),image_name],stdout=subprocess.PIPE)
+          print (' '.join(['docker','run','-dti','-p', str(instance_port)+":"+str(instance_port),image_name]))
+          p = subprocess.Popen(['docker','run','-dti','-p', str(instance_port)+":"+str(instance_port),image_name],stdout=subprocess.PIPE)
           (output, run_err) = p.communicate()
           print ("image run output: %s, run error(if any): %s " % (output,run_err)) 
     return
