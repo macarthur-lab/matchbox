@@ -56,10 +56,10 @@ public class GenomicFeature {
 	 * @param type	type
 	 */
 	public GenomicFeature() {
-		this.gene = new HashMap<String, String>();
+		this.gene = new HashMap<>();
 		this.variant = new Variant();
 		this.zygosity = -1L;
-		this.type = new HashMap<String,String>();
+		this.type = new HashMap<>();
 	}
 	
 	/**
@@ -132,7 +132,7 @@ public class GenomicFeature {
 			asJson.append("}");
 		}
 		
-		if (!this.getVariant().isUnPopulated()){
+		if (!this.getVariant().isUnPopulated() && this.getVariant().shareVariantLevelData()){
 			asJson.append(",");
 			asJson.append("\"variant\":");
 			asJson.append(this.getVariant().getEmptyFieldsRemovedJson());
@@ -154,7 +154,7 @@ public class GenomicFeature {
 					break;
 				}
 			}
-			if (hasType == true) {
+			if (hasType) {
 				asJson.append("\"type\":{");
 				int i=0;
 				for (String k2 : this.getType().keySet()) {

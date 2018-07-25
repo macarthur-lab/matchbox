@@ -23,13 +23,7 @@ A significant amount of development is typically required to join the MME; this 
 
 ## Build:
 
-You can build <i>matchbox</i> via two methods. 
-
-1. Directly through maven. [Detailed maven build instructions](deploy/maven/README.md)
-
-OR
-
-2. Using [Docker](https://www.docker.com/). [Detailed Docker build instructions](deploy/docker/README.md)
+You can build <i>matchbox</i> using [Docker](https://www.docker.com/). Detailed Docker build instructions can be found [here](deploy/docker/README.md)
 
 
 ## General overview:

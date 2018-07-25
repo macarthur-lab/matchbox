@@ -70,9 +70,9 @@ public class MatchController {
                 msg.append(queryPatient.getContact().toString());
                 msg.append(", orignating from matchmaker node:");
                 msg.append(originMatchmakerNodeName);
-                logger.warn(msg.toString());
+                logger.warn("{}",msg);
             } else {
-                logger.warn("input data invalid: {}",inputData.toString());
+                logger.warn("input data invalid: {}",inputData);
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {

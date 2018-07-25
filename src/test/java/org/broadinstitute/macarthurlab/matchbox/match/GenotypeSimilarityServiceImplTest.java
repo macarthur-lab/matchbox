@@ -88,10 +88,10 @@ public class GenotypeSimilarityServiceImplTest {
         GenomicFeature geneOneSymbolOnly = new GenomicFeature(Collections.singletonMap("id", "ENSG00000152926"), new Variant(), -1L, Collections.emptyMap());
         Patient queryPatient = new Patient("queryPatient", "queryPatient", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneOneSymbolOnly));
 
-        Variant variantOne = new Variant("GRCh37","7", 64438667L, 64438667L, "G", "A");
+        Variant variantOne = new Variant("GRCh37","7", 64438667L, 64438667L, "G", "A",true);
         GenomicFeature geneOne = new GenomicFeature(Collections.singletonMap("id", "ENSG00000152926"), variantOne, 2L, Collections.emptyMap());
 
-        Variant variantTwo = new Variant("GRCh37","18", 25616451L, 25616451L, "A", "T");
+        Variant variantTwo = new Variant("GRCh37","18", 25616451L, 25616451L, "A", "T",true);
         GenomicFeature geneTwo = new GenomicFeature(Collections.singletonMap("id", "ENSG00000170558"), variantTwo, 2L, Collections.emptyMap());
         Patient nodePatient = new Patient("nodePatient", "nodePatient", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneTwo, geneOne));
 
@@ -104,20 +104,20 @@ public class GenotypeSimilarityServiceImplTest {
         
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(queryPatient, nodePatient);
         DecimalFormat df = new DecimalFormat("#.##");
-        
-        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.74"));
+        System.out.println(genotypeSimilarityScore);
+        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.27"));
     }
 
     @Test
     public void testGeneSymbolMatchOnly() {
         long unintialisedZygosityValue = -1L;
-        Variant variantOne = new Variant("GRCh37","7", 64438667L, 64438667L, "G", "A");
+        Variant variantOne = new Variant("GRCh37","7", 64438667L, 64438667L, "G", "A",true);
         Map<String, String> soTerm = new HashMap<>();
         soTerm.put("id", "SO:0001587");
         soTerm.put("label", "STOPGAIN");
         GenomicFeature geneOne = new GenomicFeature(Collections.singletonMap("id", "ENSG00000152926"), variantOne, unintialisedZygosityValue, soTerm);
 
-        Variant variantTwo = new Variant("18", "GRCh37", 25616451L, 25616451L, "A", "T");
+        Variant variantTwo = new Variant("18", "GRCh37", 25616451L, 25616451L, "A", "T",true);
         GenomicFeature geneTwo = new GenomicFeature(Collections.singletonMap("id", "ENSG00000170558"), variantTwo, unintialisedZygosityValue, soTerm);
 
         Patient patient1 = new Patient("patient1", "patient1", Collections.emptyMap(), "9606", "M", "", "", Collections.emptyList(), Collections.emptyList(), Arrays.asList(geneOne));
@@ -133,7 +133,7 @@ public class GenotypeSimilarityServiceImplTest {
         GenotypeSimilarityScore genotypeSimilarityScore = genotypeSimilarityService.scoreGenotypes(patient1, patient2);
 
         DecimalFormat df = new DecimalFormat("#.##");
-        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.74"));
+        assertThat(df.format(genotypeSimilarityScore.getScore()), equalTo("0.27"));
     }
 
     @Test

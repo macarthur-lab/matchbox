@@ -14,6 +14,7 @@ public class Variant {
 	private final Long end;
 	private final String referenceBases;
 	private final String alternateBases;
+	private final boolean shareVariantLevelData;
 	
 
 	
@@ -30,13 +31,15 @@ public class Variant {
 				   Long start, 
 				   Long end, 
 				   String referenceBases,
-				   String alternateBases) {
+				   String alternateBases,
+				   boolean shareVariantLevelData) {
 		this.assembly = assembly;
 		this.referenceName = referenceName;
 		this.start = start;
 		this.end = end;
 		this.referenceBases = referenceBases;
 		this.alternateBases = alternateBases;
+		this.shareVariantLevelData = shareVariantLevelData;
 	}
 	
 	/**
@@ -49,6 +52,7 @@ public class Variant {
 		this.end=0L;
 		this.referenceBases="";
 		this.alternateBases="";
+		this.shareVariantLevelData=true;
 	}
 	
 	/**
@@ -112,7 +116,13 @@ public class Variant {
 	public String getAlternateBases() {
 		return alternateBases;
 	}
-
+	
+	/**
+	 * @return the shareVariantLevelData
+	 */
+	public boolean shareVariantLevelData() {
+		return shareVariantLevelData;
+	}
 
 	/* To string method
 	 * (non-Javadoc)
@@ -121,7 +131,7 @@ public class Variant {
 	@Override
 	public String toString() {
 		return "Variant [assembly=" + assembly + ", referenceName=" + referenceName + ", start=" + start + ", end="
-				+ end + ", referenceBases=" + referenceBases + ", alternateBases=" + alternateBases + "]";
+				+ end + ", referenceBases=" + referenceBases + ", alternateBases=" + alternateBases + ", shareVariantLevelData=" + shareVariantLevelData + "]";
 	}
 	
 	

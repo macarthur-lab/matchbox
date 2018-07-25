@@ -25,7 +25,7 @@ public class MatchmakerResult {
 	 * Default constructor makes empty result object
 	 */
 	public MatchmakerResult() {
-		this.score = new HashMap<String,Double>();
+		this.score = new HashMap<>();
 		this.patient = new Patient();
 	}	
 	
@@ -52,7 +52,6 @@ public class MatchmakerResult {
 	public Patient getPatient() {
 		return patient;
 	}
-	
 	
 	
 	/**
