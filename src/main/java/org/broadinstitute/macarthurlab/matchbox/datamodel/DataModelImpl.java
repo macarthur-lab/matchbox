@@ -33,6 +33,8 @@ public class DataModelImpl implements DataModel{
     
     @Autowired
     private MongoOperations operator;
+    
+    private Object databaseConnection;
 	
 	
 	/**
@@ -41,7 +43,7 @@ public class DataModelImpl implements DataModel{
 	 */
 	public DataModelImpl() throws Exception {
 		if (this.getDatasourceType().equals(MONGODB)){
-		
+			this.databaseConnection = this.getOperator();
 		}
 		if (this.getDatasourceType().equals(POSTGRESQL)){
 			
@@ -63,6 +65,56 @@ public class DataModelImpl implements DataModel{
 	public void setDatasourceType(String datasourceType) {
 		this.datasourceType = datasourceType;
 	}
+
+
+	/**
+	 * @return the patientMongoRepository
+	 */
+	public PatientMongoRepository getPatientMongoRepository() {
+		return patientMongoRepository;
+	}
+
+
+	/**
+	 * @param patientMongoRepository the patientMongoRepository to set
+	 */
+	public void setPatientMongoRepository(PatientMongoRepository patientMongoRepository) {
+		this.patientMongoRepository = patientMongoRepository;
+	}
+
+
+	/**
+	 * @return the operator
+	 */
+	public MongoOperations getOperator() {
+		return operator;
+	}
+
+
+	/**
+	 * @param operator the operator to set
+	 */
+	public void setOperator(MongoOperations operator) {
+		this.operator = operator;
+	}
+
+
+	/**
+	 * @return the databaseConnection
+	 */
+	public Object getDatabaseConnection() {
+		return databaseConnection;
+	}
+
+
+	/**
+	 * @param databaseConnection the databaseConnection to set
+	 */
+	public void setDatabaseConnection(Object databaseConnection) {
+		this.databaseConnection = databaseConnection;
+	}
+	
+	
 	
 	
 	

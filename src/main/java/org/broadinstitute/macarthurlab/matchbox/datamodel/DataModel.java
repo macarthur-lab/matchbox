@@ -8,5 +8,5 @@ package org.broadinstitute.macarthurlab.matchbox.datamodel;
  *
  */
 public interface DataModel {
-
+	public Object getDatabaseConnection();
 }
