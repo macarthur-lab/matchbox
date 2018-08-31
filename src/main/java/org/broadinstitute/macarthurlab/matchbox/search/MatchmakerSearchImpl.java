@@ -4,7 +4,7 @@
 package org.broadinstitute.macarthurlab.matchbox.search;
 
 
-import org.apache.commons.mail.HtmlEmail;
+
 import org.broadinstitute.macarthurlab.matchbox.datamodel.mongodb.PatientMongoRepository;
 import org.broadinstitute.macarthurlab.matchbox.entities.ExternalMatchQuery;
 import org.broadinstitute.macarthurlab.matchbox.entities.MatchmakerResult;
@@ -139,7 +139,7 @@ public class MatchmakerSearchImpl implements SearchService {
      * @return The results found for this patient
      */
     private List<MatchmakerResult> searchNode(Node matchmakerNode, Patient queryPatient) {
-        logger.info("searching in external node: " + matchmakerNode.getName());
+        logger.info("searching in external node:" + matchmakerNode.getName());
         return httpCommunication.callNode(matchmakerNode, queryPatient);
     }
 

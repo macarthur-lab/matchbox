@@ -1,5 +1,6 @@
 package org.broadinstitute.macarthurlab.matchbox;
 
+import org.broadinstitute.macarthurlab.matchbox.entities.Disorder;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
@@ -32,13 +33,8 @@ public class TestData {
         contact.put("name", "Lijia Huang");
 
         //disorders
-        List<Map<String, String>> disorders = new ArrayList<Map<String, String>>();
-        Map<String, String> disorder1 = new HashMap<String, String>();
-        disorder1.put("id", "MIM:614261");
-        disorders.add(disorder1);
-        Map<String, String> disorder2 = new HashMap<String, String>();
-        disorder2.put("label", "#614261 MICROCEPHALY-CAPILLARY MALFORMATION SYNDROME; MICCAP");
-        disorders.add(disorder2);
+        List<Disorder> disorders = new ArrayList<>();
+        disorders.add(new Disorder("MIM:614261","#614261 MICROCEPHALY-CAPILLARY MALFORMATION SYNDROME; MICCAP"));
 
         //features
         List<PhenotypeFeature> features = new ArrayList<PhenotypeFeature>();
@@ -119,13 +115,8 @@ public class TestData {
         contact.put("name", "Lijia Huang");
 
         //disorders
-        List<Map<String, String>> disorders = new ArrayList<Map<String, String>>();
-        Map<String, String> disorder1 = new HashMap<String, String>();
-        disorder1.put("id", "MIM:614261");
-        disorders.add(disorder1);
-        Map<String, String> disorder2 = new HashMap<String, String>();
-        disorder2.put("label", "#614261 MICROCEPHALY-CAPILLARY MALFORMATION SYNDROME; MICCAP");
-        disorders.add(disorder2);
+        List<Disorder> disorders = new ArrayList<>();
+        disorders.add(new Disorder("MIM:614261","#614261 MICROCEPHALY-CAPILLARY MALFORMATION SYNDROME; MICCAP"));
 
         //features
         List<PhenotypeFeature> features = new ArrayList<PhenotypeFeature>();
@@ -191,13 +182,8 @@ public class TestData {
         contact.put("name", "Lijia Huang");
 
         //disorders
-        List<Map<String, String>> disorders = new ArrayList<Map<String, String>>();
-        Map<String, String> disorder1 = new HashMap<String, String>();
-        disorder1.put("id", "MIM:614261");
-        disorders.add(disorder1);
-        Map<String, String> disorder2 = new HashMap<String, String>();
-        disorder2.put("label", "#614261 MICROCEPHALY-CAPILLARY MALFORMATION SYNDROME; MICCAP");
-        disorders.add(disorder2);
+        List<Disorder> disorders = new ArrayList<>();
+        disorders.add(new Disorder("MIM:614261","#614261 MICROCEPHALY-CAPILLARY MALFORMATION SYNDROME; MICCAP"));
 
         //features
         List<PhenotypeFeature> features = new ArrayList<PhenotypeFeature>();
@@ -295,7 +281,7 @@ public class TestData {
                 "testSex1",
                 "testAgeOfOnset1",
                 "inheritanceMode1",
-                new ArrayList<Map<String, String>>(),
+                new ArrayList<Disorder>(),
                 features,
                 gFeatures1
         );
@@ -307,7 +293,7 @@ public class TestData {
                 "testSex2",
                 "testAgeOfOnset2",
                 "inheritanceMode2",
-                new ArrayList<Map<String, String>>(),
+                new ArrayList<Disorder>(),
                 new ArrayList<PhenotypeFeature>(),
                 gFeatures2
         );

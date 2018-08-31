@@ -4,13 +4,24 @@ package org.broadinstitute.macarthurlab.matchbox.entities;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
 import org.springframework.data.mongodb.core.index.Indexed;
 
 /**
  * @author harindra
  *
  */
+@Entity
 public class GenomicFeature {
+	@Id @GeneratedValue long id;
+	
 	/**
 	 * REQUIRED
 	 * Description of the gene that looks like,
@@ -19,6 +30,7 @@ public class GenomicFeature {
         }
 	 */
 	@Indexed
+	@ElementCollection
 	private final Map<String,String> gene;
 	
 	/**
@@ -33,6 +45,7 @@ public class GenomicFeature {
           "alternateBases" : "A"|"ACG"|…
         },
 	 */
+	@Embedded
 	private final Variant variant;
 	
 	private final Long zygosity;
@@ -44,6 +57,7 @@ public class GenomicFeature {
           "label" : "STOPGAIN"
         }
 	 */
+	@ElementCollection
 	private final Map<String,String> type;
 
 	
@@ -173,6 +187,22 @@ public class GenomicFeature {
 		asJson.append("}");
 		return asJson.toString();
 	}
+
+	/**
+	 * @return the id
+	 */
+	public long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(long id) {
+		this.id = id;
+	}
+	
+	
 
 }
 

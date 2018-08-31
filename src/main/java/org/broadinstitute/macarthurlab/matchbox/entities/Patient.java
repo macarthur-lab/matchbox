@@ -5,10 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.data.annotation.Id;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+
 @Document(collection="patient")
+@Entity
+@Table(name = "patient")
 public class Patient{
 	
 	/**
@@ -30,6 +38,7 @@ public class Patient{
 	 * "name", "institution", "href"
 	 * REQUIRED
 	 */
+	@ElementCollection
 	private final Map<String,String> contact;
 	
 	/**
@@ -63,7 +72,8 @@ public class Patient{
 	 *  "id" : "MIM:######"|"Orphanet:#####"|…
 	 *  OPTIONAL
 	 */
-	private final List<Map<String,String>> disorders;
+	@ElementCollection
+	private final List<Disorder> disorders;
 	
 	/**
 	 * Features is a list of Feature objects,
@@ -74,6 +84,7 @@ public class Patient{
 	 *  OPTIONAL  					 *
 	 * *******************************
 	 */
+	@ElementCollection(targetClass=PhenotypeFeature.class)
 	private final List<PhenotypeFeature> features;
 	
 	/**
@@ -85,6 +96,7 @@ public class Patient{
 	 *  OPTIONAL  --------			 *
 	 * *******************************
 	 */
+	@ElementCollection(targetClass=GenomicFeature.class)
 	private final List<GenomicFeature> genomicFeatures;
 	
 	
@@ -94,12 +106,12 @@ public class Patient{
 	public Patient() {
 		this.id = "";
 		this.label = "";
-		this.contact = new HashMap<String, String>();
+		this.contact = new HashMap<>();
 		this.species = "";
 		this.sex = "";
 		this.ageOfOnset = "";
 		this.inheritanceMode = "";
-		this.disorders = new ArrayList<Map<String,String>>();
+		this.disorders = new ArrayList<Disorder>();
 		this.features = new ArrayList<PhenotypeFeature>();
 		this.genomicFeatures = new ArrayList<GenomicFeature>();
 	}
@@ -125,7 +137,7 @@ public class Patient{
 					String sex,
 					String ageOfOnset, 
 					String inheritanceMode, 
-					List<Map<String, String>> disorders, 
+					List<Disorder> disorders, 
 					List<PhenotypeFeature> features,
 					List<GenomicFeature> genomicFeatures) {
 		this.id = id;
@@ -187,7 +199,7 @@ public class Patient{
 	/**
 	 * @return the disorders
 	 */
-	public List<Map<String, String>> getDisorders() {
+	public List<Disorder> getDisorders() {
 		return disorders;
 	}
 	/**
@@ -280,12 +292,13 @@ public class Patient{
 			asJson.append(",");
 			asJson.append("\"disorders\":[");
 			int j=0;
-			for (Map<String,String> disorder:this.getDisorders()){
+			for (Disorder disorder:this.getDisorders()){
 				asJson.append("{");
-				for (String k:disorder.keySet()){
-					asJson.append("\"" +  k + "\":");
-					asJson.append("\"" + disorder.get(k) + "\"");
-				}
+				asJson.append("disorderId:");
+				asJson.append(disorder.getDisorderId());
+				asJson.append(",");
+				asJson.append("label:");
+				asJson.append(disorder.getLabel());
 				asJson.append("}");
 				if (j<this.getDisorders().size()-1){
 					asJson.append(",");
@@ -418,5 +431,7 @@ public class Patient{
 			return false;
 		return true;
 	}
+	
+	
 	
 }

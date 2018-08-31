@@ -3,10 +3,14 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.entities;
 
+import javax.persistence.Embeddable;
+
+
 /**
  * @author harindra
  *
  */
+@Embeddable 
 public class Variant {
 	private final String assembly;
 	private final String referenceName;
@@ -16,7 +20,6 @@ public class Variant {
 	private final String alternateBases;
 	private final boolean shareVariantLevelData;
 	
-
 	
 	/**
 	 * @param assembly	assembly record
@@ -174,5 +177,7 @@ public class Variant {
 		asJson.append("}");
 		return asJson.toString();
 	}
+
+
 
 }

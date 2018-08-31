@@ -3,14 +3,19 @@
  */
 package org.broadinstitute.macarthurlab.matchbox.entities;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 /**
  * @author harindra
  *
  */
+@Entity
 public class PhenotypeFeature {
 	/**
 	 * HPO code
 	 */
+	@Id
 	private final String id;
 	/**
 	 * yes/no

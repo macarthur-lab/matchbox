@@ -4,6 +4,7 @@
 package org.broadinstitute.macarthurlab.matchbox.search;
 
 
+import org.broadinstitute.macarthurlab.matchbox.entities.Disorder;
 import org.broadinstitute.macarthurlab.matchbox.entities.GenomicFeature;
 import org.broadinstitute.macarthurlab.matchbox.entities.Patient;
 import org.broadinstitute.macarthurlab.matchbox.entities.PhenotypeFeature;
@@ -177,7 +178,7 @@ public class PatientRecordUtility {
 					}
 				
 					//OPTIONAL
-					Map<String,String> typeDets = new HashMap<String,String>();
+					Map<String,String> typeDets = new HashMap<>();
 					typeDets.put("id", "");
 					typeDets.put("label", "");
 					if (genomicFeature.containsKey("type")){
@@ -230,13 +231,12 @@ public class PatientRecordUtility {
 			}
 			
 			//OPTIONAL
-			List<Map<String,String>> disorderDets = new ArrayList<>();
+			List<Disorder> disorderDets = new ArrayList<>();
 			if (patient.containsKey("disorders")){
 			JSONArray  disorders = (JSONArray)patient.get("disorders");
 			for (int i=0; i<disorders.size(); i++){
-				Map <String,String> disorderDet = new HashMap<>();
 				JSONObject disorder = (JSONObject)disorders.get(i);
-				disorderDet.put("id", (String)disorder.get("id"));
+				Disorder disorderDet = new Disorder((String)disorder.get("id"),"");
 				disorderDets.add(disorderDet);
 			}
 			}
@@ -267,7 +267,7 @@ public class PatientRecordUtility {
 	 */
 	public Map<String,String> parsePatientIdFromDeleteCall(String jsonString){
 		JSONParser parser = new JSONParser();
-		Map<String,String> parsed = new HashMap<String,String> ();
+		Map<String,String> parsed = new HashMap<> ();
 		try{
 			JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
 			String id = (String)jsonObject.get("id");
