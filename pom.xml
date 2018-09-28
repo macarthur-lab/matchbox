@@ -17,7 +17,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <exomiser.version>10.1.0</exomiser.version>
+        <exomiser.version>11.0.0</exomiser.version>
     </properties>
 
     <dependencies>
@@ -83,7 +83,10 @@
 			<artifactId>commons-email</artifactId>
 			<version>1.4</version>
 		</dependency>
-
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
