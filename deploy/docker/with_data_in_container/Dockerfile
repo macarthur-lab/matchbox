@@ -9,7 +9,7 @@ RUN apt-get update \
  && apt-get install -y python-dev \
  && apt-get install -y python-setuptools \
  && /usr/bin/easy_install -U pip \
- && /usr/local/bin/pip install crcmod 
+ && /usr/local/bin/pip install crcmod
 
 MAINTAINER MacArthur Lab
 
@@ -52,7 +52,7 @@ RUN wget https://storage.googleapis.com/pub/gsutil.tar.gz \
 #----now get the data and untar it
 
 WORKDIR data
-RUN /root/gsutils_dir/gsutil/gsutil -m -o GSUtil:parallel_composite_upload_threshold=150M cp gs://seqr-reference-data/1711_phenotype.tar.gz data.local.tar.gz \
+RUN /root/gsutils_dir/gsutil/gsutil -m -o GSUtil:parallel_composite_upload_threshold=150M cp gs://seqr-reference-data/1807_phenotype.tar.gz data.local.tar.gz \
  && tar -xzf data.local.tar.gz \
  && rm data.local.tar.gz \
  && pwd \
@@ -71,13 +71,13 @@ RUN cp -rf $MATCHBOX_CONFIG_DIR . \
 #                                           #
 # Please note the EXOMISER_DATA_DIR         #
 # value. The file system path with ref      #
-# data (viewable by docker daemon) must     #  
+# data (viewable by docker daemon) must     #
 # be mounted to this location in            #
 # container at the docker run step          #
 #                                           #
 #############################################
 env EXOMISER_DATA_DIR=/Exomiser/matchbox/data
-env EXOMISER_PHENOTYPE_DATA_VERSION=1711
+env EXOMISER_PHENOTYPE_DATA_VERSION=1807
 
 
 #############################################
@@ -136,7 +136,7 @@ env USE_HTTPS=false
 #					-keystore $HTTPS_SSL_KEY_STORE \
 #					-storepass $HTTPS_SSL_KEY_STORE_PASSWORD \
 #					-keypass $HTTPS_SSL_KEY_PASSWORD
-					
+
 
 #############################################
 #                                           #
