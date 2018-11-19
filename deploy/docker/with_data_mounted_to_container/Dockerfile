@@ -3,7 +3,7 @@ FROM openjdk:8-jdk
 RUN apt-get update \
  && apt-get install -y wget \
  && apt-get install -y git \
- && apt-get install -y maven 
+ && apt-get install -y maven
 
 MAINTAINER MacArthur Lab
 
@@ -42,13 +42,13 @@ RUN cp -rf $MATCHBOX_CONFIG_DIR . \
 #                                           #
 # Please note the EXOMISER_DATA_DIR         #
 # value. The file system path with ref      #
-# data (viewable by docker daemon) must     #  
+# data (viewable by docker daemon) must     #
 # be mounted to this location in            #
 # container at the docker run step          #
 #                                           #
 #############################################
 env EXOMISER_DATA_DIR=/Exomiser/matchbox/data/data
-env EXOMISER_PHENOTYPE_DATA_VERSION=1711
+env EXOMISER_PHENOTYPE_DATA_VERSION=1807
 
 
 #############################################
@@ -107,7 +107,7 @@ env USE_HTTPS=false
 #					-keystore $HTTPS_SSL_KEY_STORE \
 #					-storepass $HTTPS_SSL_KEY_STORE_PASSWORD \
 #					-keypass $HTTPS_SSL_KEY_PASSWORD
-					
+
 
 #############################################
 #                                           #
