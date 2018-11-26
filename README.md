@@ -1,5 +1,7 @@
 <p align="center"><img width="160" src="aux-files/matchbox-logo.png"></p>
 
+### <i>Due to low bandwidth, this repo is not being actively maintained and there will not be any new features/ enhancements in the near future</i> 
+
 # <i>matchbox</i>
 
 <i>matchbox</i> was originally developed at the MacArthur Lab for the Broad Center for Mendelian Genomics with the goal of functioning as a portable bridge to the Matchmaker Exchange. It was then shared as open source software under the BSD License. 
@@ -23,7 +25,7 @@ A significant amount of development is typically required to join the MME; this 
 
 ## Build:
 
-You can build <i>matchbox</i> using [Docker](https://www.docker.com/). Detailed Docker build instructions can be found [here](deploy/docker/README.md)
+You can build <i>matchbox</i> using [Maven](https://maven.apache.org/) or [Docker](https://www.docker.com/). Detailed Maven build instructions can be found [here](deploy/maven/README.md). Detailed Docker build instructions can be found [here](deploy/docker/README.md).
 
 
 ## General overview:
